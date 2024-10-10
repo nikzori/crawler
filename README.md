@@ -16,7 +16,7 @@ For now, the plan is to just put out a playable release.
 - items:
   - make some basic items to carry around and equip
 
-## WIP
+## Future plans
 - Better map generation
 - A more detailed character/action system with focus on stamina and limb damage (something like Kenshi)
 - Either a better creature parser or some kind of extensive mod support to allow for user-created actions instead of baked-in functions
