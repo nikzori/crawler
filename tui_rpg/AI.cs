@@ -1,14 +1,23 @@
-public class AI
+public static class AI
 {
-  // 
-  public GameObject go;
+  static GameObject playerGO = Game.playerGO;
 
-  public AI(GameObject go)
+  public static bool CanSeePlayer(GameObject creatureGO)
   {
-    this.go = go;
-    if (go.entity == null)
-      return; // idk if this works; on the other hand, this shouldn't even be evoked in a gObj without a Creature;
+    //check whether the Player is in vision range in the first place
+    int x = Math.Abs(creatureGO.pos.x - playerGO.pos.x);
+    int y = Math.Abs(creatureGO.pos.y - playerGO.pos.y);
+    // since our FOV is square shaped (because of equidistant movement), 
+    // we don't need to calculate the distance with a square root
+    if (x > 10 || y > 10)
+      return false;
 
+    else
+    {
+
+      return true;
+
+    }
   }
 }
 

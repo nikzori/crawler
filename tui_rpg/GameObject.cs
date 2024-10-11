@@ -8,7 +8,7 @@
 public class GameObject
 {
     public Entity? entity;
-    public (int, int) pos; // public and naked for now, will add get/set or functions if events or rerenders need to fire explicitly
+    public (int x, int y) pos; // public and naked for now, will add get/set or functions if events or rerenders need to fire explicitly
 
     public GameObject((int x, int y) pos)
     {
@@ -23,5 +23,20 @@ public class GameObject
     {
         this.pos = pos;
         entity = e;
+    }
+
+    public void Move(int x, int y)
+    {
+        int xt = pos.x + x;
+        int yt = pos.y + y;
+        if (Game.map.cells[xt, yt].isWall())
+            return;
+
+        else
+        {
+            Game.map.cells[pos.x, pos.y].RemoveGameObject(this);
+            Game.map.cells[xt, yt].AddGameObject(this);
+            pos = (xt, yt);
+        }
     }
 }

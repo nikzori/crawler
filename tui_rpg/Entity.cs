@@ -6,12 +6,9 @@ public class Entity
   public string name = "Entity";
   public Rune rune;
 
-  public Entity()
+  public Entity(string name, Rune rune)
   {
-    rune = new('ж');
-  }
-  public Entity(Rune r)
-  {
-    rune = r;
+    this.name = name;
+    this.rune = rune;
   }
 }

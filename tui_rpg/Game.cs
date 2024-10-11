@@ -6,7 +6,8 @@ public static class Game
     static FrameView characterView = new FrameView();
 
     public static Map map;
-    public static GameObject player = new GameObject();
+    public static GameObject playerGO;
+    public static Creature player;
     public static void Init(string pName, int CAIterations)
     {
         int mapSize = 50;
@@ -30,12 +31,10 @@ public static class Game
             if (startPosFound)
                 break;
         }
+        player = new Creature(pName, new Rune('@'), 5, 5, 5, 5, 1);
+        playerGO = new GameObject((xStart, yStart), player);
 
-        player = new GameObject(new Character(), xStart, yStart);
-        player.entity.Init('@', pName, 100f);
-        (player.entity as Character).faction = Faction.Player;
-
-        map.AddGameObject(player);
+        map.AddGameObject(playerGO);
         #endregion
 
         #region UI
@@ -55,7 +54,7 @@ public static class Game
             Height = Dim.Fill()
         };
 
-        Label playerName = new(player.entity.name)
+        Label playerName = new(playerGO.entity.name)
         {
             Y = Pos.Top(characterView),
             Width = Dim.Fill(),
@@ -69,13 +68,13 @@ public static class Game
             Width = 20,
             Height = 5
         };
-        Label somRef = new("SOM: " + (player.entity as Character).Somatics + "  REF: " + (player.entity as Character).Reflexes)
+        Label somRef = new("SOM: " + player.Somatics + "  REF: " + player.Reflexes)
         {
             Y = Pos.Top(statView),
             Width = Dim.Fill(1),
             Height = 1
         };
-        View cogWil = new("COG: " + (player.entity as Character).Cognition + "  WIL: " + (player.entity as Character).Willpower)
+        View cogWil = new("COG: " + player.Cognition + "  WIL: " + player.Willpower)
         {
             Y = Pos.Top(statView) + 2,
             Width = Dim.Fill(1),
@@ -128,8 +127,8 @@ public class MapView : View
         int pY = boundHeight / 2;
 
         //upper-left visible map cell coordinates 
-        int mX = Game.player.x - pX;
-        int mY = Game.player.y - pY;
+        int mX = Game.playerGO.pos.x - pX;
+        int mY = Game.playerGO.pos.y - pY;
 
         for (int tx = 0; tx < boundWidth; tx++)
         {
@@ -150,7 +149,7 @@ public class MapView : View
                 mY++;
             }
             mX++;
-            mY = Game.player.y - pY;
+            mY = Game.playerGO.pos.y - pY;
         }
     }
 
@@ -159,33 +158,33 @@ public class MapView : View
         switch (keyEvent.Key)
         {
             case Key.D1:
-                Game.player.Move(-1, -1);
+                Game.playerGO.Move(-1, -1);
                 return true;
             case Key.D2:
-                Game.player.Move(0, -1);
+                Game.playerGO.Move(0, -1);
                 return true;
             case Key.D3:
-                Game.player.Move(1, -1);
+                Game.playerGO.Move(1, -1);
                 return true;
             case Key.D4:
-                Game.player.Move(-1, 0);
+                Game.playerGO.Move(-1, 0);
                 return true;
             case Key.D5:
                 //interact mode?
                 //just skip for now
-                Game.player.Move(0, 0);
+                Game.playerGO.Move(0, 0);
                 return true;
             case Key.D6:
-                Game.player.Move(1, 0);
+                Game.playerGO.Move(1, 0);
                 return true;
             case Key.D7:
-                Game.player.Move(-1, 1);
+                Game.playerGO.Move(-1, 1);
                 return true;
             case Key.D8:
-                Game.player.Move(0, 1);
+                Game.playerGO.Move(0, 1);
                 return true;
             case Key.D9:
-                Game.player.Move(1, 1);
+                Game.playerGO.Move(1, 1);
                 return true;
 
             default:
@@ -200,7 +199,7 @@ public class PositionTracker : Label
     public override void Redraw(Rect bounds)
     {
         base.Redraw(bounds);
-        Text = "X: " + Game.player.pos.Item1 + "; Y: " + Game.player.pos.Item2;
+        Text = "X: " + Game.playerGO.pos.x + "; Y: " + Game.playerGO.pos.y;
     }
 
 }
