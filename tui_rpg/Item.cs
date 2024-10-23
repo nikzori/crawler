@@ -8,14 +8,14 @@ public class Item : Entity
 public class Consumable : Item
 {
   int charge = 1; // 
-  // idk how to serialize these so I guess the plan for now is to hardcode potions and such
+  // idk how to serialize these so I guess the plan for now is to hardcode potions and wands and such
 
   public void Use()
   {
     // do stuff
     charge--;
 
-    // the inventory can be populated by all of the consumable and not render those that are at 0 charge
+    // the inventory can be populated by all of the consumables and not render those that are at 0 charge
   }
 }
 

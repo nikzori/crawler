@@ -12,14 +12,31 @@ public static class AI
     if (x > 10 || y > 10)
       return false;
 
-    else
+    else // cast a ray, go through every point until we either reach Player or hit a non-transparent cell
     {
-
+      (int x, int y)[] points = Map.GetLine(creatureGO.pos, playerGO.pos);
+      for (int i = 0; i < points.Length; i++)
+      {
+        if (Game.map.cells[points[i].x, points[i].y].isTransparent == false)
+          return false;
+      }
       return true;
-
     }
   }
+
+  public static void Act(GameObject creatureGO)
+  {
+    if (CanSeePlayer(creatureGO))
+    {
+      creatureGO.entity.rune = new('!');
+    }
+    // gotta make an event with a timer for polymorph to swap rune and stats
+    else creatureGO.entity.rune = new('g');
+
+  }
+
 }
 
-// expand later
-public enum AIState { idle, sleeping, attack, pursuit }
+// stand in place until sees player
+// for now attack state will just change creature rune
+public enum AIState { idle, attack }

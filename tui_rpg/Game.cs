@@ -31,7 +31,7 @@ public static class Game
             if (startPosFound)
                 break;
         }
-        player = new Creature(pName, new Rune('@'), 5, 5, 5, 5, 1);
+        player = new Creature(new Rune('@'), pName, 5, 5, 5, 5, 1);
         playerGO = new GameObject((xStart, yStart), player);
 
         map.AddGameObject(playerGO);
@@ -54,12 +54,11 @@ public static class Game
             Height = Dim.Fill()
         };
 
-        Label playerName = new(playerGO.entity.name)
+        Label playerName = new(player.name)
         {
             Y = Pos.Top(characterView),
             Width = Dim.Fill(),
-            Height = 1,
-            TextAlignment = TextAlignment.Centered
+            Height = 1
         };
 
         View statView = new()
@@ -68,7 +67,7 @@ public static class Game
             Width = 20,
             Height = 5
         };
-        Label somRef = new("SOM: " + player.Somatics + "  REF: " + player.Reflexes)
+        Label somRef = new("SOM: " + player.Somatics + " REF: " + player.Reflexes)
         {
             Y = Pos.Top(statView),
             Width = Dim.Fill(1),
@@ -87,6 +86,7 @@ public static class Game
             Height = 1,
         };
 
+        /*
         Application.MainLoop.AddIdle(() =>
         {
             mapView.SetNeedsDisplay();
@@ -94,6 +94,7 @@ public static class Game
             return true;
         }
         );
+        */
         statView.Add(somRef, cogWil);
         characterView.Add(playerName, statView, position);
         Application.Top.Add(mapView, characterView, position);
