@@ -5,7 +5,6 @@ public class Entity
 {
   public string name = "Entity";
   public Rune rune;
-
   public Entity(string name, Rune rune)
   {
     this.name = name;
