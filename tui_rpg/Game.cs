@@ -31,7 +31,7 @@ public static class Game
             if (startPosFound)
                 break;
         }
-        player = new Creature(new Rune('@'), pName, 5, 5, 5, 5, 1);
+        player = new Creature(pName, new Rune('@'), 5, 5, 5, 5, 1);
         playerGO = new GameObject((xStart, yStart), player);
 
         map.AddGameObject(playerGO);

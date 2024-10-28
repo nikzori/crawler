@@ -1,0 +1,9 @@
+{
+  "name": "goblin",
+  "rune": "g",
+  "somatics": 5,
+  "cognition": 3,
+  "reflexes": 4,
+  "willpower": 3,
+  "level": 1
+}

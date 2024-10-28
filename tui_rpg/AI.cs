@@ -28,10 +28,9 @@ public static class AI
   {
     if (CanSeePlayer(creatureGO))
     {
-      creatureGO.entity.rune = new('!');
+      creatureGO.rune = new('!');
     }
-    // gotta make an event with a timer for polymorph to swap rune and stats
-    else creatureGO.entity.rune = new('g');
+    else creatureGO.rune = creatureGO.entity.rune;
 
   }
 

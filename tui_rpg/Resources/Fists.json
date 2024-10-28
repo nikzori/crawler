@@ -1,0 +1,12 @@
+{
+  "name": "Fists",
+  "rune": ")",
+  "description": "Your own limbs, ready to punch and tear.",
+  "price": 0,
+  "slot": "MainHand",
+  "isTwoHanded": false,
+  "isRanged": false,
+  "range": 1,
+  "attackSpeed": 1,
+  "baseDamage": 1
+}

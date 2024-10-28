@@ -72,7 +72,7 @@ public static class MapGen
 
       result = PlaceRooms(result, true, 10, 4, 7);
 
-      //if (CleanIsolation(result))
+      //if (CleanIsolation(result)) 
       isMapReady = true;
     }
     return result;
@@ -152,21 +152,34 @@ public static class MapGen
     int width = result.GetLength(0);
     int height = result.GetLength(1);
 
+    bool[,] checkedTiles = new bool[width, height]; // bool array to keep track of which tiles we've inspected
+
     //pick a random Floor tile on the map
-    Cell origin;
+    (int x, int y) point;
     while (true)
     {
       int xr = random.Next(2, width - 2);
       int yr = random.Next(2, height - 2);
-      if (input[xr, yr].isWall())
+      if (!input[xr, yr].isWall())
       {
-        origin = input[xr, yr];
+        point = (xr, yr);
+        checkedTiles[xr, yr] = true;
         break;
       }
     }
 
+    bool isDone = false;
     // iterate over adjacent tiles, keep track of the last floor
+    while (!isDone)
+    {
+      for (int x = point.x - 1; x <= point.x + 1; x++)
+      {
+        for (int y = point.y - 1; y <= point.y + 1; y++)
+        {
 
+        }
+      }
+    }
 
     return true;
   }

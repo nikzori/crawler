@@ -71,4 +71,4 @@ public class Armor : Equipment
   }
 }
 
-public enum EquipSlot { Head, Neck, Body, Arms, LeftHand, RightHand, Feet, NeckTrinket, RightHandTrinket, LeftHandTrinket }
+public enum EquipSlot { Head, Neck, Body, Arms, MainHand, OffHand, Feet, NeckTrinket, RightHandTrinket, LeftHandTrinket }
