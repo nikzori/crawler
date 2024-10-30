@@ -24,9 +24,9 @@ The point of entry is `Program.cs`, which goes into `MainMenu.cs`, which finally
     - Terminal.GUI has tools to change rune colors. Somewhere. I think.
   - *later: sprinkle creatures and items around*
 - creatures:
-  - figure out the `.json` parser, at least for stats
   - work out damage and armor calculation with inventory and equipment 
     - Actually, work out the whole RPG system
+  - figure out the `.json` parser, at least for stats
 - items:
   - make some basic items to carry around and equip (also implement parser)
   - make equipment actually contribute to calculations
@@ -35,4 +35,6 @@ The point of entry is `Program.cs`, which goes into `MainMenu.cs`, which finally
   - do something about the input listener, since it's currently glued to the only window there is
   - add inventory
   - add tile/entity inspection
+- AI: 
+  - add time progression
 
