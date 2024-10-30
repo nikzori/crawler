@@ -18,10 +18,10 @@ The point of entry is `Program.cs`, which goes into `MainMenu.cs`, which finally
 ## To-Do:
 - map gen:
   - Remove isolated rooms
-    Grab flood fill from [here](https://github.com/azsdaja/FloodSpill-CSharp) or try to figure it out myself (hard af)
+    - Grab flood fill from [here](https://github.com/azsdaja/FloodSpill-CSharp) or try to figure it out myself (hard af)
   - Add stairways and link them between maps
   - Add some color 
-    Terminal.GUI has tools to change rune colors. Somewhere. I think.
+    - Terminal.GUI has tools to change rune colors. Somewhere. I think.
   - *later: sprinkle creatures and items around*
 - creatures:
   - figure out the `.json` parser, at least for stats
