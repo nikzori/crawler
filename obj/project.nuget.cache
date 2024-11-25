@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "dgSpecHash": "/9teYPJlR24=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\U3B8\\Project\\Desktop\\crawler\\crawler.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\U3B8\\.nuget\\packages\\nstack.core\\1.1.1\\nstack.core.1.1.1.nupkg.sha512",
+    "C:\\Users\\U3B8\\.nuget\\packages\\system.codedom\\8.0.0\\system.codedom.8.0.0.nupkg.sha512",
+    "C:\\Users\\U3B8\\.nuget\\packages\\system.management\\8.0.0\\system.management.8.0.0.nupkg.sha512",
+    "C:\\Users\\U3B8\\.nuget\\packages\\system.valuetuple\\4.5.0\\system.valuetuple.4.5.0.nupkg.sha512",
+    "C:\\Users\\U3B8\\.nuget\\packages\\terminal.gui\\1.17.1\\terminal.gui.1.17.1.nupkg.sha512"
+  ],
+  "logs": []
+}
