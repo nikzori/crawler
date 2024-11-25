@@ -35,5 +35,5 @@ The point of entry is `Program.cs`, which goes into `MainMenu.cs`, which finally
   - add tile/entity inspection
 - AI: 
   - add time progression
-- Performance:
-  - constantly re-rendering Views puts a CPU thread at 100%, not great
+  - hook up basic functions like using a weapon and moving around
+  - add some idle routines: patrolling, sleeping
