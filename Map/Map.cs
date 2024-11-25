@@ -165,4 +165,18 @@ public struct Cell
         return (rune.Value == Map.WALL && !isWalkable) ? true : false;
 
     }
+    public void Set(Rune rune, bool isWalkable, bool isTransparent)
+    {
+        this.rune = rune;
+        this.isWalkable = isWalkable;
+        this.isTransparent = isTransparent;
+    }
+    public void SetToWall()
+    {
+        this.Set(Map.WALL, false, false);
+    }
+    public void SetToFloor()
+    {
+        this.Set(Map.FLOOR, true, true);
+    }
 }

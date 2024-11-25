@@ -92,6 +92,7 @@ public static class Game
             position.SetNeedsDisplay();
             return true;
         });
+
         statView.Add(somRef, cogWil);
         characterView.Add(playerName, statView, position);
         Application.Top.Add(mapView, characterView, position);

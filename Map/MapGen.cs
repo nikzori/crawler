@@ -16,9 +16,7 @@ public static class MapGen
         else result[x, y] = new Cell();
       }
     }
-    result[width / 2, height / 2].isWalkable = false;
-    result[width / 2, height / 2].isTransparent = false;
-    result[width / 2, height / 2].rune = new(Map.WALL);
+    result[width / 2, height / 2].SetToWall();
     return result;
 
 
@@ -42,8 +40,8 @@ public static class MapGen
       for (int y = 1; y < result.GetLength(1); y++)
       {
         if (x == 1 || x == result.GetLength(0) - 1 || y == 1 || y == result.GetLength(1) - 1)
-          result[x, y] = new Cell(new Rune(Map.WALL), false, false);
-        else result[x, y] = new Cell(new Rune(Map.FLOOR), false, false);
+          result[x, y].SetToWall();
+        else result[x, y].SetToFloor();
       }
     }
 
@@ -53,27 +51,35 @@ public static class MapGen
       for (int y = 0; y < result.GetLength(1); y++)
       {
         if (random.Next(1, 100) < 45)
-          result[x, y] = new Cell(new Rune(Map.WALL), false, false);
+          result[x, y].SetToWall();
       }
     }
 
     bool isMapReady = false;
-
-    //generate new maps until one of them has fully ineterconnected rooms/caverns taking up enough space
-    while (!isMapReady)
+    try
     {
-      // iterate automata
+      //generate new maps until one of them has fully ineterconnected rooms/caverns taking up enough space
+      int cntr = 0;
+      while (!isMapReady)
+      {
+        // iterate automata
 
-      for (int i = 0; i < iterations; i++)
+        for (int i = 0; i < iterations; i++)
+          result = RunAutomata(result);
+        for (int i = 0; i < 3; i++)
+          result = RunAutomata(result, true);
         result = RunAutomata(result);
-      for (int i = 0; i < 3; i++)
-        result = RunAutomata(result, true);
-      result = RunAutomata(result);
 
-      result = PlaceRooms(result, true, 10, 4, 7);
+        result = PlaceRooms(result, true, 10, 4, 7);
 
-      //if (CleanIsolation(result)) 
-      isMapReady = true;
+        if (CleanIsolation(result) || cntr > 2)
+          isMapReady = true;
+        cntr++;
+      }
+    }
+    catch (Exception err)
+    {
+      Console.WriteLine("Error: " + err);
     }
     return result;
   }
@@ -138,50 +144,11 @@ public static class MapGen
         }
 
         if (setToWall)
-          result[x, y] = new Cell(new Rune(Map.WALL), false, false);
-        else result[x, y] = new Cell(new Rune(Map.FLOOR), true, true);
+          result[x, y].SetToWall();
+        else result[x, y].SetToFloor();
       }
     }
     return result;
-  }
-
-  public static bool CleanIsolation(Cell[,] input)
-  {
-    Random random = new Random();
-    Cell[,] result = input;
-    int width = result.GetLength(0);
-    int height = result.GetLength(1);
-
-    bool[,] checkedTiles = new bool[width, height]; // bool array to keep track of which tiles we've inspected
-
-    //pick a random Floor tile on the map
-    (int x, int y) point;
-    while (true)
-    {
-      int xr = random.Next(2, width - 2);
-      int yr = random.Next(2, height - 2);
-      if (!input[xr, yr].isWall())
-      {
-        point = (xr, yr);
-        checkedTiles[xr, yr] = true;
-        break;
-      }
-    }
-
-    bool isDone = false;
-    // iterate over adjacent tiles, keep track of the last floor
-    while (!isDone)
-    {
-      for (int x = point.x - 1; x <= point.x + 1; x++)
-      {
-        for (int y = point.y - 1; y <= point.y + 1; y++)
-        {
-
-        }
-      }
-    }
-
-    return true;
   }
 
   public static Cell[,] PlaceRooms(Cell[,] input, bool connectRooms = true, int roomCount = 5, int minSize = 5, int maxSize = 12)
@@ -228,8 +195,8 @@ public static class MapGen
         for (int y = y1; y <= y2; y++)
         {
           if (x == x1 || x == x2 || y == y1 || y == y2)
-            result[x, y] = new Cell(new Rune(Map.WALL), false, false);
-          else result[x, y] = new Cell(new Rune(Map.FLOOR), true, true);
+            result[x, y].SetToWall();
+          else result[x, y].SetToFloor();
         }
       }
 
@@ -265,13 +232,149 @@ public static class MapGen
 
         // this is kinda ugly. oh well
         for (int x = xStart; x <= xEnd; x++)
-          result[x, yStart] = new Cell(new Rune(Map.FLOOR), true, true);
+          result[x, yStart].SetToFloor();
         if (yStart < yEnd)
           for (int y = yStart; y <= yEnd; y++)
-            result[xEnd, y] = new Cell(new Rune(Map.FLOOR), true, true);
+            result[xEnd, y].SetToFloor();
         else for (int y = yStart; y >= yEnd; y--)
-            result[xEnd, y] = new Cell(new Rune(Map.FLOOR), true, true);
+            result[xEnd, y].SetToFloor();
 
+      }
+    }
+
+    return result;
+  }
+
+  /// <summary>
+  ///   Takes a Cell array and removes isolated rooms. Returns true if the walkable space is big enough.
+  /// </summary>
+  public static bool CleanIsolation(Cell[,] input)
+  {
+    float minFraction = 0.1f;
+    // by using flood fill we can check if the interconnected space on the map is big enough
+    // and remove any isolated rooms to prevent the player from spawning in them
+    int x = 0;
+    int y = 0;
+
+    //get a floor tile
+    bool check = false;
+    for (x = 0; x < input.GetLength(0); x++)
+    {
+      for (y = 0; y < input.GetLength(1); y++)
+      {
+        if (input[x, y].IsWalkable())
+        {
+          check = true;
+          break;
+        }
+      }
+      if (check)
+        break;
+    }
+    //get bool array marking all connected floor tiles
+    bool[,] selectedCells = FloodSelect(input, (x, y));
+
+    int areaSize = 0;
+    for (x = 0; x < selectedCells.GetLength(0); x++)
+    {
+      for (y = 0; y < selectedCells.GetLength(1); y++)
+      {
+        if (selectedCells[x, y])
+          areaSize++;
+      }
+    }
+
+    // check walkable map size before clearing up isolated rooms
+    //int mapSize = input.GetLength(0) * input.GetLength(1);
+    //if ((float)areaSize / (float)mapSize < minFraction)
+    //return false;
+
+    for (x = 0; x < input.GetLength(0); x++)
+    {
+      for (y = 0; y < input.GetLength(1); y++)
+      {
+        if (!selectedCells[x, y] && input[x, y].isWalkable) // replace isolated floors with walls
+          input[x, y].SetToWall();
+      }
+    }
+    return true;
+  }
+
+
+  /// <summary>
+  ///   Selects all tiles of the same type interconnected with the `pos` and returns a bool array.
+  /// </summary>
+  public static bool[,] FloodSelect(Cell[,] input, (int x, int y) pos)
+  {
+    bool[,] result = new bool[input.GetLength(0), input.GetLength(1)];
+
+    // set all to false just in case
+    for (int xt = 0; xt < result.GetLength(0); xt++)
+    {
+      for (int yt = 0; yt < result.GetLength(1); yt++)
+        result[xt, yt] = false;
+    }
+
+    result[pos.x, pos.y] = true; // starting point is always true
+
+    // instantiate a queue for the loop
+    Queue<(int, int)> q = new();
+    q.Enqueue(pos);
+
+    int x, y;
+    while (q.Count > 0)
+    {
+      (x, y) = q.Dequeue(); // pop the first position in the queue
+
+      // go over the adjacent tiles (clockwise)
+      // add them in the queue until we run out of possible options
+      // if a tile is already marked true in the `result[]`, ignore it
+      if (y + 1 < input.GetLength(1) && input[x, y + 1].isWalkable == input[pos.x, pos.y].isWalkable && !result[x, y + 1])
+      {
+        result[x, y + 1] = true;
+        q.Enqueue((x, y + 1));
+      }
+
+      if (x + 1 < input.GetLength(0) && y + 1 < input.GetLength(1) && input[x + 1, y + 1].isWalkable == input[pos.x, pos.y].isWalkable && !result[x + 1, y + 1])
+      {
+        result[x + 1, y + 1] = true;
+        q.Enqueue((x + 1, y + 1));
+      }
+
+      if (x + 1 < input.GetLength(0) && input[x + 1, y].isWalkable == input[pos.x, pos.y].isWalkable && !result[x + 1, y])
+      {
+        result[x + 1, y] = true;
+        q.Enqueue((x + 1, y));
+      }
+
+      if (x + 1 < input.GetLength(0) && y - 1 > 0 && input[x + 1, y - 1].isWalkable == input[pos.x, pos.y].isWalkable && !result[x + 1, y - 1])
+      {
+        result[x - 1, y - 1] = true;
+        q.Enqueue((x - 1, y - 1));
+      }
+
+      if (y - 1 > 0 && input[x, y - 1].isWalkable == input[pos.x, pos.y].isWalkable && !result[x, y - 1])
+      {
+        result[x, y - 1] = true;
+        q.Enqueue((x, y - 1));
+      }
+
+      if (x - 1 > 0 && y - 1 > 0 && input[x - 1, y - 1].isWalkable == input[pos.x, pos.y].isWalkable && !result[x - 1, y - 1])
+      {
+        result[x - 1, y - 1] = true;
+        q.Enqueue((x - 1, y - 1));
+      }
+
+      if (x - 1 > 0 && input[x - 1, y].isWalkable == input[pos.x, pos.y].isWalkable && !result[x - 1, y])
+      {
+        result[x - 1, y] = true;
+        q.Enqueue((x - 1, y));
+      }
+
+      if (x - 1 > 0 && y + 1 < input.GetLength(1) && input[x - 1, y + 1].isWalkable == input[pos.x, pos.y].isWalkable && !result[x - 1, y + 1])
+      {
+        result[x - 1, y + 1] = true;
+        q.Enqueue((x - 1, y + 1));
       }
     }
 
