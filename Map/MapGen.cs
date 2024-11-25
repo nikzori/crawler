@@ -59,7 +59,7 @@ public static class MapGen
     try
     {
       //generate new maps until one of them has fully ineterconnected rooms/caverns taking up enough space
-      int cntr = 0;
+      int cntr = 0; // just in case
       while (!isMapReady)
       {
         // iterate automata
@@ -72,7 +72,7 @@ public static class MapGen
 
         result = PlaceRooms(result, true, 10, 4, 7);
 
-        if (CleanIsolation(result) || cntr > 2)
+        if (CleanIsolation(result) || cntr > 10)
           isMapReady = true;
         cntr++;
       }
@@ -250,7 +250,7 @@ public static class MapGen
   /// </summary>
   public static bool CleanIsolation(Cell[,] input)
   {
-    float minFraction = 0.1f;
+    float minFraction = 0.3f;
     // by using flood fill we can check if the interconnected space on the map is big enough
     // and remove any isolated rooms to prevent the player from spawning in them
     int x = 0;

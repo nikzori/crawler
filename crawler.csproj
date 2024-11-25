@@ -5,7 +5,9 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>zori crawler</AssemblyName>
+    <AssemblyName>zcrawl</AssemblyName>
+    <SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile>
   </PropertyGroup>
 
   <ItemGroup>

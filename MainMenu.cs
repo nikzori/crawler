@@ -4,14 +4,26 @@ public static class MainMenu
 {
     public static void Init()
     {
-        Button NewGameBtn = new Button(2, 1, "New Game", true);
+        Button NewGameBtn = new Button("New Game", true)
+        {
+            X = Pos.Center(),
+            Y = 3,
+            Width = 14,
+            Height = 1
+        };
         NewGameBtn.Clicked += () =>
         {
             Application.Top.RemoveAll();
             NewGame();
         };
 
-        Button Exit = new(5, 3, "Quit");
+        Button Exit = new("Quit")
+        {
+            X = Pos.Center(),
+            Y = 7,
+            Width = 8,
+            Height = 1
+        };
         Exit.Clicked += () => { Application.RequestStop(Application.Top); };
 
         Application.Top.Add(NewGameBtn, Exit);
@@ -33,7 +45,7 @@ public static class MainMenu
             Width = 20
         };
 
-        Label CALabel = new(" Iterations:")
+        Label CALabel = new("Iterations:")
         {
             X = Pos.Center() + 1,
             Y = 3,
@@ -49,7 +61,7 @@ public static class MainMenu
         Button StartBtn = new("_Start ", false)
         {
             X = Pos.Center(),
-            Y = Pos.Bottom(Application.Top) - 3
+            Y = 5
         };
         StartBtn.Clicked += () =>
         {
@@ -64,7 +76,7 @@ public static class MainMenu
         Button BackBtn = new("_Back")
         {
             X = Pos.Center(),
-            Y = Pos.Bottom(Application.Top) - 1
+            Y = 7
         };
         BackBtn.Clicked += () =>
         {
@@ -72,7 +84,7 @@ public static class MainMenu
             Init();
         };
 
-        Application.Top.Add(Name, NameField, CALabel, CAIterations, StartBtn, BackBtn);
+        Application.Top.Add(Name, NameField, /* CALabel, CAIterations, */ StartBtn, BackBtn);
     }
 
     public static void StartGame(string characterName, string CAIterations)

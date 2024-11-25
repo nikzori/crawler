@@ -2,8 +2,9 @@ using Terminal.Gui;
 
 public static class Game
 {
-    static MapView mapView = new MapView();
-    static FrameView characterView = new FrameView();
+    static MapView mapView;
+    static View characterView;
+    static Label logWindow;
 
     public static Map map;
     public static GameObject playerGO;
@@ -42,23 +43,22 @@ public static class Game
         {
             X = 0,
             Y = 0,
-            Width = Dim.Percent(60),
-            Height = Dim.Fill()
         };
 
         characterView = new()
         {
-            X = Pos.Right(mapView),
+            X = Pos.Right(mapView) + 4,
             Y = 0,
-            Width = Dim.Percent(39),
-            Height = Dim.Fill()
+            Width = 20,
+            Height = 30
         };
 
         Label playerName = new(player.name)
         {
-            Y = Pos.Top(characterView),
+            Y = Pos.Top(characterView) + 1,
             Width = Dim.Fill(),
-            Height = 1
+            Height = 1,
+            TextAlignment = TextAlignment.Centered
         };
 
         View statView = new()
@@ -73,7 +73,7 @@ public static class Game
             Width = Dim.Fill(1),
             Height = 1
         };
-        View cogWil = new("COG: " + player.Cognition + "  WIL: " + player.Willpower)
+        View cogWil = new("COG: " + player.Cognition + " WIL: " + player.Willpower)
         {
             Y = Pos.Top(statView) + 2,
             Width = Dim.Fill(1),
@@ -86,26 +86,34 @@ public static class Game
             Height = 1,
         };
 
-        Application.MainLoop.AddIdle(() =>
+        logWindow = new()
         {
-            mapView.SetNeedsDisplay();
-            position.SetNeedsDisplay();
-            return true;
-        });
+            X = 1,
+            Y = Pos.Bottom(mapView) + 1,
+            Width = Dim.Fill(),
+            Height = Dim.Fill(),
+            Text = "Game started"
+        };
 
-        statView.Add(somRef, cogWil);
-        characterView.Add(playerName, statView, position);
-        Application.Top.Add(mapView, characterView, position);
+        statView.Add(playerName, position, somRef, cogWil);
+        characterView.Add(playerName, statView);
+        Application.Top.Add(mapView, characterView, logWindow);
         #endregion
     }
+
+    public static void Log(string txt)
+    {
+        logWindow.Text = logWindow.Text.ToString().Insert(0, txt + "\n");
+    }
+
 }
 
 public class MapView : View
 {
     public MapView()
     {
-        Width = 35;
-        Height = 35;
+        Width = 30;
+        Height = 30;
     }
 
     public override void Redraw(Rect bounds)
@@ -154,43 +162,65 @@ public class MapView : View
 
     public override bool ProcessHotKey(KeyEvent keyEvent)
     {
+        bool keyRegistered = false;
         switch (keyEvent.Key)
         {
             case Key.D1:
                 Game.playerGO.Move(-1, -1);
-                return true;
+                keyRegistered = true;
+                break;
             case Key.D2:
                 Game.playerGO.Move(0, -1);
-                return true;
+                keyRegistered = true;
+                break;
             case Key.D3:
                 Game.playerGO.Move(1, -1);
-                return true;
+                keyRegistered = true;
+                break;
             case Key.D4:
                 Game.playerGO.Move(-1, 0);
-                return true;
+                keyRegistered = true;
+                break;
             case Key.D5:
                 //interact mode?
                 //just skip for now
                 Game.playerGO.Move(0, 0);
-                return true;
+                Game.Log("Pressed 5 on numpad");
+                keyRegistered = true;
+                break;
             case Key.D6:
                 Game.playerGO.Move(1, 0);
-                return true;
+                keyRegistered = true;
+                break;
             case Key.D7:
                 Game.playerGO.Move(-1, 1);
-                return true;
+                keyRegistered = true;
+                break;
             case Key.D8:
                 Game.playerGO.Move(0, 1);
-                return true;
+                keyRegistered = true;
+                break;
             case Key.D9:
                 Game.playerGO.Move(1, 1);
-                return true;
-
+                keyRegistered = true;
+                break;
+            case Key.i:
+                // open inventory
+                Game.Log("Open inventory.");
+                keyRegistered = true;
+                break;
             default:
-                return false;
+                break;
         }
-    }
+        if (keyRegistered)
+            this.SetNeedsDisplay();
+        return keyRegistered;
 
+    }
+    public void Update()
+    {
+        Application.MainLoop.Invoke(() => this.SetNeedsDisplay());
+    }
 }
 
 public class PositionTracker : Label

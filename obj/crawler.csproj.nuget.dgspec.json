@@ -8,7 +8,7 @@
       "version": "1.0.0",
       "restore": {
         "projectUniqueName": "/home/zori/Projects/crawler/crawler.csproj",
-        "projectName": "zori crawler",
+        "projectName": "zcrawl",
         "projectPath": "/home/zori/Projects/crawler/crawler.csproj",
         "packagesPath": "/home/zori/.nuget/packages/",
         "outputPath": "/home/zori/Projects/crawler/obj/",
@@ -38,6 +38,12 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "Microsoft.NET.ILLink.Tasks": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.10, )",
+              "autoReferenced": true
+            },
             "Terminal.Gui": {
               "target": "Package",
               "version": "[1.17.1, )"
@@ -58,6 +64,18 @@
             {
               "name": "Microsoft.AspNetCore.App.Ref",
               "version": "[8.0.10, 8.0.10]"
+            },
+            {
+              "name": "Microsoft.AspNetCore.App.Runtime.linux-x64",
+              "version": "[8.0.10, 8.0.10]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.linux-x64",
+              "version": "[8.0.10, 8.0.10]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Runtime.linux-x64",
+              "version": "[8.0.10, 8.0.10]"
             }
           ],
           "frameworkReferences": {
@@ -66,6 +84,11 @@
             }
           },
           "runtimeIdentifierGraphPath": "/usr/share/dotnet/sdk/8.0.110/PortableRuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "linux-x64": {
+          "#import": []
         }
       }
     }
