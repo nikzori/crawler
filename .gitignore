@@ -1,4 +1,4 @@
 .vscode
-tui_rpg/bin
-tui_rpg/obj/Release
-tui_rpg/obj/Debug
+bin
+obj/Release
+obj/Debug
