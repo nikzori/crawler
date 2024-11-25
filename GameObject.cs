@@ -5,6 +5,8 @@
  * hence nullable Entity.
  * </summary>
  */
+
+using Terminal.Gui;
 public class GameObject
 {
     public Entity? entity;
