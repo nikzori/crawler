@@ -11,9 +11,11 @@ public static class JSONParse
 public class Resources
 {
   public List<Item> items;
+  public List<Creature> creatures;
 
   public Resources()
   {
     items = new List<Item>();
+    creatures = new List<Creature>();
   }
 }

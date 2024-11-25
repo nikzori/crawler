@@ -16,8 +16,8 @@ public class Creature : Entity
   public float manaRegen = 0.5f;
 
   public float movementSpeed { get { return 0.5f + (2 / Reflexes); } }
-  public List<Item> inventory = new List<Item>();
-
+  public List<Item> inventory = new();
+  public Dictionary<EquipSlot, Item> equipment = new();
   public Creature(string name, Rune rune, int Somatics = 1, int Cognition = 1, int Reflexes = 1, int Willpower = 1, int level = 1) : base(name, rune)
   {
     this.name = name;

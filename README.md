@@ -1,7 +1,7 @@
 # Zori's Dungeon Crawler
 made using [Terminal.GUI](https://github.com/gui-cs/Terminal.Gui)
 
-This is a typical dungeon crawl rogue-like inspired by [Dungeon Crawl Stone Soup](https://crawl.develz.org/). 
+This is going to be a typical dungeon crawl rogue-like inspired by [Dungeon Crawl Stone Soup](https://crawl.develz.org/). 
 For now, the plan is to just put out a playable release.
 
 ## Future plans

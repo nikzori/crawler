@@ -19,9 +19,11 @@ public class Consumable : Item
 
   public void Use()
   {
-    // do stuff
-    charge--;
-
+    if (charge > 0)
+    {
+      // do stuff
+      charge--;
+    }
     // the inventory can be populated by all of the consumables and not render those that are at 0 charge
   }
 
@@ -62,12 +64,12 @@ public class Weapon : Equipment
 public class Armor : Equipment
 {
   public int armor = 0;
-  public int encumberence = 0;
+  public int encumbrance = 0;
 
-  public Armor(string name, Rune rune, string description, int price, EquipSlot slot, int armor, int encumberence) : base(name, rune, description, price, slot)
+  public Armor(string name, Rune rune, string description, int price, EquipSlot slot, int armor, int encumbrance) : base(name, rune, description, price, slot)
   {
     this.armor = armor;
-    this.encumberence = encumberence;
+    this.encumbrance = encumbrance;
   }
 }
 

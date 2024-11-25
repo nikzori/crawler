@@ -1,6 +1,42 @@
 public static class AI
 {
   static GameObject playerGO = Game.playerGO;
+  static Dictionary<GameObject, (AIState state, int autStored)> creatureDict = new();
+
+  // to prevent interruptions of actions and allow creatures to perform actions across several Player turns,
+  // we need a variable to store available time
+  // the AIState redundant for now, but will probably be useful for pursuit, wandering around and other fluff
+  public static void Act(GameObject creatureGO, int aut)
+  {
+    // check whether the creature can see the player to do something besides idling
+    if (CanSeePlayer(creatureGO))
+    {
+      //
+      int newAut = creatureDict[creatureGO].autStored + aut;
+      creatureDict[creatureGO] = (AIState.attack, newAut);
+      // check whether the player is in range of any attack
+      if (CanReachAttack(creatureGO, playerGO)) // and has enough aut to act !!!
+      {
+        // attack
+      }
+      else if (CanReachPoint(creatureGO, playerGO.pos))
+      {
+        // attempt movement
+        // since this is being run every turn it's fine to go to the player position
+      }
+      else
+      {
+        // can't get to player, can't attack player => idle
+        creatureDict[creatureGO] = (AIState.idle, 0);
+      }
+    }
+    else
+    {
+      // can't see player, go idle
+      // resetting time to 0 to avoid stacking it off screen
+      creatureDict[creatureGO] = (AIState.idle, 0);
+    }
+  }
 
   public static bool CanSeePlayer(GameObject creatureGO)
   {
@@ -24,18 +60,18 @@ public static class AI
     }
   }
 
-  public static void Act(GameObject creatureGO)
+  public static bool CanReachPoint(GameObject creatureGO, (int x, int y) pos)
   {
-    if (CanSeePlayer(creatureGO))
-    {
-      creatureGO.rune = new('!');
-    }
-    else creatureGO.rune = creatureGO.entity.rune;
-
+    return false;
   }
 
+  // Check if creature's attack can reach the target
+  public static bool CanReachAttack(GameObject host, GameObject target)
+  {
+    return false;
+  }
 }
 
 // stand in place until sees player
 // for now attack state will just change creature rune
-public enum AIState { idle, attack }
+public enum AIState { idle, attack, pursuit }
