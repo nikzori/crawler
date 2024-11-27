@@ -37,7 +37,7 @@ public class GameObject
         int xt = pos.x + x;
         int yt = pos.y + y;
 
-        if (Game.map.cells[xt, yt].isWall() && entity != null) //restrict movement only for entities
+        if (Game.map.cells[xt, yt].IsWall() && entity != null) //restrict movement only for entities
             return;
 
         Game.map.cells[pos.x, pos.y].RemoveGameObject(this);

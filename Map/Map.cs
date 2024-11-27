@@ -4,6 +4,9 @@ public class Map
 {
     public const char WALL = '#';
     public const char FLOOR = '.';
+    public static Terminal.Gui.Attribute FLOOR_COLOR = new(Color.Green, Color.Black);
+    public static Terminal.Gui.Attribute WALL_COLOR = new(Color.DarkGray, Color.Black);
+    public static Terminal.Gui.Attribute REVEALED_COLOR = new(Color.Blue, Color.Black); // For tiles that were seen but not in LOS
 
     public Cell[,] cells;
 
@@ -104,9 +107,7 @@ public class Map
 public struct Cell
 {
     public Rune rune;
-    public Color color = Color.White;
-    public Color bgColor = Color.Black;
-
+    public Terminal.Gui.Attribute colors;
     public bool isTransparent = true;
     public bool isWalkable = true;
 
@@ -117,11 +118,12 @@ public struct Cell
     {
         rune = new('.');
     }
-    public Cell(Rune r, bool isTransparent, bool isWalkable)
+    public Cell(Rune rune, bool isTransparent, bool isWalkable, Terminal.Gui.Attribute colors)
     {
-        rune = r;
+        this.rune = rune;
         this.isTransparent = isTransparent;
         this.isWalkable = isWalkable;
+        this.colors = colors;
     }
     public void AddGameObject(GameObject gObject)
     {
@@ -140,9 +142,9 @@ public struct Cell
 
     public Rune GetRune()
     {
-        if (gObjects == null)
+        if (IsWall())
             return rune;
-        else if (gObjects.Count == 0 || gObjects.Last().entity == null)
+        if (gObjects == null || gObjects.Count == 0 || gObjects.Last().entity == null)
             return rune;
         else return gObjects.Last().entity.rune;
     }
@@ -160,23 +162,24 @@ public struct Cell
             return true;
         else return false;
     }
-    public bool isWall()
+    public bool IsWall()
     {
         return (rune.Value == Map.WALL && !isWalkable) ? true : false;
 
     }
-    public void Set(Rune rune, bool isWalkable, bool isTransparent)
+    public void Set(Rune rune, bool isWalkable, bool isTransparent, Terminal.Gui.Attribute colors)
     {
         this.rune = rune;
         this.isWalkable = isWalkable;
         this.isTransparent = isTransparent;
+        this.colors = colors;
     }
     public void SetToWall()
     {
-        this.Set(Map.WALL, false, false);
+        this.Set(Map.WALL, false, false, Map.WALL_COLOR);
     }
     public void SetToFloor()
     {
-        this.Set(Map.FLOOR, true, true);
+        this.Set(Map.FLOOR, true, true, Map.FLOOR_COLOR);
     }
 }

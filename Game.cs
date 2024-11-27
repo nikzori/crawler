@@ -2,9 +2,12 @@ using Terminal.Gui;
 
 public static class Game
 {
+    static Label position;
+
     static MapView mapView;
     static View characterView;
-    static Label logWindow;
+    static Label logView;
+    static View inventoryView;
 
     public static Map map;
     public static GameObject playerGO;
@@ -21,7 +24,7 @@ public static class Game
         {
             for (int y = 2; y < mapSize; y++)
             {
-                if (!map.cells[x, y].isWall())
+                if (!map.cells[x, y].IsWall())
                 {
                     xStart = x;
                     yStart = y;
@@ -39,6 +42,7 @@ public static class Game
         #endregion
 
         #region UI
+
         mapView = new()
         {
             X = 0,
@@ -80,13 +84,13 @@ public static class Game
             Height = 1
         };
 
-        PositionTracker position = new()
+        position = new()
         {
             Width = 15,
-            Height = 1,
+            Height = 2,
         };
 
-        logWindow = new()
+        logView = new()
         {
             X = 1,
             Y = Pos.Bottom(mapView) + 1,
@@ -97,29 +101,42 @@ public static class Game
 
         statView.Add(playerName, position, somRef, cogWil);
         characterView.Add(playerName, statView);
-        Application.Top.Add(mapView, characterView, logWindow);
+        Application.Top.Add(mapView, characterView, logView);
+
+        UpdatePos();
         #endregion
+    }
+
+    public static void OpenInventory()
+    {
+    }
+    public static void OpenMain()
+    {
+    }
+    public static void OpenMenu()
+    {
     }
 
     public static void Log(string txt)
     {
-        logWindow.Text = logWindow.Text.ToString().Insert(0, txt + "\n");
+        logView.Text = logView.Text.ToString().Insert(0, txt + "\n");
     }
-
+    public static void UpdatePos()
+    {
+        position.Text = "X: " + playerGO.pos.x + "\nY: " + playerGO.pos.y;
+    }
 }
 
 public class MapView : View
 {
     public MapView()
     {
-        Width = 30;
-        Height = 30;
+        Width = 31;
+        Height = 31;
     }
 
     public override void Redraw(Rect bounds)
     {
-        // I guess this is where I'll have to check for visibility?
-
         if (Game.map.cells.Length == 0)
         {
             Console.Error.WriteLine("trying to render map, but map is empty!");
@@ -127,8 +144,8 @@ public class MapView : View
             return;
         }
 
-        int boundHeight = 33;
-        int boundWidth = 33;
+        int boundHeight = 31;
+        int boundWidth = 31;
         //player's position on the screen
         int pX = boundWidth / 2;
         int pY = boundHeight / 2;
@@ -136,6 +153,8 @@ public class MapView : View
         //upper-left visible map cell coordinates 
         int mX = Game.playerGO.pos.x - pX;
         int mY = Game.playerGO.pos.y - pY;
+
+
 
         for (int tx = 0; tx < boundWidth; tx++)
         {
@@ -145,8 +164,15 @@ public class MapView : View
 
                 if (mX < Game.map.cells.GetLength(0) && mX > 0 && mY < Game.map.cells.GetLength(1) && mY > 0)
                 {
-                    //toLOS[tx, ty] = Game.map.cells[mX, mY];
                     c = Game.map.cells[mX, mY].GetRune();
+                    if (Game.map.cells[mX, mY].IsWall())
+                    {
+                        Application.Driver.SetAttribute(Map.WALL_COLOR);
+                    }
+                    if (!Game.map.cells[mX, mY].IsWall())
+                    {
+                        Application.Driver.SetAttribute(Map.FLOOR_COLOR);
+                    }
                 }
                 else
                 {
@@ -205,7 +231,7 @@ public class MapView : View
                 keyRegistered = true;
                 break;
             case Key.i:
-                // open inventory
+                //Game.OpenInventory();
                 Game.Log("Open inventory.");
                 keyRegistered = true;
                 break;
@@ -214,21 +240,9 @@ public class MapView : View
         }
         if (keyRegistered)
             this.SetNeedsDisplay();
+        Game.UpdatePos();
         return keyRegistered;
 
     }
-    public void Update()
-    {
-        Application.MainLoop.Invoke(() => this.SetNeedsDisplay());
-    }
 }
 
-public class PositionTracker : Label
-{
-    public override void Redraw(Rect bounds)
-    {
-        base.Redraw(bounds);
-        Text = "X: " + Game.playerGO.pos.x + "; Y: " + Game.playerGO.pos.y;
-    }
-
-}

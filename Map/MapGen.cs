@@ -12,7 +12,7 @@ public static class MapGen
       for (int y = 0; y < height; y++)
       {
         if (x == 0 || y == 0)
-          result[x, y] = new Cell('#', false, false);
+          result[x, y] = new Cell('#', false, false, Map.WALL_COLOR);
         else result[x, y] = new Cell();
       }
     }
@@ -110,7 +110,7 @@ public static class MapGen
         {
           for (int yt = y - 1; yt < y + 2; yt++)
           {
-            if (result[xt, yt].isWall())
+            if (result[xt, yt].IsWall())
               neighbourWallsCounter++;
             if (neighbourWallsCounter > 4)
             {
@@ -133,7 +133,7 @@ public static class MapGen
               // if tile is close on both axises, it's adjacent => skip
               if (Math.Abs(yt - y) < 2 && Math.Abs(xt - x) < 2)
                 continue;
-              if (result[xt, yt].isWall())
+              if (result[xt, yt].IsWall())
                 distantWallsCounter++;
 
 
@@ -202,9 +202,6 @@ public static class MapGen
 
       xc[i] = x1 + ((x2 - x1) / 2);
       yc[i] = y1 + ((y2 - y1) / 2); // since starting point values are always smaller, this should work
-
-      char c = i.ToString()[0];
-      result[x1, y1] = new Cell(new Rune(c), true, true);
     }
 
     if (connectRooms)

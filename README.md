@@ -18,8 +18,6 @@ The point of entry is `Program.cs`, which goes into `MainMenu.cs`, which finally
 ## To-Do:
 - map gen:
   - Add stairways and link them between maps
-  - Add some color 
-    - Terminal.GUI has tools to change rune colors. Somewhere. I think.
   - *later: sprinkle creatures and items around*
 - creatures:
   - work out damage and armor calculation with inventory and equipment 
@@ -37,3 +35,5 @@ The point of entry is `Program.cs`, which goes into `MainMenu.cs`, which finally
   - add time progression
   - hook up basic functions like using a weapon and moving around
   - add some idle routines: patrolling, sleeping
+- performance:
+  - get rid of screen tear when moving on the Y axis
