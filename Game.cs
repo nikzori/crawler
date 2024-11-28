@@ -109,6 +109,7 @@ public static class Game
 
     public static void OpenInventory()
     {
+
     }
     public static void OpenMain()
     {
