@@ -17,8 +17,9 @@ The point of entry is `Program.cs`, which goes into `MainMenu.cs`, which finally
 
 ## To-Do:
 - map gen:
-  - Add stairways and link them between maps
-  - *later: sprinkle creatures and items around*
+  - Remake dungeon controller to support multi-floor dungeons
+    - Move static/const stuff to a different class
+    - Figure out a way to link stairs
 - creatures:
   - work out damage and armor calculation with inventory and equipment 
     - Actually, work out the whole RPG system
@@ -35,5 +36,6 @@ The point of entry is `Program.cs`, which goes into `MainMenu.cs`, which finally
   - add time progression
   - hook up basic functions like using a weapon and moving around
   - add some idle routines: patrolling, sleeping
+  - add a basic mob spawner 
 - performance:
   - get rid of screen tear when moving on the Y axis

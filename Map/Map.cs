@@ -1,6 +1,7 @@
+using System.Security;
 using Terminal.Gui;
 
-public class Map
+public class Dungeon
 {
     public const char WALL = '#';
     public const char FLOOR = '.';
@@ -8,21 +9,31 @@ public class Map
     public static Terminal.Gui.Attribute WALL_COLOR = new(Color.DarkGray, Color.Black);
     public static Terminal.Gui.Attribute REVEALED_COLOR = new(Color.Blue, Color.Black); // For tiles that were seen but not in LOS
 
-    public Cell[,] cells;
+    public List<Map> floors;
+    int currentFloor = 0;
 
-    public Map(int width, int height, int caIterations = 2)
+    public Dungeon(int floorCount)
     {
-        cells = MapGen.GenerateCA(width, height, caIterations);
+        floors = new();
+        for (int i = 0; i < floorCount; i++)
+        {
+            floors.Add(new Map());
+        }
     }
 
-    public void AddGameObject(GameObject gameObject)
+    public Map GetCurrentFloor()    
     {
-        int x = gameObject.pos.Item1;
-        int y = gameObject.pos.Item2;
-        cells[x, y].AddGameObject(gameObject);
+        return floors[currentFloor];
+    }
+    public void MoveFloors(int newFloor, (int x, int y) playerPos)
+    {
+        floors[currentFloor].cells[Game.playerGO.pos.x, Game.playerGO.pos.y].RemoveGameObject(Game.playerGO);
+        currentFloor = newFloor;
+        Game.playerGO.Move(playerPos.x, playerPos.y);
     }
 
-    // Bresenham's line algorithm, last codeblocks: https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm#All_cases
+
+    // Bresenham's line algorithm, last codeblocks: https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
     // I'm too bad with geometry so far to get how it works. Like, yeah, we're iterating over x or y 
     // because a straight line is ( ax + by + c = 0 ), but this is weird. Math is weird.
     public static (int x, int y)[] GetLine((int x, int y) start, (int x, int y) end)
@@ -104,6 +115,21 @@ public class Map
     }
 }
 
+public class Map
+{
+    public Cell[,] cells;
+    public Map()
+    {
+        cells = MapGen.GenerateCA(256, 256);
+    }
+    public void AddGameObject(GameObject gameObject)
+    {
+        int x = gameObject.pos.Item1;
+        int y = gameObject.pos.Item2;
+        cells[x, y].AddGameObject(gameObject);
+    }
+}
+
 public struct Cell
 {
     public Rune rune;
@@ -164,7 +190,7 @@ public struct Cell
     }
     public bool IsWall()
     {
-        return (rune.Value == Map.WALL && !isWalkable) ? true : false;
+        return (rune.Value == Dungeon.WALL && !isWalkable) ? true : false;
 
     }
     public void Set(Rune rune, bool isWalkable, bool isTransparent, Terminal.Gui.Attribute colors)
@@ -176,10 +202,10 @@ public struct Cell
     }
     public void SetToWall()
     {
-        this.Set(Map.WALL, false, false, Map.WALL_COLOR);
+        this.Set(Dungeon.WALL, false, false, Dungeon.WALL_COLOR);
     }
     public void SetToFloor()
     {
-        this.Set(Map.FLOOR, true, true, Map.FLOOR_COLOR);
+        this.Set(Dungeon.FLOOR, true, true, Dungeon.FLOOR_COLOR);
     }
 }

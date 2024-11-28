@@ -12,14 +12,12 @@ public static class MapGen
       for (int y = 0; y < height; y++)
       {
         if (x == 0 || y == 0)
-          result[x, y] = new Cell('#', false, false, Map.WALL_COLOR);
+          result[x, y] = new Cell('#', false, false, Dungeon.WALL_COLOR);
         else result[x, y] = new Cell();
       }
     }
     result[width / 2, height / 2].SetToWall();
     return result;
-
-
   }
 
   /// <summary>
@@ -70,9 +68,9 @@ public static class MapGen
           result = RunAutomata(result, true);
         result = RunAutomata(result);
 
-        result = PlaceRooms(result, true, 10, 4, 7);
+        result = PlaceRooms(result, true, 10, 4, 7); // Sprinkle around rooms connected by corridors
 
-        if (CleanIsolation(result) || cntr > 10)
+        if (CleanIsolation(result) /* || cntr > 10 */) // Clean up the isolated pockets
           isMapReady = true;
         cntr++;
       }

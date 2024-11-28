@@ -9,22 +9,24 @@ public static class Game
     static Label logView;
     static View inventoryView;
 
-    public static Map map;
+    public static Dungeon dungeon;
+    public static Map currentMap {get { return dungeon.GetCurrentFloor(); } }
     public static GameObject playerGO;
     public static Creature player;
-    public static void Init(string pName, int CAIterations)
+    public static void Init(string pName)
     {
         int mapSize = 50;
         int xStart = 0;
         int yStart = 0;
         #region Game mechanics
-        map = new Map(mapSize, mapSize, CAIterations);
+        dungeon = new Dungeon(10);
+
         bool startPosFound = false;
         for (int x = 2; x < mapSize; x++)
         {
             for (int y = 2; y < mapSize; y++)
             {
-                if (!map.cells[x, y].IsWall())
+                if (!dungeon.floors[0].cells[x, y].IsWall())
                 {
                     xStart = x;
                     yStart = y;
@@ -38,7 +40,7 @@ public static class Game
         player = new Creature(pName, new Rune('@'), 5, 5, 5, 5, 1);
         playerGO = new GameObject((xStart, yStart), player);
 
-        map.AddGameObject(playerGO);
+        dungeon.floors[0].AddGameObject(playerGO);
         #endregion
 
         #region UI
@@ -138,12 +140,6 @@ public class MapView : View
 
     public override void Redraw(Rect bounds)
     {
-        if (Game.map.cells.Length == 0)
-        {
-            Console.Error.WriteLine("trying to render map, but map is empty!");
-            Application.RequestStop();
-            return;
-        }
 
         int boundHeight = 31;
         int boundWidth = 31;
@@ -156,23 +152,23 @@ public class MapView : View
         int mY = Game.playerGO.pos.y - pY;
 
 
-
+        
         for (int tx = 0; tx < boundWidth; tx++)
         {
             for (int ty = 0; ty < boundHeight; ty++)
             {
                 Rune c;
 
-                if (mX < Game.map.cells.GetLength(0) && mX > 0 && mY < Game.map.cells.GetLength(1) && mY > 0)
+                if (mX < Game.currentMap.cells.GetLength(0) && mX > 0 && mY < Game.currentMap.cells.GetLength(1) && mY > 0)
                 {
-                    c = Game.map.cells[mX, mY].GetRune();
-                    if (Game.map.cells[mX, mY].IsWall())
+                    c = Game.currentMap.cells[mX, mY].GetRune();
+                    if (Game.currentMap.cells[mX, mY].IsWall())
                     {
-                        Application.Driver.SetAttribute(Map.WALL_COLOR);
+                        Application.Driver.SetAttribute(Dungeon.WALL_COLOR);
                     }
-                    if (!Game.map.cells[mX, mY].IsWall())
+                    if (!Game.currentMap.cells[mX, mY].IsWall())
                     {
-                        Application.Driver.SetAttribute(Map.FLOOR_COLOR);
+                        Application.Driver.SetAttribute(Dungeon.FLOOR_COLOR);
                     }
                 }
                 else
