@@ -37,11 +37,11 @@ public class GameObject
         int xt = pos.x + x;
         int yt = pos.y + y;
 
-        if (Game.map.cells[xt, yt].IsWall() && entity != null) //restrict movement only for entities
+        if (Game.dungeon.GetCurrentFloor().cells[xt, yt].IsWall() && entity != null) //restrict movement only for entities
             return;
 
-        Game.map.cells[pos.x, pos.y].RemoveGameObject(this);
-        Game.map.cells[xt, yt].AddGameObject(this);
+        Game.dungeon.GetCurrentFloor().cells[pos.x, pos.y].RemoveGameObject(this);
+        Game.dungeon.GetCurrentFloor().cells[xt, yt].AddGameObject(this);
         pos = (xt, yt);
     }
 }

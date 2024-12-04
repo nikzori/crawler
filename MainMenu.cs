@@ -91,7 +91,7 @@ public static class MainMenu
     {
         int iterations = 2;
         Int32.TryParse(CAIterations, out iterations);
-        Game.Init(characterName, iterations);
+        Game.Init(characterName);
 
     }
 }

@@ -2,17 +2,17 @@ using Terminal.Gui;
 
 public static class Game
 {
-    static Label position;
+    static Label position = new();
 
-    static MapView mapView;
-    static View characterView;
-    static Label logView;
-    static View inventoryView;
+    static MapView mapView = new(31);
+    static View characterView = new();
+    static Label logView = new();
+    static View inventoryView = new();
 
-    public static Dungeon dungeon;
-    public static Map currentMap {get { return dungeon.GetCurrentFloor(); } }
-    public static GameObject playerGO;
-    public static Creature player;
+    public static Dungeon dungeon = new(1);
+    public static Map currentMap { get { return dungeon.GetCurrentFloor(); } }
+    public static Creature player = new("Player", new Rune('@'));
+    public static GameObject playerGO = new(player);
     public static void Init(string pName)
     {
         int mapSize = 50;
@@ -45,7 +45,7 @@ public static class Game
 
         #region UI
 
-        mapView = new()
+        mapView = new(31)
         {
             X = 0,
             Y = 0,
@@ -132,27 +132,28 @@ public static class Game
 
 public class MapView : View
 {
-    public MapView()
+    int boundWidth, boundHeight; // int values for viewport size
+    int pX, pY; // player position on the screen
+    int mX, mY;
+    public MapView(int size)
     {
-        Width = 31;
-        Height = 31;
+        // viewport size needs to be an odd number to put player in the center
+        if (size % 2 != 1)
+            size--;
+
+        Width = size;
+        Height = size;
+        boundWidth = boundHeight = size;
+        pX = pY = size / 2; // center the player on the screen
     }
 
     public override void Redraw(Rect bounds)
     {
-
-        int boundHeight = 31;
-        int boundWidth = 31;
-        //player's position on the screen
-        int pX = boundWidth / 2;
-        int pY = boundHeight / 2;
-
         //upper-left visible map cell coordinates 
-        int mX = Game.playerGO.pos.x - pX;
-        int mY = Game.playerGO.pos.y - pY;
+        mX = Game.playerGO.pos.x - pX;
+        mY = Game.playerGO.pos.y - pY;
 
 
-        
         for (int tx = 0; tx < boundWidth; tx++)
         {
             for (int ty = 0; ty < boundHeight; ty++)
@@ -166,7 +167,7 @@ public class MapView : View
                     {
                         Application.Driver.SetAttribute(Dungeon.WALL_COLOR);
                     }
-                    if (!Game.currentMap.cells[mX, mY].IsWall())
+                    else
                     {
                         Application.Driver.SetAttribute(Dungeon.FLOOR_COLOR);
                     }

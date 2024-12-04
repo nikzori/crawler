@@ -50,10 +50,10 @@ public static class AI
 
     else // cast a ray, go through every point until we either reach Player or hit a non-transparent cell
     {
-      (int x, int y)[] points = Map.GetLine(creatureGO.pos, playerGO.pos);
+      (int x, int y)[] points = Dungeon.GetLine(creatureGO.pos, playerGO.pos);
       for (int i = 0; i < points.Length; i++)
       {
-        if (Game.map.cells[points[i].x, points[i].y].isTransparent == false)
+        if (Game.dungeon.GetCurrentFloor().cells[points[i].x, points[i].y].isTransparent == false)
           return false;
       }
       return true;
