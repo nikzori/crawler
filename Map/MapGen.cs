@@ -92,9 +92,9 @@ public static class MapGen
     // a tile becomes a wall tile if it's surrounded by at least 5 walls 
     // a tile will stay a wall tile if it's surrounded by at least 4 walls;
     // a tile will become a wall tile if there are zero walls in 2 tile radius around it
-    int neighbourWallsCounter = 0;
-    int distantWallsCounter = 0;
-    bool setToWall = false;
+    int neighbourWallsCounter;
+    int distantWallsCounter;
+    bool setToWall;
     for (int x = 2; x < result.GetLength(0) - 1; x++) // smaller range of coordinated to ignore border walls
     {
       for (int y = 2; y < result.GetLength(1) - 1; y++)
@@ -166,8 +166,8 @@ public static class MapGen
       //pick a random point on the map
       int x1 = random.Next(2, width - 1);
       int y1 = random.Next(2, height - 1);
-      int x2 = 0;
-      int y2 = 0;
+      int x2;
+      int y2;
 
       // pick the end point of rectangle
       if (x1 < width / 2)
@@ -280,9 +280,9 @@ public static class MapGen
     }
 
     // check walkable map size before clearing up isolated rooms
-    //int mapSize = input.GetLength(0) * input.GetLength(1);
-    //if ((float)areaSize / (float)mapSize < minFraction)
-    //return false;
+    int mapSize = input.GetLength(0) * input.GetLength(1);
+    if ((float)areaSize / (float)mapSize < minFraction)
+      return false;
 
     for (x = 0; x < input.GetLength(0); x++)
     {

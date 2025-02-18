@@ -10,26 +10,20 @@ public class Dungeon
     public static Terminal.Gui.Attribute REVEALED_COLOR = new(Color.Blue, Color.Black); // For tiles that were seen but not in LOS
 
     public List<Map> floors;
-    int currentFloor = 0;
+    public int currentFloor = 0;
 
     public Dungeon(int floorCount)
     {
         floors = new();
         for (int i = 0; i < floorCount; i++)
         {
-            floors.Add(new Map());
+            floors.Add(new Map(5));
         }
     }
 
     public Map GetCurrentFloor()    
     {
         return floors[currentFloor];
-    }
-    public void MoveFloors(int newFloor, (int x, int y) playerPos)
-    {
-        floors[currentFloor].cells[Game.playerGO.pos.x, Game.playerGO.pos.y].RemoveGameObject(Game.playerGO);
-        currentFloor = newFloor;
-        Game.playerGO.Move(playerPos.x, playerPos.y);
     }
 
 
@@ -38,7 +32,7 @@ public class Dungeon
     // because a straight line is ( ax + by + c = 0 ), but this is weird. Math is weird.
     public static (int x, int y)[] GetLine((int x, int y) start, (int x, int y) end)
     {
-        List<(int x, int y)> points = new List<(int x, int y)>();
+        List<(int x, int y)> points;
 
         if (Math.Abs(end.x - start.x) > Math.Abs(end.y - start.y))
         {
@@ -118,9 +112,29 @@ public class Dungeon
 public class Map
 {
     public Cell[,] cells;
-    public Map()
+    public List<Stair> stairs;
+    public Map(int stairCount)
     {
         cells = MapGen.GenerateCA(256, 256);
+        if (stairCount > 0)
+        {
+            stairs = new(stairCount); 
+            Random rng = new Random();
+            for (int i = 0; i < stairs.Count; i++)
+            {
+                while (true) // spawn stairs on random empty tiles
+                {
+                    int x = rng.Next(1, cells.GetLength(0));
+                    int y = rng.Next(1, cells.GetLength(1));
+                    if (!cells[x,y].IsWall())
+                    {
+                        stairs[i] = new ((x, y), StairDirection.Down);
+                        cells[x,y].AddGameObject(stairs[i]);
+                        break;
+                    }
+                }
+            }
+        }
     }
     public void AddGameObject(GameObject gameObject)
     {
