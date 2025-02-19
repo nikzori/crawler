@@ -123,7 +123,9 @@ public static class UI
         characterView.Visible = false;
         logView.Visible = false;
     }
-    public static void _Interact(object sender, InteractEventArgs e)
+
+    // this feels wrong. Oh well.
+    public static void InvokeInteract(object sender, InteractEventArgs e)
     {
         Interact.Invoke(sender, e);
     }
@@ -238,9 +240,7 @@ public class MapView : View
             case (Key)62:
                 keyRegistered = true;
                 UI.Log("hit closing angle bracket");
-                // this will interact with a whole stack of gameobjects in a tile;
-                // probably should do something about that
-                UI._Interact(Game.playerGO, new(Game.playerGO.pos));
+                UI.InvokeInteract(Game.playerGO, new(Game.playerGO.pos));
                 break;
             case Key.Esc:
                 keyRegistered = true;
