@@ -11,7 +11,7 @@ public static class UI
 
     static Creature player;
     static GameObject playerGO;
-
+    public static event EventHandler<InteractEventArgs> Interact = delegate { };
     public static void Init()
     {
         player = Game.player;
@@ -79,6 +79,15 @@ public static class UI
         Application.Top.Add(mapView, characterView, logView, inventoryView);
 
         UpdatePos();
+        Task.Delay(1000).ContinueWith(_ =>
+        {
+            List<Stair> currentStairs = Game.dungeon.GetCurrentFloor().stairs;
+            if (currentStairs.Count == 0)
+                Log("no stairs, wtf");
+            foreach (Stair stair in currentStairs)
+                Log("Added stairs at x: " + stair.pos.x + "; y: " + stair.pos.y);
+        });
+        
     }
 
     public static void Log(string txt)
@@ -113,6 +122,10 @@ public static class UI
         mapView.Visible = false;
         characterView.Visible = false;
         logView.Visible = false;
+    }
+    public static void _Interact(object sender, InteractEventArgs e)
+    {
+        Interact.Invoke(sender, e);
     }
 }
 
@@ -222,7 +235,15 @@ public class MapView : View
                 UI.Log("Open inventory.");
                 keyRegistered = true;
                 break;
+            case (Key)62:
+                keyRegistered = true;
+                UI.Log("hit closing angle bracket");
+                // this will interact with a whole stack of gameobjects in a tile;
+                // probably should do something about that
+                UI._Interact(Game.playerGO, new(Game.playerGO.pos));
+                break;
             case Key.Esc:
+                keyRegistered = true;
                 Application.RequestStop(Application.Top);
                 break;
             default:
@@ -233,6 +254,21 @@ public class MapView : View
         UI.UpdatePos();
         return keyRegistered;
 
+    }
+    
+}
+
+public class InteractEventArgs : EventArgs
+{
+    public (int x, int y) pos;
+    public InteractEventArgs (int x, int y)
+    {
+        pos.x = x;
+        pos.y = y;
+    }
+    public InteractEventArgs((int x, int y) pos)
+    {
+        this.pos = pos;
     }
 }
 

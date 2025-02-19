@@ -17,7 +17,7 @@ public class Dungeon
         floors = new();
         for (int i = 0; i < floorCount; i++)
         {
-            floors.Add(new Map(5));
+            floors.Add(new Map(10));
         }
     }
 
@@ -115,12 +115,12 @@ public class Map
     public List<Stair> stairs;
     public Map(int stairCount)
     {
-        cells = MapGen.GenerateCA(256, 256);
+        cells = MapGen.GenerateCA(128, 128);
         if (stairCount > 0)
         {
             stairs = new(stairCount); 
             Random rng = new Random();
-            for (int i = 0; i < stairs.Count; i++)
+            for (int i = 0; i < stairCount; i++)
             {
                 while (true) // spawn stairs on random empty tiles
                 {
@@ -128,7 +128,7 @@ public class Map
                     int y = rng.Next(1, cells.GetLength(1));
                     if (!cells[x,y].IsWall())
                     {
-                        stairs[i] = new ((x, y), StairDirection.Down);
+                        stairs.Add(new ((x, y), StairDirection.Down));
                         cells[x,y].AddGameObject(stairs[i]);
                         break;
                     }
@@ -138,8 +138,8 @@ public class Map
     }
     public void AddGameObject(GameObject gameObject)
     {
-        int x = gameObject.pos.Item1;
-        int y = gameObject.pos.Item2;
+        int x = gameObject.pos.x;
+        int y = gameObject.pos.y;
         cells[x, y].AddGameObject(gameObject);
     }
 }
@@ -184,9 +184,9 @@ public struct Cell
     {
         if (IsWall())
             return rune;
-        if (gObjects == null || gObjects.Count == 0 || gObjects.Last().entity == null)
+        if (gObjects == null || gObjects.Count == 0)
             return rune;
-        else return gObjects.Last().entity.rune;
+        else return gObjects.Last().rune;
     }
 
     //shortcuts for convenience
