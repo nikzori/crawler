@@ -7,7 +7,7 @@ public static class UI
     static MapView mapView = new(31);
     static View characterView = new();
     static Label logView = new();
-    static View inventoryView = new();
+    static Inventory inventoryView = new();
 
     static Creature player;
     static GameObject playerGO;
@@ -67,10 +67,16 @@ public static class UI
             Height = Dim.Fill(),
             Text = "Game started"
         };
+        inventoryView = new() 
+        {
+            Width = Dim.Fill(),
+            Height = Dim.Fill(),
+            Visible = false
+        };
 
         statView.Add(playerName, position, somRef, cogWil);
         characterView.Add(playerName, statView);
-        Application.Top.Add(mapView, characterView, logView);
+        Application.Top.Add(mapView, characterView, logView, inventoryView);
 
         UpdatePos();
     }
@@ -82,6 +88,31 @@ public static class UI
     public static void UpdatePos()
     {
         position.Text = "X: " + playerGO.pos.x + "\nY: " + playerGO.pos.y;
+    }
+
+    public static void OpenInventory()
+    {
+        HideMain();
+        inventoryView.Init();
+        inventoryView.Visible = true;
+    }
+    public static void OpenMain()
+    {
+    }
+    public static void OpenMenu()
+    {
+    }
+    public static void ShowMain() 
+    {
+        mapView.Visible = true;
+        characterView.Visible = true;
+        logView.Visible = true;
+    }
+    public static void HideMain() 
+    {
+        mapView.Visible = false;
+        characterView.Visible = false;
+        logView.Visible = false;
     }
 }
 
@@ -137,11 +168,14 @@ public class MapView : View
             mX++;
             mY = Game.playerGO.pos.y - pY;
         }
+        
     }
-
     public override bool ProcessHotKey(KeyEvent keyEvent)
     {
+        if (Visible)
+            return false;
         bool keyRegistered = false;
+        
         switch (keyEvent.Key)
         {
             case Key.D1:
@@ -184,9 +218,12 @@ public class MapView : View
                 keyRegistered = true;
                 break;
             case Key.i:
-                //Game.OpenInventory();
+                UI.OpenInventory();
                 UI.Log("Open inventory.");
                 keyRegistered = true;
+                break;
+            case Key.Esc:
+                Application.RequestStop(Application.Top);
                 break;
             default:
                 break;

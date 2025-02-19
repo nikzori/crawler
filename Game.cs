@@ -1,5 +1,3 @@
-using Terminal.Gui;
-
 public static class Game
 {
 
@@ -12,7 +10,7 @@ public static class Game
         int mapSize = 50;
         int xStart = 0;
         int yStart = 0;
-        #region Game Init
+
         dungeon = new Dungeon(10);
 
         bool startPosFound = false;
@@ -35,7 +33,6 @@ public static class Game
         playerGO = new GameObject((xStart, yStart), player);
 
         dungeon.floors[0].AddGameObject(playerGO);
-        #endregion
 
         UI.Init();
     }
@@ -46,18 +43,6 @@ public static class Game
     }
     public static void Descend() { ChangeFloor(dungeon.currentFloor + 1); }
     public static void Ascend() { ChangeFloor(dungeon.currentFloor - 1); }
-
-    public static void OpenInventory()
-    {
-
-    }
-    public static void OpenMain()
-    {
-    }
-    public static void OpenMenu()
-    {
-    }
-
 
 }
 
