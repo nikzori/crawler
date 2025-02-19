@@ -172,7 +172,7 @@ public class MapView : View
     }
     public override bool ProcessHotKey(KeyEvent keyEvent)
     {
-        if (Visible)
+        if (!Visible)
             return false;
         bool keyRegistered = false;
         
