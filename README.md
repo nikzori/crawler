@@ -12,8 +12,7 @@ For now, the plan is to just put out a playable release.
 ## Reading the source code
 I'll try to leave more comments around the code, but so far most things are pretty simple. 
 
-The point of entry is `Program.cs`, which goes into `MainMenu.cs`, which finally goes into `Game.cs`. 
-`Game.Init()` goes through map generation (described in `Map.cs` (and `MapGen.cs`, duh)), then lets `MapView` class (also in `Game.cs`) render the map and listen for inputs.
+The point of entry is `Program.cs`, which goes into `MainMenu.cs`, which finally goes into `Game.cs`. UI is managed in `UI.cs`, controls are also handled there.
 
 ## To-Do:
 - map gen:
