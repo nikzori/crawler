@@ -29,6 +29,6 @@ public class Stair : GameObject, IInteractable
 
 public interface IInteractable
 {
-    abstract void OnInteract(object sender, InteractEventArgs e);
+    abstract void OnInteract(object? sender, InteractEventArgs e);
 }
 public enum StairDirection : byte { Down, Up };

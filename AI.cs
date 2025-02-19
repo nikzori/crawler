@@ -60,12 +60,13 @@ public static class AI
     }
   }
 
+  // needs A* or something, idk
   public static bool CanReachPoint(GameObject creatureGO, (int x, int y) pos)
   {
     return false;
   }
 
-  // Check if creature's attack can reach the target
+
   public static bool CanReachAttack(GameObject host, GameObject target)
   {
     return false;

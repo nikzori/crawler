@@ -29,13 +29,12 @@ The point of entry is `Program.cs`, which goes into `MainMenu.cs`, which finally
   - make equipment actually contribute to calculations
   - figure out how the active abilities from items will work
 - UI:
-  - do something about the input listener, since it's currently glued to the only window there is
-  - add inventory
+  - add test items to inventory
   - add tile/entity inspection
 - AI: 
   - add time progression
-  - hook up basic functions like using a weapon and moving around
+  - hook up basic functions like attacking and moving around
   - add some idle routines: patrolling, sleeping
   - add a basic mob spawner 
 - performance:
-  - get rid of screen tear when moving on the Y axis
+  - get rid of screen tear when moving on the Y axis (ssh only)
