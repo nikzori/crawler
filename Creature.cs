@@ -6,7 +6,7 @@ public class Creature : Entity
               Willpower = 1;
 
   public int level = 1;
-
+  public int sightRadius = 10;
   public int healthMax { get { return 5 * level + 3 * Somatics; } }
   public float health = 1;
   public float healthRegen = 0.2f;

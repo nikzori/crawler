@@ -1,7 +1,7 @@
 # Zori's Dungeon Crawler
 made using [Terminal.GUI](https://github.com/gui-cs/Terminal.Gui)
 
-This is going to be a typical dungeon crawl rogue-like inspired by [Dungeon Crawl Stone Soup](https://crawl.develz.org/). 
+This is going to be a typical dungeon crawl rogue-like inspired by [Dungeon Crawl Stone Soup](https://crawl.develz.org/), but with extensive moddability.
 For now, the plan is to just put out a playable release.
 
 ## Future plans
@@ -9,10 +9,10 @@ For now, the plan is to just put out a playable release.
 - Try out a more detailed character/action system with focus on stamina and limb damage (something like Kenshi)
 - Either a better creature parser or some kind of extensive mod support to allow for user-created actions instead of baked-in functions
 
-## Reading the source code
-I'll try to leave more comments around the code, but so far most things are pretty simple. 
-
-The point of entry is `Program.cs`, which goes into `MainMenu.cs`, which finally goes into `Game.cs`. UI is managed in `UI.cs`, controls are also handled there.
+## Progress so far
+- Decent looking dungeons generated with cellular automata and some rooms thrown in at random positions.
+- Movement and proper dungeon render (line of sight is WIP)
+- Lots of foundation bits for other UI, AI and items
 
 ## To-Do:
 - map gen:

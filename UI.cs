@@ -148,8 +148,10 @@ public class MapView : View
         pX = pY = size / 2; // center the player on the screen
     }
 
-    public override void Redraw(Rect bounds)
+    #region Line of Sight
+    public override void Redraw(Rect bounds) 
     {
+        Random rng = new();
         //upper-left visible map cell coordinates 
         mX = Game.playerGO.pos.x - pX;
         mY = Game.playerGO.pos.y - pY;
@@ -159,23 +161,35 @@ public class MapView : View
         {
             for (int ty = 0; ty < boundHeight; ty++)
             {
-                Rune c;
+                Rune c = ' ';
 
                 if (mX < Game.currentMap.cells.GetLength(0) && mX > 0 && mY < Game.currentMap.cells.GetLength(1) && mY > 0)
                 {
-                    c = Game.currentMap.cells[mX, mY].GetRune();
-                    if (Game.currentMap.cells[mX, mY].IsWall())
+                    if (Math.Abs(tx - pX) < Game.player.sightRadius && Math.Abs(ty - pY) < Game.player.sightRadius)
                     {
-                        Application.Driver.SetAttribute(Dungeon.WALL_COLOR);
+                        // LOS calculation will be here
+                        c = Game.currentMap.cells[mX, mY].GetRune();
+                        Game.currentMap.cells[mX,mY].isRevealed = true;
+
+                        if (Game.currentMap.cells[mX, mY].IsWall())
+                            Application.Driver.SetAttribute(Dungeon.WALL_COLOR);
+                        else Application.Driver.SetAttribute(Dungeon.FLOOR_COLOR);
                     }
-                    else
+                    else if (Game.currentMap.cells[mX,mY].isRevealed)
                     {
-                        Application.Driver.SetAttribute(Dungeon.FLOOR_COLOR);
+                        c = Game.currentMap.cells[mX, mY].GetRune();
+                        Application.Driver.SetAttribute(Dungeon.REVEALED_COLOR);
+                    }
+                    else 
+                    {
+                        c = Game.currentMap.background[mX + 15, mY + 15];
+                        Application.Driver.SetAttribute(Dungeon.OBSCURED_COLOR);
                     }
                 }
                 else
                 {
-                    c = ' ';
+                    c = Game.currentMap.background[mX + 15, mY + 15];
+                    Application.Driver.SetAttribute(Dungeon.OBSCURED_COLOR);
                 }
                 AddRune(tx, boundHeight - ty, c);
                 mY++;
@@ -185,6 +199,7 @@ public class MapView : View
         }
         
     }
+    #endregion
     public override bool ProcessHotKey(KeyEvent keyEvent)
     {
         if (!Visible)

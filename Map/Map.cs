@@ -8,6 +8,7 @@ public class Dungeon
     public static Terminal.Gui.Attribute FLOOR_COLOR = new(Color.Green, Color.Black);
     public static Terminal.Gui.Attribute WALL_COLOR = new(Color.DarkGray, Color.Black);
     public static Terminal.Gui.Attribute REVEALED_COLOR = new(Color.Blue, Color.Black); // For tiles that were seen but not in LOS
+    public static Terminal.Gui.Attribute OBSCURED_COLOR = new(Color.Gray, Color.Black);
 
     public List<Map> floors;
     public int currentFloor = 0;
@@ -113,13 +114,15 @@ public class Map
 {
     public Cell[,] cells;
     public List<Stair> stairs;
-    public Map(int stairCount)
+    public char[,] background; // static chars to draw over unexplored tiles
+    public Map(int stairCount, int xLength = 128, int yLength = 128)
     {
-        cells = MapGen.GenerateCA(128, 128);
+        Random rng = new Random();
+
+        cells = MapGen.GenerateCA(xLength, yLength);
         if (stairCount > 0)
         {
             stairs = new(stairCount); 
-            Random rng = new Random();
             for (int i = 0; i < stairCount; i++)
             {
                 while (true) // spawn stairs on random empty tiles
@@ -133,6 +136,22 @@ public class Map
                         break;
                     }
                 }
+            }
+        }
+        
+        background = new char[xLength + 30, yLength + 30]; // 15 extra tiles on each side
+        int t;
+        for (int x = 0; x < background.GetLength(0); x++)
+        {
+            for (int y = 0; y < background.GetLength(1); y++)
+            {
+                background[x,y] = ' ';
+                t = rng.Next(0, 121);
+                if (t < 5) background[x,y] = '`';
+                if (t < 4) background[x,y] = '/';
+                if (t < 3) background[x,y] = '*';
+                if (t < 2) background[x,y] = '\\';
+                if (t < 1) background[x,y] = 'x';
             }
         }
     }
