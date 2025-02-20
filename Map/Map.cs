@@ -5,10 +5,10 @@ public class Dungeon
 {
     public const char WALL = '#';
     public const char FLOOR = '.';
-    public static Terminal.Gui.Attribute FLOOR_COLOR = new(Color.Green, Color.Black);
-    public static Terminal.Gui.Attribute WALL_COLOR = new(Color.DarkGray, Color.Black);
+    public static Terminal.Gui.Attribute FLOOR_COLOR = new(Color.Gray, Color.Black);
+    public static Terminal.Gui.Attribute WALL_COLOR = new(Color.Brown, Color.Black);
     public static Terminal.Gui.Attribute REVEALED_COLOR = new(Color.Blue, Color.Black); // For tiles that were seen but not in LOS
-    public static Terminal.Gui.Attribute OBSCURED_COLOR = new(Color.Gray, Color.Black);
+    public static Terminal.Gui.Attribute OBSCURED_COLOR = new(Color.DarkGray, Color.Black);
 
     public List<Map> floors;
     public int currentFloor = 0;
