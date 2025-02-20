@@ -167,13 +167,26 @@ public class MapView : View
                 {
                     if (Math.Abs(tx - pX) < Game.player.sightRadius && Math.Abs(ty - pY) < Game.player.sightRadius)
                     {
-                        // LOS calculation will be here
-                        c = Game.currentMap.cells[mX, mY].GetRune();
-                        Game.currentMap.cells[mX,mY].isRevealed = true;
+                        // doesn't reveal tiles you'd expect it to reveal, but hey, it works
+                        if (Dungeon.CanSeeTile(Game.playerGO.pos, (mX, mY)))
+                        {
+                            c = Game.currentMap.cells[mX, mY].GetRune();
+                            Game.currentMap.cells[mX,mY].isRevealed = true;
 
-                        if (Game.currentMap.cells[mX, mY].IsWall())
-                            Application.Driver.SetAttribute(Dungeon.WALL_COLOR);
-                        else Application.Driver.SetAttribute(Dungeon.FLOOR_COLOR);
+                            if (Game.currentMap.cells[mX, mY].IsWall())
+                                Application.Driver.SetAttribute(Dungeon.WALL_COLOR);
+                            else Application.Driver.SetAttribute(Dungeon.FLOOR_COLOR);
+                        }
+                        else if (Game.currentMap.cells[mX,mY].isRevealed)
+                        {
+                            c = Game.currentMap.cells[mX, mY].GetRune();
+                            Application.Driver.SetAttribute(Dungeon.REVEALED_COLOR);
+                        }
+                        else 
+                        {
+                            c = Game.currentMap.background[mX + 15, mY + 15];
+                            Application.Driver.SetAttribute(Dungeon.OBSCURED_COLOR);
+                        }
                     }
                     else if (Game.currentMap.cells[mX,mY].isRevealed)
                     {

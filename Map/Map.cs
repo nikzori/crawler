@@ -71,10 +71,10 @@ public class Dungeon
                 result.Add((x, y));
                 if (D > 0)
                 {
-                    y = y + yi;
-                    D = D + (2 * (dy - dx));
+                    y += yi;
+                    D += 2 * (dy - dx);
                 }
-                else D = D + 2 * dy;
+                else D += 2 * dy;
             }
             return result;
         }
@@ -99,10 +99,92 @@ public class Dungeon
                 result.Add((x, y));
                 if (D > 0)
                 {
-                    x = x + xi;
-                    D = D + (2 * (dx - dy));
+                    x += xi;
+                    D += 2 * (dx - dy);
                 }
-                else D = D + 2 * dx;
+                else D += 2 * dx;
+            }
+
+            return result;
+        }
+    }
+
+    /// <summary>
+    /// Attempt to draw a Bresenham's Line from start to end. Returns false if any tile in the way is not transparent.
+    /// </summary>
+    public static bool CanSeeTile((int x, int y) start, (int x, int y) end)
+    {
+        bool isVisible;
+
+        if (Math.Abs(end.x - start.x) > Math.Abs(end.y - start.y))
+        {
+            //need this since we're incrementing X in the function
+            if (start.x > end.x)
+                isVisible = PlotLineLow((end.x, end.y), (start.x, start.y));
+            else isVisible = PlotLineLow((start.x, start.y), (end.x, end.y));
+        }
+        else
+        {
+            if (start.y > end.y)
+                isVisible = PlotLineHigh((end.x, end.y), (start.x, start.y));
+            else isVisible = PlotLineHigh((start.x, start.y), (end.x, end.y));
+        }
+        return isVisible;
+
+        bool PlotLineLow((int x, int y) start, (int x, int y) end)
+        {
+            bool result = true;
+
+            int dx = end.x - start.x;
+            int dy = end.y - start.y;
+            int yi = 1;
+
+            if (dy < 0)
+            {
+                yi = -1;
+                dy = -dy;
+            }
+            int D = (2 * dy) - dx;
+            int y = start.y;
+            for (int x = start.x; x <= end.x; x++)
+            {
+                if (!Game.currentMap.cells[x,y].isTransparent && x != end.x && x != start.x)
+                    return false;
+                if (D > 0)
+                {
+                    y += yi;
+                    D += 2 * (dy - dx);
+                }
+                else D += 2 * dy;
+            }
+            return result;
+        }
+
+
+        bool PlotLineHigh((int x, int y) start, (int x, int y) end)
+        {
+            bool result = true;
+            int dx = end.x - start.x;
+            int dy = end.y - start.y;
+            int xi = 1;
+            if (dx < 0)
+            {
+                xi = -1;
+                dx = -dx;
+            }
+
+            int D = (2 * dx) - dy;
+            int x = start.x;
+            for (int y = start.y; y <= end.y; y++)
+            {
+                if (!Game.currentMap.cells[x,y].isTransparent && y != end.y && y != start.y)
+                    return false;
+                if (D > 0)
+                {
+                    x += xi;
+                    D += 2 * (dx - dy);
+                }
+                else D += 2 * dx;
             }
 
             return result;
@@ -146,7 +228,7 @@ public class Map
             for (int y = 0; y < background.GetLength(1); y++)
             {
                 background[x,y] = ' ';
-                t = rng.Next(0, 121);
+                t = rng.Next(0, 161);
                 if (t < 5) background[x,y] = '`';
                 if (t < 4) background[x,y] = '/';
                 if (t < 3) background[x,y] = '*';

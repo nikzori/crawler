@@ -11,7 +11,7 @@ For now, the plan is to just put out a playable release.
 
 ## Progress so far
 - Decent looking dungeons generated with cellular automata and some rooms thrown in at random positions.
-- Movement and proper dungeon render (line of sight is WIP)
+- Movement and proper dungeon render with super simple LOS
 - Lots of foundation bits for other UI, AI and items
 
 ## To-Do:
