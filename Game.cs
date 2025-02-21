@@ -37,12 +37,14 @@ public static class Game
         UI.Init();
     }
 
-    public static void ChangeFloor(int floorNumber) 
+    public static void ChangeFloor(int floorNumber, (int x, int y) pos) 
     {
-
+        dungeon.currentFloor = floorNumber;
+        playerGO.MoveTo(pos.x, pos.y);
+        UI.UpdatePos();
     }
-    public static void Descend() { ChangeFloor(dungeon.currentFloor + 1); }
-    public static void Ascend() { ChangeFloor(dungeon.currentFloor - 1); }
+    public static void Descend((int x, int y) pos) { ChangeFloor(dungeon.currentFloor + 1, pos); }
+    public static void Ascend((int x, int y) pos) { ChangeFloor(dungeon.currentFloor - 1, pos); }
 
 }
 

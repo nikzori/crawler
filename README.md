@@ -17,8 +17,7 @@ For now, the plan is to just put out a playable release.
 ## To-Do:
 - map gen:
   - Remake dungeon controller to support multi-floor dungeons
-    - Move static/const stuff to a different class
-    - Figure out a way to link stairs
+    - add tools to move gameobjects/creatures between floors
 - creatures:
   - work out damage and armor calculation with inventory and equipment 
     - Actually, work out the whole RPG system

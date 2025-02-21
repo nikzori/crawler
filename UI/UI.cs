@@ -81,10 +81,10 @@ public static class UI
         UpdatePos();
         Task.Delay(1000).ContinueWith(_ =>
         {
-            List<Stair> currentStairs = Game.dungeon.GetCurrentFloor().stairs;
+            List<Stairs> currentStairs = Game.dungeon.GetCurrentFloor().stairs;
             if (currentStairs.Count == 0)
                 Log("no stairs, wtf");
-            foreach (Stair stair in currentStairs)
+            foreach (Stairs stair in currentStairs)
                 Log("Added stairs at x: " + stair.pos.x + "; y: " + stair.pos.y);
         });
         
@@ -97,16 +97,14 @@ public static class UI
     public static void UpdatePos()
     {
         position.Text = "X: " + playerGO.pos.x + "\nY: " + playerGO.pos.y;
+        mapView.Redraw(mapView.Bounds);
     }
 
-    public static void OpenInventory()
+    public static void ShowInventory()
     {
         HideMain();
         inventoryView.Init();
         inventoryView.Visible = true;
-    }
-    public static void OpenMain()
-    {
     }
     public static void OpenMenu()
     {
@@ -167,7 +165,8 @@ public class MapView : View
                 {
                     if (Math.Abs(tx - pX) < Game.player.sightRadius && Math.Abs(ty - pY) < Game.player.sightRadius)
                     {
-                        // doesn't reveal tiles you'd expect it to reveal, but hey, it works
+                        // very unnatural (and probably very inefficient) LOS made with Bresenham's algorythm, 
+                        // but hey, it works
                         if (Dungeon.CanSeeTile(Game.playerGO.pos, (mX, mY)))
                         {
                             c = Game.currentMap.cells[mX, mY].GetRune();
@@ -261,7 +260,7 @@ public class MapView : View
                 keyRegistered = true;
                 break;
             case Key.i:
-                UI.OpenInventory();
+                UI.ShowInventory();
                 UI.Log("Open inventory.");
                 keyRegistered = true;
                 break;

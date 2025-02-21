@@ -15,10 +15,34 @@ public class Dungeon
 
     public Dungeon(int floorCount)
     {
+        Random rng = new();
         floors = new();
         for (int i = 0; i < floorCount; i++)
         {
-            floors.Add(new Map(10));
+            
+            if (i == floorCount - 1)
+            {
+                floors.Add(new(0));
+            }
+            else floors.Add(new Map(10));
+        }
+        for (int i = 0; i < floors.Count - 1; i++)
+        {
+            for (int j = 0; j < floors[i].stairs.Count; j++)
+            {
+                while (true)
+                {
+                    int x = rng.Next(0, floors[i+1].cells.GetLength(0));
+                    int y = rng.Next(0, floors[i+1].cells.GetLength(1));
+                    if ( floors[i+1].cells[x,y].gObjects is null || floors[i+1].cells[x,y].gObjects?.Count == 0)
+                    {
+                        Stairs s = new Stairs((x, y), StairDirection.Up, floors[i].stairs[j]);
+                        floors[i+1].cells[x,y].AddGameObject(s);
+                        floors[i].stairs[j].SetLinkedStairs(s);
+                        break;
+                    }
+                }
+            }
         }
     }
 
@@ -195,7 +219,7 @@ public class Dungeon
 public class Map
 {
     public Cell[,] cells;
-    public List<Stair> stairs;
+    public List<Stairs> stairs;
     public char[,] background; // static chars to draw over unexplored tiles
     public Map(int stairCount, int xLength = 128, int yLength = 128)
     {
