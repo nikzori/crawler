@@ -39,8 +39,10 @@ public static class Game
 
     public static void ChangeFloor(int floorNumber, (int x, int y) pos) 
     {
+        dungeon.GetCurrentFloor().cells[playerGO.pos.x, playerGO.pos.y].RemoveGameObject(playerGO);
         dungeon.currentFloor = floorNumber;
-        playerGO.MoveTo(pos.x, pos.y);
+        playerGO.pos = pos;
+        dungeon.GetCurrentFloor().cells[pos.x, pos.y].AddGameObject(playerGO);
         UI.UpdatePos();
     }
     public static void Descend((int x, int y) pos) { ChangeFloor(dungeon.currentFloor + 1, pos); }
