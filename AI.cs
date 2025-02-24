@@ -1,42 +1,30 @@
 public static class AI
 {
   static GameObject playerGO = Game.playerGO;
-  static Dictionary<GameObject, (AIState state, int autStored)> creatureDict = new();
+  public static Dictionary<Creature, AIState> creatures = new();
 
-  // to prevent interruptions of actions and allow creatures to perform actions across several Player turns,
-  // we need a variable to store available time
-  // the AIState redundant for now, but will probably be useful for pursuit, wandering around and other fluff
-  public static void Act(GameObject creatureGO, int aut)
+  public static void TestAct(int aut)
   {
-    // check whether the creature can see the player to do something besides idling
-    if (CanSeePlayer(creatureGO))
+    // holy fuck how do I even do this
+    foreach (Creature creature in creatures.Keys)
     {
-      //
-      int newAut = creatureDict[creatureGO].autStored + aut;
-      creatureDict[creatureGO] = (AIState.attack, newAut);
-      // check whether the player is in range of any attack
-      if (CanReachAttack(creatureGO, playerGO)) // and has enough aut to act !!!
+      creature.aut += aut;
+      // TODO: list of actions for creatures to cycle through aut costs
+      if (creature.aut >= 10)
       {
-        // attack
+        Random rng = new Random();
+        int x, y;
+        while (true)
+        {
+          x = rng.Next(-1, 2);
+          y = rng.Next(-1, 2);
+          if ((x != 0 || y != 0) && creature.gameObject.Move(x, y))
+            break;
+        }        
       }
-      else if (CanReachPoint(creatureGO, playerGO.pos))
-      {
-        // attempt movement
-        // since this is being run every turn it's fine to go to the player position
-      }
-      else
-      {
-        // can't get to player, can't attack player => idle
-        creatureDict[creatureGO] = (AIState.idle, 0);
-      }
-    }
-    else
-    {
-      // can't see player, go idle
-      // resetting time to 0 to avoid stacking it off screen
-      creatureDict[creatureGO] = (AIState.idle, 0);
     }
   }
+
 
   public static bool CanSeePlayer(GameObject creatureGO)
   {

@@ -4,10 +4,12 @@
 /// </summary>
 public class Entity
 {
+  public GameObject gameObject;
   public string name = "Entity";
   public Rune rune;
-  public Entity(string name, Rune rune)
+  public Entity(GameObject gameObject, string name, Rune rune)
   {
+    this.gameObject = gameObject;
     this.name = name;
     this.rune = rune;
   }

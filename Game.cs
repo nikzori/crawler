@@ -1,17 +1,17 @@
 public static class Game
 {
 
-    public static Dungeon dungeon;
+    public static Dungeon dungeon = new(10);
     public static Map currentMap { get { return dungeon.GetCurrentFloor(); } }
-    public static Creature player = new("Player", new Rune('@'));
-    public static GameObject playerGO = new(player);
+    public static Creature? player;
+    public static GameObject? playerGO;
     public static void Init(string pName)
     {
         int mapSize = 50;
         int xStart = 0;
         int yStart = 0;
 
-        dungeon = new Dungeon(10);
+        //dungeon = new Dungeon(10);
 
         bool startPosFound = false;
         for (int x = 2; x < mapSize; x++)
@@ -29,8 +29,9 @@ public static class Game
             if (startPosFound)
                 break;
         }
-        player = new Creature(pName, new Rune('@'), 5, 5, 5, 5, 1);
-        playerGO = new GameObject((xStart, yStart), player);
+        playerGO = new GameObject((xStart, yStart));
+        player = new Creature(playerGO, pName, new Rune('@'), 5, 5, 5, 5, 1, false);
+        
 
         dungeon.floors[0].AddGameObject(playerGO);
 

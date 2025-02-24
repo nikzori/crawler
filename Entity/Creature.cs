@@ -1,5 +1,8 @@
 public class Creature : Entity
 {
+
+  public int aut = 0;
+
   public int Somatics = 1,
               Cognition = 1,
               Reflexes = 1,
@@ -18,8 +21,9 @@ public class Creature : Entity
   public float movementSpeed { get { return 0.5f + (2 / Reflexes); } }
   public List<Item> inventory = new();
   public Dictionary<EquipSlot, Item> equipment = new();
-  public Creature(string name, Rune rune, int Somatics = 1, int Cognition = 1, int Reflexes = 1, int Willpower = 1, int level = 1) : base(name, rune)
+  public Creature(GameObject gameObject, string name, Rune rune, int Somatics = 1, int Cognition = 1, int Reflexes = 1, int Willpower = 1, int level = 1, bool isAIControlled = true) : base(gameObject, name, rune)
   {
+    this.gameObject = gameObject;
     this.name = name;
     this.rune = rune;
 
@@ -29,5 +33,8 @@ public class Creature : Entity
     this.Willpower = Willpower;
 
     this.level = level;
+
+    if (isAIControlled)
+      AI.creatures.Add(this, AIState.idle);
   }
 }

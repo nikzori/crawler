@@ -3,6 +3,7 @@ using Terminal.Gui;
 public static class UI 
 {
     static Label position = new();
+    static Label floorView = new();
 
     static MapView mapView = new(31);
     static View characterView = new();
@@ -48,12 +49,18 @@ public static class UI
         };
         View cogWil = new("COG: " + player.Cognition + " WIL: " + player.Willpower)
         {
-            Y = Pos.Top(statView) + 2,
+            Y = Pos.Top(statView) + 1,
             Width = Dim.Fill(1),
             Height = 1
         };
 
         position = new()
+        {
+            Y = Pos.Top(statView) + 2,
+            Width = 15,
+            Height = 2,
+        };
+        floorView = new() 
         {
             Width = 15,
             Height = 2,
@@ -74,7 +81,7 @@ public static class UI
             Visible = false
         };
 
-        statView.Add(playerName, position, somRef, cogWil);
+        statView.Add(playerName, position, floorView, somRef, cogWil);
         characterView.Add(playerName, statView);
         Application.Top.Add(mapView, characterView, logView, inventoryView);
 
@@ -82,12 +89,9 @@ public static class UI
         Task.Delay(1000).ContinueWith(_ =>
         {
             List<Stairs> currentStairs = Game.dungeon.GetCurrentFloor().stairs;
-            if (currentStairs.Count == 0)
-                Log("no stairs, wtf");
             foreach (Stairs stair in currentStairs)
                 Log("Added stairs at x: " + stair.pos.x + "; y: " + stair.pos.y);
         });
-        
     }
 
     public static void Log(string txt)
@@ -96,6 +100,7 @@ public static class UI
     }
     public static void UpdatePos()
     {
+        floorView.Text = "Floor: " + Game.dungeon.currentFloor.ToString();
         position.Text = "X: " + playerGO.pos.x + "\nY: " + playerGO.pos.y;
         mapView.Redraw(mapView.Bounds);
     }
@@ -108,6 +113,7 @@ public static class UI
     }
     public static void OpenMenu()
     {
+
     }
     public static void ShowMain() 
     {
@@ -238,9 +244,7 @@ public class MapView : View
                 break;
             case Key.D5:
                 //interact mode?
-                //just skip for now
                 Game.playerGO.Move(0, 0);
-                UI.Log("Pressed 5 on numpad");
                 keyRegistered = true;
                 break;
             case Key.D6:
@@ -266,7 +270,6 @@ public class MapView : View
                 break;
             case (Key)62:
                 keyRegistered = true;
-                UI.Log("hit closing angle bracket");
                 UI.InvokeInteract(Game.playerGO, new(Game.playerGO.pos));
                 break;
             case Key.Esc:
@@ -277,8 +280,11 @@ public class MapView : View
                 break;
         }
         if (keyRegistered)
+        {
+            AI.TestAct(10);
             this.SetNeedsDisplay();
-        UI.UpdatePos();
+            UI.UpdatePos();
+        }
         return keyRegistered;
 
     }

@@ -11,6 +11,7 @@ public class Dungeon
     public static Terminal.Gui.Attribute OBSCURED_COLOR = new(Color.DarkGray, Color.Black);
 
     public List<Map> floors;
+    public List<Creature> creatures;
     public int currentFloor = 0;
 
     public Dungeon(int floorCount)
