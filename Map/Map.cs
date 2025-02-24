@@ -34,7 +34,7 @@ public class Dungeon
                 {
                     int x = rng.Next(0, floors[i+1].cells.GetLength(0));
                     int y = rng.Next(0, floors[i+1].cells.GetLength(1));
-                    if ( floors[i+1].cells[x,y].gObjects is null || floors[i+1].cells[x,y].gObjects?.Count == 0)
+                    if ( (floors[i+1].cells[x,y].gObjects is null || floors[i+1].cells[x,y].gObjects?.Count == 0) && floors[i+1].cells[x,y].isWalkable)
                     {
                         Stairs s = new Stairs((x, y), StairDirection.Up, floors[i].stairs[j]);
                         floors[i+1].cells[x,y].AddGameObject(s);

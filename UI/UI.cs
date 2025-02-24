@@ -16,7 +16,7 @@ public static class UI
     {
         player = Game.player;
         playerGO = Game.playerGO;
-        mapView = new(31) { X = 0, Y = 0, };
+        mapView = new(33) { X = 0, Y = 0, };
 
         characterView = new()
         {
