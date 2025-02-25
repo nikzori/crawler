@@ -35,6 +35,28 @@ public static class Game
 
         dungeon.floors[0].AddGameObject(playerGO);
 
+        Random rng = new Random();
+        foreach (Map map in dungeon.floors)
+        {
+            int n = rng.Next(10,30);
+            for (int i = 0; i < n; i++)
+            {
+                while (true)
+                {
+                    int x = rng.Next(1, map.cells.GetLength(0));
+                    int y = rng.Next(1, map.cells.GetLength(1));
+                    if (map.cells[x,y].IsWalkable() && (map.cells[x,y].gObjects is null || map.cells[x,y].gObjects.Count == 0))
+                    {
+                        GameObject goblinGO = new((x, y));
+                        Creature goblin = new (goblinGO, "Goblin", new('g'));
+                        goblin.gameObject.entity = goblin;
+                        map.cells[x,y].AddGameObject(goblinGO);
+                        break;
+                    }
+                }
+            }
+        }
+
         UI.Init();
     }
 

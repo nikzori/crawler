@@ -55,7 +55,7 @@ public class GameObject
             UI.Log("Trying to move GameObject out of map boundaries; object stays at x: " + pos.x + "; y: " + pos.y);
             return false;
         }
-        if (!Game.dungeon.GetCurrentFloor().cells[x,y].isWalkable)
+        if (!Game.dungeon.GetCurrentFloor().cells[x,y].isWalkable || Game.dungeon.GetCurrentFloor().cells[x,y].HasCreature())
             return false;
         Game.dungeon.GetCurrentFloor().cells[pos.x, pos.y].RemoveGameObject(this);
         Game.dungeon.GetCurrentFloor().cells[x, y].AddGameObject(this);

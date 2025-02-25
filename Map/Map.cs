@@ -328,6 +328,20 @@ public struct Cell
             return true;
         else return false;
     }
+    public bool HasCreature()
+    {
+        if (gObjects is null)
+            return false;
+        if (gObjects.Count == 0)
+            return false;
+        
+        foreach(GameObject go in gObjects)
+        {
+            if (go.entity is Creature)
+                return true;
+        }
+        return false;
+    }
     public bool IsWall()
     {
         return (rune.Value == Dungeon.WALL && !isWalkable) ? true : false;
