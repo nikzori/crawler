@@ -11,8 +11,8 @@ For now, the plan is to just put out a playable release.
 
 ## Progress so far
 - Decent looking dungeons generated with cellular automata and some rooms thrown in at random positions.
-- Movement and proper dungeon render with super simple LOS
-- Lots of foundation bits for other UI, AI and items
+- Movement (including between floors) and proper dungeon render with super simple LOS
+- Lots of foundation bits for UI, creatures, etc.
 
 ## To-Do:
 - map gen:
@@ -20,18 +20,17 @@ For now, the plan is to just put out a playable release.
 - creatures:
   - work out damage and armor calculation with inventory and equipment 
     - Actually, work out the whole RPG system
+  - probably should refactor the Creature code
   - figure out the `.json` parser, at least for stats
 - items:
-  - make some basic items to carry around and equip (also implement parser)
+  - make some basic items to carry around and equip
   - make equipment actually contribute to calculations
   - figure out how the active abilities from items will work
 - UI:
   - add test items to inventory
   - add tile/entity inspection
+  - implement better FOV
 - AI: 
-  - add time progression
+  - create some sort of Action class/interface that both NPCs and Player will use
   - hook up basic functions like attacking and moving around
-  - add some idle routines: patrolling, sleeping
-  - add a basic mob spawner 
-- performance:
-  - get rid of screen tear when moving on the Y axis (ssh only)
+

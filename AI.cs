@@ -67,10 +67,11 @@ public static class AI
         break;
 
         case AIState.pursuit:
-          // go to the last place where the player was seen 
-          // walk around?
           if (CanSeePlayer(creature.gameObject))
             goto case AIState.attack;
+          // go to the last place where the player was seen 
+          // walk around?
+          
         break;
 
         case AIState.sleep:
@@ -78,22 +79,6 @@ public static class AI
           // if counter at 0, 
           // goto case AIState.idle;
         break;
-      }
-      if (CanSeePlayer(creature.gameObject))
-      {
-        creatures[creature] = AIState.attack;
-        // check if any abilities can reach player, use them if not on cooldown
-        // if creature has ranged weapon/role, stay and use that
-        // if melee, A* to the player
-      }
-      else if(creatures[creature] == AIState.pursuit)
-      {
-        
-      }
-      else 
-      {
-        // go to sleep if conditions are met
-        // otherwise pick walkable tile in sight, A* to it (this should probably account for pack tactics and movement)
       }
     }
   }
