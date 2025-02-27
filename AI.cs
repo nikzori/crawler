@@ -54,7 +54,7 @@ public static class AI
           {
             // update player position
             // weigh all action options, see if action can be performed (check cooldowns and such)
-            if (CanReachAttack(creature.gameObject, Game.playerGO)) //this should be internal function for either entity or abilities
+            if (CanReachAttack(creature.gameObject, Game.playerGO))
             {
               // use ability
             }
@@ -80,6 +80,13 @@ public static class AI
           // goto case AIState.idle;
         break;
       }
+
+      // things to add:
+      // sleep timer
+      // enemy position tracker
+      // path to tracked enemy
+      // action interface
+      // 
     }
   }
 
@@ -93,21 +100,26 @@ public static class AI
     if (x > 10 || y > 10)
       return false;
 
-    else // cast a ray, go through every point until we either reach Player or hit a non-transparent cell
-    {
-      (int x, int y)[] points = Dungeon.GetLine(creatureGO.pos, playerGO.pos);
-      for (int i = 0; i < points.Length; i++)
-      {
-        if (Game.dungeon.GetCurrentFloor().cells[points[i].x, points[i].y].isTransparent == false)
-          return false;
-      }
-      return true;
-    }
+    else return Dungeon.CanSeeTile(creatureGO.pos, playerGO.pos);
   }
 
-  // needs A* or something, idk
-  public static bool CanReachPoint(GameObject creatureGO, (int x, int y) pos)
+  public static bool CanReachPoint(GameObject creatureGO, (int x, int y) pos) // should add a ref variable also
   {
+    // an attempt at implementing A*; I have no idea what I'm doing
+    /*
+      starting from the tile that the creature occupies, we go through each cell around it;
+      for each cell, if a cell is walkable and is not already in the list of valid cells, calculate:
+      `g` - movement cost to get to this cell (in aut)
+      `h` - estimated movement cost (in aut) from this cell to target cell; just draw a bresenham's line 
+      the cell with the smallest value of `g + h` is considered the best cell to take, and goes into a list of valid cells
+      repeat until the target cell is reached
+      
+
+    */
+
+    // to find a path, we need a list of tiles that the creature would have to cross
+    List<(int x, int y)> path = new();
+
     return false;
   }
 
