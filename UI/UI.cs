@@ -1,6 +1,6 @@
 using Terminal.Gui;
 
-public static class UI 
+public static class UI
 {
     static Label position = new();
     static Label floorView = new();
@@ -60,7 +60,7 @@ public static class UI
             Width = 15,
             Height = 2,
         };
-        floorView = new() 
+        floorView = new()
         {
             Width = 15,
             Height = 2,
@@ -74,7 +74,7 @@ public static class UI
             Height = Dim.Fill(),
             Text = "Game started"
         };
-        inventoryView = new() 
+        inventoryView = new()
         {
             Width = Dim.Fill(),
             Height = Dim.Fill(),
@@ -115,13 +115,13 @@ public static class UI
     {
 
     }
-    public static void ShowMain() 
+    public static void ShowMain()
     {
         mapView.Visible = true;
         characterView.Visible = true;
         logView.Visible = true;
     }
-    public static void HideMain() 
+    public static void HideMain()
     {
         mapView.Visible = false;
         characterView.Visible = false;
@@ -153,9 +153,8 @@ public class MapView : View
     }
 
     #region Line of Sight
-    public override void Redraw(Rect bounds) 
+    public override void Redraw(Rect bounds)
     {
-        Random rng = new();
         //upper-left visible map cell coordinates 
         mX = Game.playerGO.pos.x - pX;
         mY = Game.playerGO.pos.y - pY;
@@ -176,29 +175,29 @@ public class MapView : View
                         if (Dungeon.CanSeeTile(Game.playerGO.pos, (mX, mY)))
                         {
                             c = Game.currentMap.cells[mX, mY].GetRune();
-                            Game.currentMap.cells[mX,mY].isRevealed = true;
+                            Game.currentMap.cells[mX, mY].isRevealed = true;
 
                             if (Game.currentMap.cells[mX, mY].IsWall())
                                 Application.Driver.SetAttribute(Dungeon.WALL_COLOR);
                             else Application.Driver.SetAttribute(Dungeon.FLOOR_COLOR);
                         }
-                        else if (Game.currentMap.cells[mX,mY].isRevealed)
+                        else if (Game.currentMap.cells[mX, mY].isRevealed)
                         {
                             c = Game.currentMap.cells[mX, mY].GetRune();
                             Application.Driver.SetAttribute(Dungeon.REVEALED_COLOR);
                         }
-                        else 
+                        else
                         {
                             c = Game.currentMap.background[mX + 15, mY + 15];
                             Application.Driver.SetAttribute(Dungeon.OBSCURED_COLOR);
                         }
                     }
-                    else if (Game.currentMap.cells[mX,mY].isRevealed)
+                    else if (Game.currentMap.cells[mX, mY].isRevealed)
                     {
                         c = Game.currentMap.cells[mX, mY].GetRune();
                         Application.Driver.SetAttribute(Dungeon.REVEALED_COLOR);
                     }
-                    else 
+                    else
                     {
                         c = Game.currentMap.background[mX + 15, mY + 15];
                         Application.Driver.SetAttribute(Dungeon.OBSCURED_COLOR);
@@ -215,7 +214,6 @@ public class MapView : View
             mX++;
             mY = Game.playerGO.pos.y - pY;
         }
-        
     }
     #endregion
     public override bool ProcessHotKey(KeyEvent keyEvent)
@@ -223,7 +221,6 @@ public class MapView : View
         if (!Visible)
             return false;
         bool keyRegistered = false;
-        
         switch (keyEvent.Key)
         {
             case Key.D1:
@@ -288,13 +285,12 @@ public class MapView : View
         return keyRegistered;
 
     }
-    
 }
 
 public class InteractEventArgs : EventArgs
 {
     public (int x, int y) pos;
-    public InteractEventArgs (int x, int y)
+    public InteractEventArgs(int x, int y)
     {
         pos.x = x;
         pos.y = y;
