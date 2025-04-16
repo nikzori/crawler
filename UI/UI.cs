@@ -41,18 +41,6 @@ public static class UI
             Width = 20,
             Height = 5
         };
-        Label somRef = new("SOM: " + player.Somatics + " REF: " + player.Reflexes)
-        {
-            Y = Pos.Top(statView),
-            Width = Dim.Fill(1),
-            Height = 1
-        };
-        View cogWil = new("COG: " + player.Cognition + " WIL: " + player.Willpower)
-        {
-            Y = Pos.Top(statView) + 1,
-            Width = Dim.Fill(1),
-            Height = 1
-        };
 
         position = new()
         {
@@ -81,7 +69,7 @@ public static class UI
             Visible = false
         };
 
-        statView.Add(playerName, position, floorView, somRef, cogWil);
+        statView.Add(playerName, position, floorView);
         characterView.Add(playerName, statView);
         Application.Top.Add(mapView, characterView, logView, inventoryView);
 
