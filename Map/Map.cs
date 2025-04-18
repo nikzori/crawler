@@ -20,34 +20,17 @@ public class Dungeon
         floors = new();
         for (int i = 0; i < floorCount; i++)
         {
-            
             if (i == floorCount - 1)
             {
                 floors.Add(new(0));
             }
             else floors.Add(new Map(10));
         }
-        for (int i = 0; i < floors.Count - 1; i++)
-        {
-            for (int j = 0; j < floors[i].stairs.Count; j++)
-            {
-                while (true)
-                {
-                    int x = rng.Next(0, floors[i+1].cells.GetLength(0));
-                    int y = rng.Next(0, floors[i+1].cells.GetLength(1));
-                    if ( (floors[i+1].cells[x,y].gObjects is null || floors[i+1].cells[x,y].gObjects?.Count == 0) && floors[i+1].cells[x,y].isWalkable)
-                    {
-                        Stairs s = new Stairs((x, y), StairDirection.Up, floors[i].stairs[j]);
-                        floors[i+1].cells[x,y].AddGameObject(s);
-                        floors[i].stairs[j].SetLinkedStairs(s);
-                        break;
-                    }
-                }
-            }
-        }
+
+        //TODO: new stairs generation
     }
 
-    public Map GetCurrentFloor()    
+    public Map GetCurrentFloor()
     {
         return floors[currentFloor];
     }
@@ -173,7 +156,7 @@ public class Dungeon
             int y = start.y;
             for (int x = start.x; x <= end.x; x++)
             {
-                if (!Game.currentMap.cells[x,y].isTransparent && x != end.x && x != start.x)
+                if (!Game.currentMap.cells[x, y].isTransparent && x != end.x && x != start.x)
                     return false;
                 if (D > 0)
                 {
@@ -202,7 +185,7 @@ public class Dungeon
             int x = start.x;
             for (int y = start.y; y <= end.y; y++)
             {
-                if (!Game.currentMap.cells[x,y].isTransparent && y != end.y && y != start.y)
+                if (!Game.currentMap.cells[x, y].isTransparent && y != end.y && y != start.y)
                     return false;
                 if (D > 0)
                 {
@@ -220,53 +203,32 @@ public class Dungeon
 public class Map
 {
     public Cell[,] cells;
-    public List<Stairs> stairs;
     public char[,] background; // static chars to draw over unexplored tiles
     public Map(int stairCount, int xLength = 128, int yLength = 128)
     {
         Random rng = new Random();
 
-        cells = MapGen.GenerateCA(xLength, yLength);
-        if (stairCount > 0)
-        {
-            stairs = new(stairCount); 
-            for (int i = 0; i < stairCount; i++)
-            {
-                while (true) // spawn stairs on random empty tiles
-                {
-                    int x = rng.Next(1, cells.GetLength(0));
-                    int y = rng.Next(1, cells.GetLength(1));
-                    if (!cells[x,y].IsWall())
-                    {
-                        stairs.Add(new ((x, y), StairDirection.Down));
-                        cells[x,y].AddGameObject(stairs[i]);
-                        break;
-                    }
-                }
-            }
-        }
-        
         background = new char[xLength + 30, yLength + 30]; // 15 extra tiles on each side
         int t;
         for (int x = 0; x < background.GetLength(0); x++)
         {
             for (int y = 0; y < background.GetLength(1); y++)
             {
-                background[x,y] = ' ';
+                background[x, y] = ' ';
                 t = rng.Next(0, 161);
-                if (t < 5) background[x,y] = '`';
-                if (t < 4) background[x,y] = '/';
-                if (t < 3) background[x,y] = '*';
-                if (t < 2) background[x,y] = '\\';
-                if (t < 1) background[x,y] = 'x';
+                if (t < 5) background[x, y] = '`';
+                if (t < 4) background[x, y] = '/';
+                if (t < 3) background[x, y] = '*';
+                if (t < 2) background[x, y] = '\\';
+                if (t < 1) background[x, y] = 'x';
             }
         }
     }
-    public void AddGameObject(GameObject gameObject)
+    public void AddCreature(Creature creature)
     {
-        int x = gameObject.pos.x;
-        int y = gameObject.pos.y;
-        cells[x, y].AddGameObject(gameObject);
+        int x = creature.pos.x;
+        int y = creature.pos.y;
+        cells[x, y].AddCreature(creature);
     }
 }
 
@@ -279,7 +241,11 @@ public struct Cell
 
     public bool isRevealed = false; //for line of sight
 
-    public List<GameObject>? gObjects;
+    public bool isStairsDown = false;
+    public bool isStairsUp = false;
+
+    public Creature? creature;
+    public List<Item>? items;
     public Cell()
     {
         rune = new('.');
@@ -291,56 +257,42 @@ public struct Cell
         this.isWalkable = isWalkable;
         this.colors = colors;
     }
-    public void AddGameObject(GameObject gObject)
+    public void AddCreature(Creature creature)
     {
-        if (gObjects == null)
-            gObjects = new List<GameObject>();
-        gObjects.Add(gObject);
+        if (!isWalkable || creature != null)
+            return;
+        else this.creature = creature;
     }
-    public void RemoveGameObject(GameObject gObject)
+    public void RemoveCreature(Creature creature)
     {
-        if (gObjects != null)
-        {
-            if (gObjects.Contains(gObject))
-                gObjects.Remove(gObject);
-        }
+        if (!isWalkable || creature == null)
+            return;
+        else creature = null;
     }
 
     public Rune GetRune()
     {
         if (IsWall())
             return rune;
-        if (gObjects == null || gObjects.Count == 0)
-            return rune;
-        else return gObjects.Last().rune;
+        if (creature != null)
+            return creature.rune;
+        else if (items != null && items.Count > 0)
+            return items[0].rune;
+        else return rune;
     }
 
     //shortcuts for convenience
     public bool IsWalkable()
     {
-        if (isWalkable)
-            return true;
-        else return false;
+        return isWalkable;
     }
     public bool IsTransparent()
     {
-        if (isTransparent)
-            return true;
-        else return false;
+        return isTransparent;
     }
     public bool HasCreature()
     {
-        if (gObjects is null)
-            return false;
-        if (gObjects.Count == 0)
-            return false;
-        
-        foreach(GameObject go in gObjects)
-        {
-            if (go.entity is Creature)
-                return true;
-        }
-        return false;
+        return (creature is null);
     }
     public bool IsWall()
     {

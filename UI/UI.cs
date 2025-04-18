@@ -10,13 +10,11 @@ public static class UI
     static Label logView = new();
     static Inventory inventoryView = new();
 
-    static Creature player;
-    static GameObject playerGO;
+    static Player player = Game.player;
     public static event EventHandler<InteractEventArgs> Interact = delegate { };
     public static void Init()
     {
         player = Game.player;
-        playerGO = Game.playerGO;
         mapView = new(33) { X = 0, Y = 0, };
 
         characterView = new()
@@ -74,12 +72,6 @@ public static class UI
         Application.Top.Add(mapView, characterView, logView, inventoryView);
 
         UpdatePos();
-        Task.Delay(1000).ContinueWith(_ =>
-        {
-            List<Stairs> currentStairs = Game.dungeon.GetCurrentFloor().stairs;
-            foreach (Stairs stair in currentStairs)
-                Log("Added stairs at x: " + stair.pos.x + "; y: " + stair.pos.y);
-        });
     }
 
     public static void Log(string txt)
@@ -89,7 +81,7 @@ public static class UI
     public static void UpdatePos()
     {
         floorView.Text = "Floor: " + Game.dungeon.currentFloor.ToString();
-        position.Text = "X: " + playerGO.pos.x + "\nY: " + playerGO.pos.y;
+        position.Text = "X: " + player.pos.x + "\nY: " + player.pos.y;
         mapView.Redraw(mapView.Bounds);
     }
 
@@ -144,8 +136,8 @@ public class MapView : View
     public override void Redraw(Rect bounds)
     {
         //upper-left visible map cell coordinates 
-        mX = Game.playerGO.pos.x - pX;
-        mY = Game.playerGO.pos.y - pY;
+        mX = Game.player.pos.x - pX;
+        mY = Game.player.pos.y - pY;
 
 
         for (int tx = 0; tx < boundWidth; tx++)
@@ -160,7 +152,7 @@ public class MapView : View
                     {
                         // very unnatural (and probably very inefficient) LOS made with Bresenham's algorythm, 
                         // but hey, it works
-                        if (Dungeon.CanSeeTile(Game.playerGO.pos, (mX, mY)))
+                        if (Dungeon.CanSeeTile(Game.player.pos, (mX, mY)))
                         {
                             c = Game.currentMap.cells[mX, mY].GetRune();
                             Game.currentMap.cells[mX, mY].isRevealed = true;
@@ -200,7 +192,7 @@ public class MapView : View
                 mY++;
             }
             mX++;
-            mY = Game.playerGO.pos.y - pY;
+            mY = Game.player.pos.y - pY;
         }
     }
     #endregion
@@ -212,40 +204,40 @@ public class MapView : View
         switch (keyEvent.Key)
         {
             case Key.D1:
-                Game.playerGO.Move(-1, -1);
+                Game.player.Move(-1, -1);
                 keyRegistered = true;
                 break;
             case Key.D2:
-                Game.playerGO.Move(0, -1);
+                Game.player.Move(0, -1);
                 keyRegistered = true;
                 break;
             case Key.D3:
-                Game.playerGO.Move(1, -1);
+                Game.player.Move(1, -1);
                 keyRegistered = true;
                 break;
             case Key.D4:
-                Game.playerGO.Move(-1, 0);
+                Game.player.Move(-1, 0);
                 keyRegistered = true;
                 break;
             case Key.D5:
                 //interact mode?
-                Game.playerGO.Move(0, 0);
+                Game.player.Move(0, 0);
                 keyRegistered = true;
                 break;
             case Key.D6:
-                Game.playerGO.Move(1, 0);
+                Game.player.Move(1, 0);
                 keyRegistered = true;
                 break;
             case Key.D7:
-                Game.playerGO.Move(-1, 1);
+                Game.player.Move(-1, 1);
                 keyRegistered = true;
                 break;
             case Key.D8:
-                Game.playerGO.Move(0, 1);
+                Game.player.Move(0, 1);
                 keyRegistered = true;
                 break;
             case Key.D9:
-                Game.playerGO.Move(1, 1);
+                Game.player.Move(1, 1);
                 keyRegistered = true;
                 break;
             case Key.i:
@@ -255,7 +247,7 @@ public class MapView : View
                 break;
             case (Key)62:
                 keyRegistered = true;
-                UI.InvokeInteract(Game.playerGO, new(Game.playerGO.pos));
+                UI.InvokeInteract(Game.player, new(Game.player.pos));
                 break;
             case Key.Esc:
                 keyRegistered = true;

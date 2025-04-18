@@ -1,6 +1,6 @@
 public static class AI
 {
-  static GameObject playerGO = Game.playerGO;
+  static Player player = Game.player;
   public static Dictionary<Creature, AIState> creatures = new();
 
   // simple test for creature and map code I have so far
@@ -18,25 +18,25 @@ public static class AI
         {
           x = rng.Next(-1, 2);
           y = rng.Next(-1, 2);
-          if (creature.gameObject.Move(x, y) || cntr > 3)
+          if (creature.Move(x, y) || cntr > 3)
             break;
           else cntr++;
-          
-        }        
+
+        }
       }
     }
   }
 
   public static void Act(int aut)
   {
-    foreach(Creature creature in creatures.Keys)
+    foreach (Creature creature in creatures.Keys)
     {
       creature.aut += aut;
 
-      switch(creatures[creature])
+      switch (creatures[creature])
       {
         case AIState.idle:
-          if (CanSeePlayer(creature.gameObject))
+          if (CanSeePlayer(creature))
           {
             creatures[creature] = AIState.attack;
             goto case AIState.attack; // no idea if this works
@@ -47,38 +47,38 @@ public static class AI
             // obviously, gotta add extra timer for that
             // otherwise pick random unoccupied point in sight, A* to it, idle in place for 30-50 aut, go to next place
           }
-        break;
+          break;
 
         case AIState.attack:
-          if (CanSeePlayer(creature.gameObject))
+          if (CanSeePlayer(creature))
           {
             // update player position
             // weigh all action options, see if action can be performed (check cooldowns and such)
-            if (CanReachAttack(creature.gameObject, Game.playerGO))
+            if (CanReachAttack(creature, Game.player))
             {
               // use ability
             }
-            else 
+            else
             {
               // navigate closer to player
             }
           }
           else goto case AIState.pursuit;
-        break;
+          break;
 
         case AIState.pursuit:
-          if (CanSeePlayer(creature.gameObject))
+          if (CanSeePlayer(creature))
             goto case AIState.attack;
           // go to the last place where the player was seen 
           // walk around?
-          
-        break;
+
+          break;
 
         case AIState.sleep:
           // deduct aut from sleep timer
           // if counter at 0, 
           // goto case AIState.idle;
-        break;
+          break;
       }
 
       // things to add:
@@ -90,20 +90,20 @@ public static class AI
     }
   }
 
-  public static bool CanSeePlayer(GameObject creatureGO)
+  public static bool CanSeePlayer(Creature creature)
   {
     //check whether the Player is in vision range in the first place
-    int x = Math.Abs(creatureGO.pos.x - playerGO.pos.x);
-    int y = Math.Abs(creatureGO.pos.y - playerGO.pos.y);
+    int x = Math.Abs(creature.pos.x - player.pos.x);
+    int y = Math.Abs(creature.pos.y - player.pos.y);
     // since our FOV is square shaped (because of equidistant movement), 
     // we don't need to calculate the distance with a square root
     if (x > 10 || y > 10)
       return false;
 
-    else return Dungeon.CanSeeTile(creatureGO.pos, playerGO.pos);
+    else return Dungeon.CanSeeTile(creature.pos, player.pos);
   }
 
-  public static bool CanReachPoint(GameObject creatureGO, (int x, int y) pos) // should add a ref variable also
+  public static bool CanReachPoint(Creature creature, (int x, int y) pos) // should add a ref variable also
   {
     // an attempt at implementing A*; I have no idea what I'm doing
     /*
@@ -124,7 +124,7 @@ public static class AI
   }
 
 
-  public static bool CanReachAttack(GameObject host, GameObject target)
+  public static bool CanReachAttack(Creature host, Creature target)
   {
     return false;
   }
