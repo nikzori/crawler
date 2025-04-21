@@ -16,9 +16,11 @@ public class Creature
     public Rune rune { get; set; } // gonna need this for status effects and such
 
     public int aut = 0;
-    public Creature((int x, int y) pos)
+    public Creature(string name, (int x, int y) pos, Rune rune)
     {
+        this.name = name;
         this.pos = pos;
+        this.rune = rune;
     }
 
     public bool Move(int x, int y)
@@ -33,12 +35,13 @@ public class Creature
     {
         if (Game.dungeon.GetCurrentFloor().cells.GetLength(0) < x || Game.dungeon.GetCurrentFloor().cells.GetLength(1) < y)
         {
-            UI.Log("Trying to move GameObject out of map boundaries; object stays at x: " + pos.x + "; y: " + pos.y);
+            UI.Log("Trying to move creature out of map boundaries; object stays at x: " + pos.x + "; y: " + pos.y);
             return false;
         }
         if (!Game.dungeon.GetCurrentFloor().cells[x, y].isWalkable || Game.dungeon.GetCurrentFloor().cells[x, y].HasCreature())
             return false;
-        Game.dungeon.GetCurrentFloor().cells[pos.x, pos.y].RemoveCreature(this);
+
+        Game.dungeon.GetCurrentFloor().cells[pos.x, pos.y].RemoveCreature();
         Game.dungeon.GetCurrentFloor().cells[x, y].AddCreature(this);
         pos = (x, y);
         return true;

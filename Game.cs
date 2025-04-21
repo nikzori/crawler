@@ -26,38 +26,16 @@ public class Game
             if (startPosFound)
                 break;
         }
-        player = new Player((xStart, yStart));
+        player = new Player(pName, (xStart, yStart), '@');
         player.name = pName;
         dungeon.floors[0].AddCreature(player);
-        Init();
-    }
-    public static void Init()
-    {
-        Random rng = new Random();
-        foreach (Map map in dungeon.floors)
-        {
-            int n = rng.Next(10, 30);
-            for (int i = 0; i < n; i++)
-            {
-                while (true)
-                {
-                    int x = rng.Next(1, map.cells.GetLength(0));
-                    int y = rng.Next(1, map.cells.GetLength(1));
-                    if (map.cells[x, y].IsWalkable() && map.cells[x, y].creature is null)
-                    {
-                        Creature goblin = new((x, y));
-                        map.cells[x, y].AddCreature(goblin);
-                        break;
-                    }
-                }
-            }
-        }
+
         UI.Init();
     }
 
     public static void ChangeFloor(int floorNumber, (int x, int y) pos)
     {
-        dungeon.GetCurrentFloor().cells[player.pos.x, player.pos.y].RemoveCreature(player);
+        dungeon.GetCurrentFloor().cells[player.pos.x, player.pos.y].RemoveCreature();
         dungeon.currentFloor = floorNumber;
         player.pos = pos;
         dungeon.GetCurrentFloor().cells[pos.x, pos.y].AddCreature(player);

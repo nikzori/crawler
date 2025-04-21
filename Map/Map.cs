@@ -259,15 +259,11 @@ public struct Cell
     }
     public void AddCreature(Creature creature)
     {
-        if (!isWalkable || creature != null)
-            return;
-        else this.creature = creature;
+        this.creature = creature;
     }
-    public void RemoveCreature(Creature creature)
+    public void RemoveCreature()
     {
-        if (!isWalkable || creature == null)
-            return;
-        else creature = null;
+        creature = null;
     }
 
     public Rune GetRune()
@@ -292,7 +288,7 @@ public struct Cell
     }
     public bool HasCreature()
     {
-        return (creature is null);
+        return !(creature is null);
     }
     public bool IsWall()
     {

@@ -222,6 +222,7 @@ public class MapView : View
             case Key.D5:
                 //interact mode?
                 Game.player.Move(0, 0);
+                UI.Log("Key Registered");
                 keyRegistered = true;
                 break;
             case Key.D6:
