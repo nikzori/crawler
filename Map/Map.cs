@@ -207,7 +207,7 @@ public class Map
     public Map(int stairCount, int xLength = 128, int yLength = 128)
     {
         Random rng = new Random();
-
+        cells = MapGen.GenerateCA(xLength, yLength);
         background = new char[xLength + 30, yLength + 30]; // 15 extra tiles on each side
         int t;
         for (int x = 0; x < background.GetLength(0); x++)

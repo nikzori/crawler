@@ -6,11 +6,9 @@ public class Game
     public static Player player;
     public Game(string pName)
     {
-        int mapSize = 50;
+        int mapSize = dungeon.floors[0].cells.GetLength(0);
         int xStart = 0;
         int yStart = 0;
-
-        //dungeon = new Dungeon(10);
 
         bool startPosFound = false;
         for (int x = 2; x < mapSize; x++)
@@ -35,8 +33,6 @@ public class Game
     }
     public static void Init()
     {
-
-
         Random rng = new Random();
         foreach (Map map in dungeon.floors)
         {
@@ -56,7 +52,6 @@ public class Game
                 }
             }
         }
-
         UI.Init();
     }
 
