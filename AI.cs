@@ -2,7 +2,7 @@ public static class AI
 {
   static Player player = Game.player;
   public static Dictionary<Creature, AIState> creatures = new();
-
+  public static Random rng = new();
   // simple test for creature and map code I have so far
   public static void TestAct(int aut)
   {
@@ -43,9 +43,12 @@ public static class AI
           }
           else
           {
-            // go to sleep if timer/counter requires sleep
-            // obviously, gotta add extra timer for that
-            // otherwise pick random unoccupied point in sight, A* to it, idle in place for 30-50 aut, go to next place
+            if (rng.Next(0, 100) <= 1) // this should probably be a separate timer
+            {
+              creature.sleepTimer = 200 + aut;
+              goto case AIState.sleep;
+            }
+            // do nothing or take a step
           }
           break;
 
@@ -75,9 +78,9 @@ public static class AI
           break;
 
         case AIState.sleep:
-          // deduct aut from sleep timer
-          // if counter at 0, 
-          // goto case AIState.idle;
+          creature.sleepTimer -= aut;
+          if (creature.sleepTimer <= 0)
+            goto case AIState.idle;
           break;
       }
 
@@ -103,7 +106,7 @@ public static class AI
     else return Dungeon.CanSeeTile(creature.pos, player.pos);
   }
 
-  public static bool CanReachPoint(Creature creature, (int x, int y) pos) // should add a ref variable also
+  public static bool CanReachPoint(Creature creature, (int x, int y) target) // should add a ref variable also
   {
     // an attempt at implementing A*; I have no idea what I'm doing
     /*
@@ -126,7 +129,9 @@ public static class AI
 
   public static bool CanReachAttack(Creature host, Creature target)
   {
-    return false;
+    if (Math.Abs(host.pos.x - target.pos.x) <= 1 && Math.Abs(host.pos.y - target.pos.x) <= 1)
+      return true;
+    else return false;
   }
 }
 

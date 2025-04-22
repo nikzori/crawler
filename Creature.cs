@@ -16,6 +16,8 @@ public class Creature
     public Rune rune { get; set; } // gonna need this for status effects and such
 
     public int aut = 0;
+    public int sleepTimer = 0; // time left to sleep in auts
+
     public Creature(string name, (int x, int y) pos, Rune rune)
     {
         this.name = name;
@@ -45,5 +47,12 @@ public class Creature
         Game.dungeon.GetCurrentFloor().cells[x, y].AddCreature(this);
         pos = (x, y);
         return true;
+    }
+
+    public float Attack()
+    {
+        float result = 1f;
+
+        return result;
     }
 }
