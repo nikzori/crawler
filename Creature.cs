@@ -7,8 +7,9 @@
  */
 public class Creature
 {
+    public static Rune skeleton = new('\u223B');
     public string name;
-    public int health = 10;
+    public float health = 10f;
     public int level = 1;
     public (int x, int y) pos;
 
@@ -16,13 +17,13 @@ public class Creature
     public Rune rune { get; set; } // gonna need this for status effects and such
 
     public int aut = 0;
-    public int sleepTimer = 0; // time left to sleep in auts
 
     public Creature(string name, (int x, int y) pos, Rune rune)
     {
         this.name = name;
         this.pos = pos;
         this.rune = rune;
+        AI.creatures.Add(this, AIState.idle);
     }
 
     public bool Move(int x, int y)
@@ -49,10 +50,18 @@ public class Creature
         return true;
     }
 
-    public float Attack()
+    public void ReceiveDamage(float damage)
     {
-        float result = 1f;
+        health -= damage;
 
-        return result;
+        if (health <= 0)
+            OnCreatureDeath();
+    }
+
+    void OnCreatureDeath()
+    {
+        AI.creatures.Remove(this);
+        Game.currentMap.cells[pos.x, pos.y].RemoveCreature();
+        Game.currentMap.cells[pos.x, pos.y].rune = Creature.skeleton;
     }
 }

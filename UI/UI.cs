@@ -204,19 +204,19 @@ public class MapView : View
         switch (keyEvent.Key)
         {
             case Key.D1:
-                Game.player.Move(-1, -1);
+                Game.player.TileInteract(-1, -1);
                 keyRegistered = true;
                 break;
             case Key.D2:
-                Game.player.Move(0, -1);
+                Game.player.TileInteract(0, -1);
                 keyRegistered = true;
                 break;
             case Key.D3:
-                Game.player.Move(1, -1);
+                Game.player.TileInteract(1, -1);
                 keyRegistered = true;
                 break;
             case Key.D4:
-                Game.player.Move(-1, 0);
+                Game.player.TileInteract(-1, 0);
                 keyRegistered = true;
                 break;
             case Key.D5:
@@ -226,19 +226,19 @@ public class MapView : View
                 keyRegistered = true;
                 break;
             case Key.D6:
-                Game.player.Move(1, 0);
+                Game.player.TileInteract(1, 0);
                 keyRegistered = true;
                 break;
             case Key.D7:
-                Game.player.Move(-1, 1);
+                Game.player.TileInteract(-1, 1);
                 keyRegistered = true;
                 break;
             case Key.D8:
-                Game.player.Move(0, 1);
+                Game.player.TileInteract(0, 1);
                 keyRegistered = true;
                 break;
             case Key.D9:
-                Game.player.Move(1, 1);
+                Game.player.TileInteract(1, 1);
                 keyRegistered = true;
                 break;
             case Key.i:

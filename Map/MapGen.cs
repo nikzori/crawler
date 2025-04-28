@@ -243,7 +243,7 @@ public static class MapGen
   /// <summary>
   ///   Takes a Cell array and removes isolated rooms. Returns true if the walkable space is big enough.
   /// </summary>
-  public static bool CleanIsolation(Cell[,] input)
+  public static bool CleanIsolation(Cell[,] input) // should account for stairs later
   {
     float minFraction = 0.3f;
     // by using flood fill we can check if the interconnected space on the map is big enough

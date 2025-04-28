@@ -1,5 +1,24 @@
 public class Player : Creature
 {
   public int sightRadius = 10;
-  public Player(string name, (int x, int y) pos, Rune rune) : base(name, pos, rune) { }
+
+  public List<Item> inventory = new();
+
+  public Player(string name, (int x, int y) pos, Rune rune) : base(name, pos, rune)
+  {
+    AI.creatures.Remove(this); // kinda janky but this is probably going to be the only issue with inheritance, so whatever
+  }
+
+  public void TileInteract((int x, int y) pos) { TileInteract(pos.x, pos.y); }
+
+  public void TileInteract(int x, int y)
+  {
+    int xt = pos.x + x;
+    int yt = pos.y + y;
+
+    if (Game.currentMap.cells[xt, yt].creature is null)
+      this.MoveTo(xt, yt);
+    else Game.currentMap.cells[xt, yt].creature.ReceiveDamage(10f);
+  }
+
 }

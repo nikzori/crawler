@@ -204,7 +204,7 @@ public class Map
 {
     public Cell[,] cells;
     public char[,] background; // static chars to draw over unexplored tiles
-    public Map(int stairCount, int xLength = 128, int yLength = 128)
+    public Map(int stairCount, int creatureLevel = 1, int xLength = 128, int yLength = 128)
     {
         Random rng = new Random();
         cells = MapGen.GenerateCA(xLength, yLength);
@@ -215,13 +215,21 @@ public class Map
             for (int y = 0; y < background.GetLength(1); y++)
             {
                 background[x, y] = ' ';
-                t = rng.Next(0, 161);
+                t = rng.Next(0, 300);
                 if (t < 5) background[x, y] = '`';
                 if (t < 4) background[x, y] = '/';
                 if (t < 3) background[x, y] = '*';
                 if (t < 2) background[x, y] = '\\';
                 if (t < 1) background[x, y] = 'x';
             }
+        }
+
+        for (int i = 0; i < 10; i++)
+        {
+            int x = rng.Next(0, xLength);
+            int y = rng.Next(0, yLength);
+            if (cells[x, y].IsWalkable())
+                AddCreature(new Creature("Goblin", (x, y), 'g'));
         }
     }
     public void AddCreature(Creature creature)
