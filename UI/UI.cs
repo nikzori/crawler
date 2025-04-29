@@ -259,7 +259,7 @@ public class MapView : View
         }
         if (keyRegistered)
         {
-            AI.TestAct(10);
+            AI.Act(10);
             this.SetNeedsDisplay();
             UI.UpdatePos();
         }

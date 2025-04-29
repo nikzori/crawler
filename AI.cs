@@ -69,12 +69,11 @@ public static class AI
                         // weigh all action options, see if action can be performed (check cooldowns and such)
                         if (CanReachAttack(creature, Game.player))
                         {
-                            // simple attack for now
-
+                            UI.Log(creature.name + " attacks " + Game.player.name);
                         }
                         else
                         {
-                            // navigate closer to player
+                            creature.MoveTo(Navigate(creature.pos, Game.player.pos)[0]);
                         }
                     }
                     else goto case AIState.pursuit;
@@ -109,7 +108,7 @@ public static class AI
         else return Dungeon.CanSeeTile(creature.pos, player.pos);
     }
 
-    public static bool CanReachPoint(Creature creature, (int x, int y) target) // should maybe add a ref variable also
+    public static (int x, int y)[] Navigate((int x, int y) start, (int x, int y) target) // should maybe add a ref variable also
     {
         // an attempt at implementing A*; I have no idea what I'm doing
         /*
@@ -124,7 +123,7 @@ public static class AI
         // to find a path, we need a list of tiles that the creature would have to cross
         List<(int x, int y)> path = new();
 
-        return false;
+        return path.ToArray();
     }
 
 

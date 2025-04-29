@@ -49,6 +49,7 @@ public class Creature
         pos = (x, y);
         return true;
     }
+    public bool MoveTo((int x, int y) pos) { return MoveTo(pos.x, pos.y); }
 
     public void ReceiveDamage(float damage)
     {
@@ -62,6 +63,5 @@ public class Creature
     {
         AI.creatures.Remove(this);
         Game.currentMap.cells[pos.x, pos.y].RemoveCreature();
-        Game.currentMap.cells[pos.x, pos.y].rune = Creature.skeleton;
     }
 }
