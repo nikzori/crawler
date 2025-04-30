@@ -111,6 +111,7 @@ public static class AI
     public static (int x, int y)[] Navigate((int x, int y) start, (int x, int y) target) // should maybe add a ref variable also
     {
         // an attempt at implementing A*; I have no idea what I'm doing
+        // I can probably reduce this to a single tile, also
         /*
           starting from the tile that the creature occupies, we go through each cell around it;
           for each cell, if a cell is walkable and is not already in the list of valid cells, calculate:
@@ -120,12 +121,41 @@ public static class AI
           repeat until the target cell is reached
         */
 
-        // to find a path, we need a list of tiles that the creature would have to cross
-        List<(int x, int y)> path = new();
+        List<(int x, int y)> path = new(); // final list of all tiles
+        Cell[,] map = Game.currentMap.cells; // shortcut to current map
+        List<(int x, int y)> adjacents = new();
+        while (true)
+        {
+            for (int xt = -1; xt < 2; xt++)
+            {
+                for (int yt = -1; yt < 2; yt++) // cycle through tiles around the creature
+                {
+                    int dx = start.x + xt;
+                    int dy = start.y + yt;
 
+                    if (dx <= 0 || dy <= 0 || dx >= map.GetLength(0) || dy >= map.GetLength(1))
+                        continue;
+
+                    if (map[dx, dy].IsWalkable() && !path.Contains((dx, dy)))
+                        adjacents.Add((dx, dy));
+                }
+            }
+            if (adjacents.Count == 0)
+                break;
+            (int x, int y) bestTile = adjacents[0];
+            foreach ((int x, int y) position in adjacents)
+            {
+
+                int g = path.Count;
+                int hPos = Dungeon.GetLine(position, target).Length;
+                int hCur = Dungeon.GetLine(bestTile, target).Length;
+                if ((g + hPos) < (g + hCur))
+                    bestTile = position;
+            }
+            path.Add(bestTile);
+        }
         return path.ToArray();
     }
-
 
     public static bool CanReachAttack(Creature host, Creature target)
     {

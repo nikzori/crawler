@@ -204,6 +204,8 @@ public class Map
 {
     public Cell[,] cells;
     public char[,] background; // static chars to draw over unexplored tiles
+    public Node[,] navNodes;
+
     public Map(int stairCount, int creatureLevel = 1, int xLength = 128, int yLength = 128)
     {
         Random rng = new Random();
@@ -231,7 +233,49 @@ public class Map
             if (cells[x, y].IsWalkable())
                 AddCreature(new Creature("Goblin", (x, y), 'g'));
         }
+
+        // pathfinding
+        navNodes = new Node[cells.GetLength(0), cells.GetLength(1)];
+        for (int i = 0; i < navNodes.GetLength(0); i++)
+        {
+            for (int j = 0; i < navNodes.GetLength(1); j++)
+            {
+                navNodes[i, j].isWalkable = cells[i, j].IsWalkable();
+                navNodes[i, j].state = NodeState.Untested;
+            }
+        }
     }
+    public List<(int x, int y)> GetPath((int x, int y) start, (int x, int y) finish)
+    {
+        List<(int x, int y)> path = new();
+        // following https://web.archive.org/web/20170505034417/http://blog.two-cats.com/2014/06/a-star-example/
+        path.Add(start);
+        int index = 0;
+        List<Node> adjacentNodes = new();
+        while (true)
+        {
+            for (int x = -1; x < 2; x++)
+            {
+                for (int y = -1; y < 2; y++)
+                {
+                    int dx = path[index].x + x;
+                    int dy = path[index].y + y;
+                    if (dx <= 0 || dy <= 0 || dx >= cells.GetLength(0) || dy >= cells.GetLength(1))
+                        continue;
+                    if (navNodes[dx, dy].isWalkable && navNodes[dx, dy].state != NodeState.Closed)
+                        adjacentNodes.Add(navNodes[dx, dy]);
+                }
+            }
+
+            foreach (Node node in adjacentNodes)
+            {
+                node.G = index + 1;
+            }
+        }
+
+        return path;
+    }
+
     public void AddCreature(Creature creature)
     {
         int x = creature.pos.x;
@@ -240,6 +284,16 @@ public class Map
     }
 }
 
+public class Node
+{
+    public bool isWalkable = false;
+    public float G { get; set; }
+    public float H { get; set; }
+    public float F { get { return this.G + this.H; } }
+    public NodeState state { get; set; }
+    public Node? parent { get; set; }
+}
+public enum NodeState { Untested, Open, Closed }
 public struct Cell
 {
     public Rune rune;
