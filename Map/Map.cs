@@ -236,12 +236,13 @@ public class Map
 
         // pathfinding
         navNodes = new Node[cells.GetLength(0), cells.GetLength(1)];
-        for (int i = 0; i < navNodes.GetLength(0); i++)
+        for (int x = 0; x < navNodes.GetLength(0); x++)
         {
-            for (int j = 0; i < navNodes.GetLength(1); j++)
+            for (int y = 0; y < navNodes.GetLength(1); y++)
             {
-                navNodes[i, j].isWalkable = cells[i, j].IsWalkable();
-                navNodes[i, j].state = NodeState.Untested;
+                navNodes[x, y].position = (x, y);
+                navNodes[x, y].isWalkable = cells[x, y].IsWalkable();
+                navNodes[x, y].state = NodeState.Untested;
             }
         }
     }
@@ -249,31 +250,39 @@ public class Map
     {
         List<(int x, int y)> path = new();
         // following https://web.archive.org/web/20170505034417/http://blog.two-cats.com/2014/06/a-star-example/
+        // still gonna need Pythagoras' despite equidistant movement for more realistic behavior and probably to avoid creatures not moving diagonally
         path.Add(start);
         int index = 0;
         List<Node> adjacentNodes = new();
-        while (true)
-        {
-            for (int x = -1; x < 2; x++)
-            {
-                for (int y = -1; y < 2; y++)
-                {
-                    int dx = path[index].x + x;
-                    int dy = path[index].y + y;
-                    if (dx <= 0 || dy <= 0 || dx >= cells.GetLength(0) || dy >= cells.GetLength(1))
-                        continue;
-                    if (navNodes[dx, dy].isWalkable && navNodes[dx, dy].state != NodeState.Closed)
-                        adjacentNodes.Add(navNodes[dx, dy]);
-                }
-            }
 
-            foreach (Node node in adjacentNodes)
+        return path;
+    }
+    public List<Node> GetAdjacentNodes(Node currentNode)
+    {
+        List<Node> result = new();
+
+        for (int x = -1; x < 2; x++)
+        {
+            for (int y = -1; y < 2; y++)
             {
-                node.G = index + 1;
+                int dx = currentNode.position.x + x;
+                int dy = currentNode.position.x + y;
+                if (dx < 0 || dx >= navNodes.GetLength(0) || dy < 0 || dy >= navNodes.GetLength(1))
+                    continue;
+
+                Node node = navNodes[dx, dy];
+
+                if (!node.isWalkable)
+                    continue;
+                if (node.state == NodeState.Closed)
+                    continue;
+
+                if (node.state == NodeState.Open)
+                {
+                }
             }
         }
 
-        return path;
     }
 
     public void AddCreature(Creature creature)
@@ -286,6 +295,7 @@ public class Map
 
 public class Node
 {
+    public (int x, int y) position;
     public bool isWalkable = false;
     public float G { get; set; }
     public float H { get; set; }
