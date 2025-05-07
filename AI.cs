@@ -1,98 +1,92 @@
-public static class AI
+public class AI
 {
     static Player player = Game.player;
-    public static Dictionary<Creature, AIState> creatures = new();
     public static Random rng = new();
     // simple test for creature and map code I have so far
-    public static void TestAct(int aut)
+    public static void TestAct(Creature creature, int aut)
     {
-        foreach (Creature creature in creatures.Keys)
+        creature.aut += aut;
+        if (creature.aut >= 10)
         {
-            creature.aut += aut;
-            if (creature.aut >= 10)
+            Random rng = new Random();
+            int x, y;
+            int cntr = 0;
+            while (true)
             {
-                Random rng = new Random();
-                int x, y;
-                int cntr = 0;
-                while (true)
-                {
-                    x = rng.Next(-1, 2);
-                    y = rng.Next(-1, 2);
-                    if (creature.Move(x, y) || cntr > 3)
-                        break;
-                    else cntr++;
+                x = rng.Next(-1, 2);
+                y = rng.Next(-1, 2);
+                if (creature.Move(x, y) || cntr > 3)
+                    break;
+                else cntr++;
 
-                }
             }
         }
     }
 
-    public static void Act(int aut)
-    {
-        foreach (Creature creature in creatures.Keys)
-        {
-            creature.aut += aut;
 
-            switch (creatures[creature])
-            {
-                case AIState.idle:
-                    if (CanSeePlayer(creature))
+    public static void Act(Monster creature, int aut)
+    {
+        creature.aut += aut;
+
+        switch (creature.state)
+        {
+            case AIState.idle:
+                if (CanSeePlayer(creature))
+                {
+                    creature.state = AIState.attack;
+                    goto case AIState.attack; // no idea if this works
+                }
+                else
+                {
+                    // do nothing or take a step
+                    if (rng.Next(0, 101) < 5)
+                        return;
+                    else
                     {
-                        creatures[creature] = AIState.attack;
-                        goto case AIState.attack; // no idea if this works
+                        int x, y;
+                        int cntr = 0;
+                        while (true)
+                        {
+                            x = rng.Next(-1, 2);
+                            y = rng.Next(-1, 2);
+                            if (creature.Move(x, y) || cntr > 5)
+                                break;
+                            else cntr++;
+                        }
+                    }
+                }
+                break;
+
+            case AIState.attack:
+                if (CanSeePlayer(creature))
+                {
+                    // update player position
+                    // weigh all action options, see if action can be performed (check cooldowns and such)
+                    if (CanReachAttack(creature, Game.player))
+                    {
+                        UI.Log(creature.name + " attacks " + Game.player.name);
                     }
                     else
                     {
-                        // do nothing or take a step
-                        if (rng.Next(0, 101) < 5)
-                            return;
-                        else
-                        {
-                            int x, y;
-                            int cntr = 0;
-                            while (true)
-                            {
-                                x = rng.Next(-1, 2);
-                                y = rng.Next(-1, 2);
-                                if (creature.Move(x, y) || cntr > 5)
-                                    break;
-                                else cntr++;
-                            }
-                        }
+                        creature.MoveTo(Pathfinding.GetPath(creature.pos, Game.player.pos)[0].position);
                     }
-                    break;
+                }
+                else goto case AIState.pursuit;
+                break;
 
-                case AIState.attack:
-                    if (CanSeePlayer(creature))
-                    {
-                        // update player position
-                        // weigh all action options, see if action can be performed (check cooldowns and such)
-                        if (CanReachAttack(creature, Game.player))
-                        {
-                            UI.Log(creature.name + " attacks " + Game.player.name);
-                        }
-                        else
-                        {
-                            creature.MoveTo(Pathfinding.GetPath(creature.pos, Game.player.pos)[0].position);
-                        }
-                    }
-                    else goto case AIState.pursuit;
-                    break;
+            case AIState.pursuit:
+                if (CanSeePlayer(creature))
+                    goto case AIState.attack;
+                // go to the last place where the player was seen 
+                // walk around?
 
-                case AIState.pursuit:
-                    if (CanSeePlayer(creature))
-                        goto case AIState.attack;
-                    // go to the last place where the player was seen 
-                    // walk around?
-
-                    break;
-            }
-
-            // things to add:
-            // sleep timer
-            // enemy position tracker
-            // path to tracked enemy
+                break;
         }
+
+        // things to add:
+        // sleep timer
+        // enemy position tracker
+        // path to tracked enemy
     }
 
     public static bool CanSeePlayer(Creature creature)

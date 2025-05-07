@@ -18,12 +18,16 @@ public class Creature
 
     public int aut = 0;
 
+    // AI stuff
+    public AIState state = AIState.idle;
+    public bool isTrackingPlayer = false;
+    public (int x, int y) lastPlayerPosition;
+
     public Creature(string name, (int x, int y) pos, Rune rune)
     {
         this.name = name;
         this.pos = pos;
         this.rune = rune;
-        AI.creatures.Add(this, AIState.idle);
     }
 
     public bool Move(int x, int y)
@@ -61,7 +65,9 @@ public class Creature
 
     void OnCreatureDeath()
     {
-        AI.creatures.Remove(this);
+        Game.currentMap.creatures.Remove(this);
         Game.currentMap.cells[pos.x, pos.y].RemoveCreature();
     }
+
+
 }

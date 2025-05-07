@@ -204,6 +204,7 @@ public class Map
 {
     public Cell[,] cells;
     public char[,] background; // static chars to draw over unexplored tiles
+    public List<Creature> creatures = new();
 
     public Node[,] navNodes;
     public Node? startNode;
@@ -344,18 +345,17 @@ public static class Pathfinding
         return result;
     }
 
-
 }
 
 public class Node
 {
     public (int x, int y) position;
     public bool isWalkable = false;
-    public float G
+    public float G // distance to startNode
     {
         get { return Pathfinding.startNode is null ? 0 : (float)Math.Sqrt((position.x - Pathfinding.startNode.position.x) ^ 2 + (position.y - Pathfinding.startNode.position.y) ^ 2); }
     }
-    public float H
+    public float H //distance to endNode
     {
         get { return Pathfinding.endNode is null ? 0 : (float)Math.Sqrt((position.x - Pathfinding.endNode.position.x) ^ 2 + (position.y - Pathfinding.endNode.position.y) ^ 2); }
     }
