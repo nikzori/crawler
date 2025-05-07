@@ -245,7 +245,7 @@ public class Map
             {
                 navNodes[x, y].position = (x, y);
                 navNodes[x, y].isWalkable = cells[x, y].IsWalkable();
-                navNodes[x, y].state = NodeState.Untested;
+                navNodes[x, y].state = NodeState.Open;
             }
         }
     }
