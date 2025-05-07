@@ -204,7 +204,10 @@ public class Map
 {
     public Cell[,] cells;
     public char[,] background; // static chars to draw over unexplored tiles
+
     public Node[,] navNodes;
+    public Node? startNode;
+    public Node? endNode;
 
     public Map(int stairCount, int creatureLevel = 1, int xLength = 128, int yLength = 128)
     {
@@ -246,44 +249,6 @@ public class Map
             }
         }
     }
-    public List<(int x, int y)> GetPath((int x, int y) start, (int x, int y) finish)
-    {
-        List<(int x, int y)> path = new();
-        // following https://web.archive.org/web/20170505034417/http://blog.two-cats.com/2014/06/a-star-example/
-        // still gonna need Pythagoras' despite equidistant movement for more realistic behavior and probably to avoid creatures not moving diagonally
-        path.Add(start);
-        int index = 0;
-        List<Node> adjacentNodes = new();
-
-        return path;
-    }
-    public List<Node> GetAdjacentNodes(Node currentNode)
-    {
-        List<Node> result = new();
-
-        for (int x = -1; x < 2; x++)
-        {
-            for (int y = -1; y < 2; y++)
-            {
-                int dx = currentNode.position.x + x;
-                int dy = currentNode.position.x + y;
-                if (dx < 0 || dx >= navNodes.GetLength(0) || dy < 0 || dy >= navNodes.GetLength(1))
-                    continue;
-
-                Node node = navNodes[dx, dy];
-
-                if (!node.isWalkable)
-                    continue;
-                if (node.state == NodeState.Closed)
-                    continue;
-
-                if (node.state == NodeState.Open)
-                {
-                }
-            }
-        }
-
-    }
 
     public void AddCreature(Creature creature)
     {
@@ -293,17 +258,112 @@ public class Map
     }
 }
 
+public static class Pathfinding
+{
+    public static Node? startNode;
+    public static Node? endNode;
+    public static Node[,] nodeMap = Game.currentMap.navNodes;
+    public static List<Node> GetPath((int x, int y) start, (int x, int y) finish)
+    {
+        // using this for reference: https://web.archive.org/web/20170505034417/http://blog.two-cats.com/2014/06/a-star-example/ 
+
+        // we need navnodes that know their position and reset to Open state on each path request
+        // set start and finish nodes, autocalculate distance to them in every other node
+
+        // beginning with the start node, get all surrounding Open (walkable) nodes
+        // sort by the sum of distance to start node and distance to the finish node
+        // select an node with the smallest value
+        // set its state to Closed and its parent node to the previous node in the loop, repeat
+        // if we can't find a next node with lesser or equal sum, return to the parent node, select the next node in the sorting order
+        // if all of the nodes around the current node are Closed, we can't reach the target
+
+        // reset all nodes
+        for (int i = 0; i < nodeMap.GetLength(0); i++)
+        {
+            for (int j = 0; j < nodeMap.GetLength(1); j++)
+            {
+                nodeMap[i, j].parent = null;
+                nodeMap[i, j].state = NodeState.Open;
+            }
+        }
+        List<Node> path = new();
+        startNode = nodeMap[start.x, start.y];
+        endNode = nodeMap[finish.x, finish.y];
+        bool success = Search(startNode);
+        if (success)
+        {
+            Node node = endNode;
+            while (node.parent != null)
+            {
+                path.Add(node);
+                node = node.parent;
+            }
+            path.Reverse();
+        }
+        return path;
+    }
+    public static bool Search(Node currentNode)
+    {
+        currentNode.state = NodeState.Closed;
+        List<Node> adjacentNodes = GetAdjacentNodes(currentNode);
+        adjacentNodes.Sort((node1, node2) => node1.F.CompareTo(node2.F));
+        foreach (Node nextNode in adjacentNodes)
+        {
+            if (nextNode == endNode)
+                return true;
+            else if (Search(nextNode)) // recurse into itself until we get finish or run out of adjacent nodes
+                return true;
+        }
+        return false;
+    }
+    public static List<Node> GetAdjacentNodes(Node currentNode)
+    {
+        List<Node> result = new();
+
+        for (int x = -1; x < 2; x++)
+        {
+            for (int y = -1; y < 2; y++)
+            {
+                int dx = currentNode.position.x + x;
+                int dy = currentNode.position.x + y;
+                if (dx < 0 || dx >= nodeMap.GetLength(0) || dy < 0 || dy >= nodeMap.GetLength(1))
+                    continue;
+
+                Node node = nodeMap[dx, dy];
+
+                if (!node.isWalkable)
+                    continue;
+
+                if (node.state == NodeState.Closed)
+                    continue;
+
+                if (node.state == NodeState.Open)
+                    result.Add(node);
+            }
+        }
+        return result;
+    }
+
+
+}
+
 public class Node
 {
     public (int x, int y) position;
     public bool isWalkable = false;
-    public float G { get; set; }
-    public float H { get; set; }
+    public float G
+    {
+        get { return Pathfinding.startNode is null ? 0 : (float)Math.Sqrt((position.x - Pathfinding.startNode.position.x) ^ 2 + (position.y - Pathfinding.startNode.position.y) ^ 2); }
+    }
+    public float H
+    {
+        get { return Pathfinding.endNode is null ? 0 : (float)Math.Sqrt((position.x - Pathfinding.endNode.position.x) ^ 2 + (position.y - Pathfinding.endNode.position.y) ^ 2); }
+    }
     public float F { get { return this.G + this.H; } }
     public NodeState state { get; set; }
     public Node? parent { get; set; }
 }
-public enum NodeState { Untested, Open, Closed }
+public enum NodeState { Open, Closed }
 public struct Cell
 {
     public Rune rune;
