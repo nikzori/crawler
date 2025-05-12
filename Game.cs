@@ -32,6 +32,11 @@ public class Game
 
         UI.Init();
     }
+    public static void Update(int aut)
+    {
+        foreach (Creature c in currentMap.creatures)
+            AI.Act(c, aut);
+    }
 
     public static void ChangeFloor(int floorNumber, (int x, int y) pos)
     {

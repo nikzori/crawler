@@ -2,29 +2,7 @@ public class AI
 {
     static Player player = Game.player;
     public static Random rng = new();
-    // simple test for creature and map code I have so far
-    public static void TestAct(Creature creature, int aut)
-    {
-        creature.aut += aut;
-        if (creature.aut >= 10)
-        {
-            Random rng = new Random();
-            int x, y;
-            int cntr = 0;
-            while (true)
-            {
-                x = rng.Next(-1, 2);
-                y = rng.Next(-1, 2);
-                if (creature.Move(x, y) || cntr > 3)
-                    break;
-                else cntr++;
-
-            }
-        }
-    }
-
-
-    public static void Act(Monster creature, int aut)
+    public static void Act(Creature creature, int aut)
     {
         creature.aut += aut;
 
@@ -33,6 +11,7 @@ public class AI
             case AIState.idle:
                 if (CanSeePlayer(creature))
                 {
+                    creature.lastPlayerPosition = player.pos;
                     creature.state = AIState.attack;
                     goto case AIState.attack; // no idea if this works
                 }
@@ -63,13 +42,8 @@ public class AI
                     // update player position
                     // weigh all action options, see if action can be performed (check cooldowns and such)
                     if (CanReachAttack(creature, Game.player))
-                    {
                         UI.Log(creature.name + " attacks " + Game.player.name);
-                    }
-                    else
-                    {
-                        creature.MoveTo(Pathfinding.GetPath(creature.pos, Game.player.pos)[0].position);
-                    }
+                    else creature.MoveTo(Pathfinding.GetPath(creature.pos, Game.player.pos)[0].position);
                 }
                 else goto case AIState.pursuit;
                 break;

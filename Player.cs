@@ -6,7 +6,6 @@ public class Player : Creature
 
   public Player(string name, (int x, int y) pos, Rune rune) : base(name, pos, rune)
   {
-    AI.creatures.Remove(this); // kinda janky but this is probably going to be the only issue with inheritance, so whatever
   }
 
   public void TileInteract((int x, int y) pos) { TileInteract(pos.x, pos.y); }
@@ -19,6 +18,8 @@ public class Player : Creature
     if (Game.currentMap.cells[xt, yt].creature is null)
       this.MoveTo(xt, yt);
     else Game.currentMap.cells[xt, yt].creature.ReceiveDamage(10f);
+
+    Game.Update(10);
   }
 
 }

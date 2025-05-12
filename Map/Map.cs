@@ -235,7 +235,11 @@ public class Map
             int x = rng.Next(0, xLength);
             int y = rng.Next(0, yLength);
             if (cells[x, y].IsWalkable())
-                AddCreature(new Creature("Goblin", (x, y), 'g'));
+            {
+                Creature goblin = new Creature("Goblin", (x, y), 'g');
+                AddCreature(goblin);
+                creatures.Add(goblin);
+            }
         }
 
         // pathfinding
