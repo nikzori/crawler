@@ -248,9 +248,7 @@ public class Map
         {
             for (int y = 0; y < navNodes.GetLength(1); y++)
             {
-                navNodes[x, y].position = (x, y);
-                navNodes[x, y].isWalkable = cells[x, y].IsWalkable();
-                navNodes[x, y].state = NodeState.Open;
+                navNodes[x, y] = new Node((x, y), cells[x, y].IsWalkable());
             }
         }
     }
@@ -343,7 +341,10 @@ public static class Pathfinding
                     continue;
 
                 if (node.state == NodeState.Open)
+                {
+                    node.parent = currentNode;
                     result.Add(node);
+                }
             }
         }
         return result;
@@ -357,15 +358,22 @@ public class Node
     public bool isWalkable = false;
     public float G // distance to startNode
     {
-        get { return Pathfinding.startNode is null ? 0 : (float)Math.Sqrt((position.x - Pathfinding.startNode.position.x) ^ 2 + (position.y - Pathfinding.startNode.position.y) ^ 2); }
+        get { return parent is null ? 0 : (float)(Math.Sqrt((position.x - parent.position.x) ^ 2 + (position.y - parent.position.y) ^ 2) + parent.G); }
     }
     public float H //distance to endNode
     {
-        get { return Pathfinding.endNode is null ? 0 : (float)Math.Sqrt((position.x - Pathfinding.endNode.position.x) ^ 2 + (position.y - Pathfinding.endNode.position.y) ^ 2); }
+        get { return Pathfinding.endNode is null ? 0 : (float)(Math.Abs(position.x - Pathfinding.endNode.position.x) + Math.Abs(position.y - Pathfinding.endNode.position.y)); }
     }
     public float F { get { return this.G + this.H; } }
     public NodeState state { get; set; }
     public Node? parent { get; set; }
+
+    public Node((int x, int y) pos, bool isWalkable)
+    {
+        this.position = pos;
+        this.isWalkable = isWalkable;
+        this.state = NodeState.Open;
+    }
 }
 public enum NodeState { Open, Closed }
 public struct Cell

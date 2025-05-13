@@ -39,11 +39,21 @@ public class AI
             case AIState.attack:
                 if (CanSeePlayer(creature))
                 {
-                    // update player position
+                    creature.lastPlayerPosition = Game.player.pos;
                     // weigh all action options, see if action can be performed (check cooldowns and such)
                     if (CanReachAttack(creature, Game.player))
                         UI.Log(creature.name + " attacks " + Game.player.name);
-                    else creature.MoveTo(Pathfinding.GetPath(creature.pos, Game.player.pos)[0].position);
+                    else
+                    {
+                        List<Node> path = Pathfinding.GetPath(creature.pos, Game.player.pos);
+                        if (path.Count > 0)
+                            creature.MoveTo(path[0].position);
+                        else
+                        {
+                            UI.Log(creature.name + " cannot find path to player");
+                            UI.Log("Path node count: " + path.Count);
+                        }
+                    }
                 }
                 else goto case AIState.pursuit;
                 break;
@@ -59,8 +69,6 @@ public class AI
 
         // things to add:
         // sleep timer
-        // enemy position tracker
-        // path to tracked enemy
     }
 
     public static bool CanSeePlayer(Creature creature)
