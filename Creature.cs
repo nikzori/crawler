@@ -1,13 +1,6 @@
-/** 
- * <summary>
- * A game object class to track positions on the map.
- * This is mainly for entities, but some other things are viable too, e.g. trigger boxes, pointer for aiming, etc.
- * hence nullable Entity.
- * </summary>
- */
 public class Creature
 {
-    public static Rune skeleton = new('\u223B');
+    public static Rune remains = new('\u223B'); // to be shown on decomposition
     public string name;
     public float health = 10f;
     public int level = 1;

@@ -55,7 +55,7 @@ public static class UI
         logView = new()
         {
             X = 1,
-            Y = Pos.Bottom(mapView) + 1,
+            Y = Pos.Right(characterView) + 1,
             Width = Dim.Fill(),
             Height = Dim.Fill(),
             Text = "Game started"
