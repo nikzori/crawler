@@ -1,6 +1,5 @@
 // Ripped from here: https://habr.com/ru/articles/513158/
-// LINQ makes my brain pulsate weird
-
+// Unironically go run it through google translate and do it step-by-step if you're a surface-level dumbass like I am. 
 
 public struct Vector2Int : IEquatable<Vector2Int>
 {
@@ -53,19 +52,18 @@ public struct Vector2Int : IEquatable<Vector2Int>
         => $"({X}, {Y})";
 }
 
-internal class PathNode
+internal readonly struct PathNode
 {
     public Vector2Int Position { get; }
     public double TraverseDistance { get; }
     public double EstimatedTotalCost { get; }
-    public PathNode? Parent { get; } // store parent node to chain nodes together for a path
 
-    public PathNode(Vector2Int Position, double TraverseDistance, double heuristicDistance, PathNode? Parent)
+    public PathNode(Vector2Int Position, Vector2Int target, double TraverseDistance)
     {
         this.Position = Position;
         this.TraverseDistance = TraverseDistance;
+        double heuristicDistance = (Position - target).DistanceEstimate();
         this.EstimatedTotalCost = TraverseDistance + heuristicDistance;
-        this.Parent = Parent;
     }
 }
 
@@ -81,94 +79,234 @@ internal static class NodeExtensions
         (new Vector2Int(-1, 1), Math.Sqrt(2)),
         (new Vector2Int(-1, -1), Math.Sqrt(2))
     };
-
-    public static IEnumerable<PathNode> GenerateNeighbours(this PathNode parent, Vector2Int target)
+    public static void Fill(this PathNode[] buffer, PathNode parent, Vector2Int target)
     {
-        foreach ((Vector2Int position, double travelCost) in NeighboursTemplate)
+        int i = 0;
+        foreach ((Vector2Int position, double cost) in NeighboursTemplate)
         {
             Vector2Int nodePosition = position + parent.Position;
-            double traverseDistance = parent.TraverseDistance + travelCost;
-            double heuristicDistance = (position - target).DistanceEstimate();
-            yield return new PathNode(nodePosition, traverseDistance, heuristicDistance, parent);
+            double traverseDistance = parent.TraverseDistance + cost;
+            buffer[i++] = new PathNode(nodePosition, target, traverseDistance);
         }
     }
-
 }
 
 public class Path
 {
-    private readonly List<PathNode> frontier = new();
-    private readonly List<Vector2Int> ignoredPositions = new();
+    private const int MaxNeighbours = 8;
+    private readonly PathNode[] neighbours = new PathNode[MaxNeighbours];
+
+    private readonly int maxSteps;
+    private readonly IBinaryHeap<Vector2Int, PathNode> frontier;
+    private readonly HashSet<Vector2Int> ignoredPositions;
+    private readonly IList<Vector2Int> output;
+    private readonly Dictionary<Vector2Int, Vector2Int> links;
+
+    public Path(int maxSteps = int.MaxValue, int initialCapacity = 0)
+    {
+        this.maxSteps = maxSteps;
+
+        var comparer = Comparer<PathNode>.Create((a, b) => b.EstimatedTotalCost.CompareTo(a.EstimatedTotalCost));
+        frontier = new BinaryHeap(comparer);
+        ignoredPositions = new HashSet<Vector2Int>(initialCapacity);
+        output = new List<Vector2Int>(initialCapacity);
+        links = new Dictionary<Vector2Int, Vector2Int>(initialCapacity);
+    }
 
     public IReadOnlyCollection<Vector2Int> Calculate(Vector2Int start, Vector2Int target, IReadOnlyCollection<Vector2Int> obstacles)
     {
-        if (!GenerateNodes(start, target, obstacles, out PathNode? node))
+        if (!GenerateNodes(start, target, obstacles))
             return Array.Empty<Vector2Int>();
 
-        var output = new List<Vector2Int>();
+        output.Clear();
+        output.Add(target);
 
-        while (node?.Parent != null)
-        {
-            output.Add(node.Position);
-            node = node.Parent;
-        }
-        output.Add(start);
+        while (links.TryGetValue(target, out target))
+            output.Add(target);
+
         return output.AsReadOnly();
     }
 
-    private bool GenerateNodes(Vector2Int start, Vector2Int target, IEnumerable<Vector2Int> obstacles, out PathNode? node)
+    private bool GenerateNodes(Vector2Int start, Vector2Int target, IReadOnlyCollection<Vector2Int> obstacles)
     {
         frontier.Clear();
         ignoredPositions.Clear();
-        ignoredPositions.AddRange(obstacles);
+        links.Clear();
 
         // starting point
-        frontier.Add(new PathNode(start, 0, 0, null));
+        frontier.Enqueue(new PathNode(start, target, 0));
+        ignoredPositions.UnionWith(obstacles);
+        var step = 0;
 
-        while (frontier.Any())
+        while (frontier.Count > 0 && step++ <= maxSteps)
         {
-            // find node with lowest est. cost
-            var lowest = frontier.Min(a => a.EstimatedTotalCost);
-            PathNode current = frontier.First(a => a.EstimatedTotalCost == lowest);
+            // get last node in binary heap
+            PathNode current = frontier.Dequeue();
             ignoredPositions.Add(current.Position);
 
-            // if we've finally reached the target position
-            if (current.Position == target)
-            {
-                node = current;
-                return true;
-            }
+            if (current.Position.Equals(target)) return true;
 
             // haven't reached the target; get neighbours for this node, repeat
             GenerateFrontierNodes(current, target);
         }
 
         // no nodes left, didn't find the target; target position unreachable
-        node = null;
         return false;
     }
 
     // gets neighbours for a node, but with extra filters
     private void GenerateFrontierNodes(PathNode parent, Vector2Int target)
     {
-        foreach (PathNode newNode in parent.GenerateNeighbours(target))
+        neighbours.Fill(parent, target);
+        foreach (var neighbour in neighbours)
         {
             // check for obstacles and already calculated nodes
-            if (ignoredPositions.Contains(newNode.Position))
+            if (ignoredPositions.Contains(neighbour.Position))
                 continue;
 
-            // go through the frontier list and check if there's a node with one of the positions we iterate through
-            var node = frontier.FirstOrDefault(a => a.Position == newNode.Position);
-            if (node is null) // this is a new, unique node, add it to the queue
-                frontier.Add(newNode);
-
-            // this position is present in the queue, but the path we're taking at the moment is shorter that the one recorded previously
-            else if (newNode.TraverseDistance < node.TraverseDistance)
+            // Node is not present in the queue
+            if (!frontier.TryGet(neighbour.Position, out PathNode existingNode))
             {
-                frontier.Remove(node);
-                frontier.Add(newNode);
+                frontier.Enqueue(neighbour);
+                links[neighbour.Position] = parent.Position;
+            }
+
+            // Node is present in queue and new optimal path is detected
+            else if (neighbour.TraverseDistance < existingNode.TraverseDistance)
+            {
+                frontier.Modify(neighbour);
+                links[neighbour.Position] = parent.Position;
             }
         }
 
     }
+
+    // using binary heap instead of a List to speed up the node sorting (log(n) speed, baby)
+
+    internal class BinaryHeap : IBinaryHeap<Vector2Int, PathNode>
+    {
+        private readonly IDictionary<Vector2Int, int> map;
+        private readonly IList<PathNode> collection;
+        private readonly IComparer<PathNode> comparer;
+
+        public BinaryHeap(IComparer<PathNode> comparer)
+        {
+            this.comparer = comparer;
+            collection = new List<PathNode>();
+            map = new Dictionary<Vector2Int, int>();
+        }
+
+        public int Count => collection.Count;
+
+        public void Clear()
+        {
+            collection.Clear();
+            map.Clear();
+        }
+
+        public void Enqueue(PathNode item)
+        {
+            collection.Add(item);
+            int i = collection.Count - 1;
+            map[item.Position] = i;
+
+            // Sort nodes from bottom to top
+            while (i > 0)
+            {
+                int j = (i - 1) / 2;
+                if (comparer.Compare(collection[i], collection[j]) <= 0)
+                    break;
+
+                Swap(i, j);
+                i = j;
+            }
+        }
+        private void Swap(int i, int j)
+        {
+            PathNode temp = collection[i];
+            collection[i] = collection[j];
+            collection[j] = temp;
+            map[collection[i].Position] = i;
+            map[collection[j].Position] = j;
+        }
+
+        public PathNode Dequeue()
+        {
+            if (collection.Count == 0) return default;
+
+            PathNode result = collection.First();
+            RemoveRoot();
+            map.Remove(result.Position);
+            return result;
+        }
+
+        private void RemoveRoot()
+        {
+            collection[0] = collection.Last();
+            map[collection[0].Position] = 0;
+            collection.RemoveAt(collection.Count - 1);
+
+            // sort nodes
+            var i = 0;
+            while (true)
+            {
+                int largest = LargestIndex(i);
+                if (largest == i)
+                    return;
+
+                Swap(i, largest);
+                i = largest;
+            }
+        }
+        private int LargestIndex(int i)
+        {
+            int leftIndex = 2 * i + 1;
+            int rightIndex = 2 * i + 2;
+            int largest = i;
+
+            if (leftIndex < collection.Count && comparer.Compare(collection[leftIndex], collection[largest]) > 0)
+                largest = leftIndex;
+            if (rightIndex < collection.Count && comparer.Compare(collection[rightIndex], collection[largest]) > 0)
+                largest = rightIndex;
+
+            return largest;
+
+        }
+
+        public bool TryGet(Vector2Int key, out PathNode value)
+        {
+            if (!map.TryGetValue(key, out int index))
+            {
+                value = default;
+                return false;
+            }
+
+            value = collection[index];
+            return true;
+        }
+
+        public void Modify(PathNode value)
+        {
+            if (!map.TryGetValue(value.Position, out int index))
+                throw new KeyNotFoundException(nameof(value));
+
+            collection[index] = value;
+
+        }
+    }
+
+
+    internal interface IBinaryHeap<in TKey, T>
+    {
+        void Enqueue(T item);
+        T Dequeue();
+        void Clear();
+        bool TryGet(TKey key, out T value);
+        void Modify(T value);
+        int Count { get; }
+
+    }
 }
+
+
+
