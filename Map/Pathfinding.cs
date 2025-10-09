@@ -113,6 +113,24 @@ public class Path
         links = new Dictionary<Vector2Int, Vector2Int>(initialCapacity);
     }
 
+    public bool Calculate(Vector2Int start, Vector2Int target, IReadOnlyCollection<Vector2Int> obstacles,
+            out IReadOnlyCollection<Vector2Int> path)
+    {
+        if (!GenerateNodes(start, target, obstacles))
+        {
+            path = Array.Empty<Vector2Int>();
+            return false;
+        }
+
+        output.Clear();
+        output.Add(target);
+
+        while (links.TryGetValue(target, out target))
+            output.Add(target);
+        path = (IReadOnlyCollection<Vector2Int>)output;
+        return true;
+    }
+
     public IReadOnlyCollection<Vector2Int> Calculate(Vector2Int start, Vector2Int target, IReadOnlyCollection<Vector2Int> obstacles)
     {
         if (!GenerateNodes(start, target, obstacles))

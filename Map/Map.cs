@@ -1,14 +1,14 @@
-using System.Security;
-using Terminal.Gui;
+using System.Text;
+using Terminal.Gui.Drawing;
 
 public class Dungeon
 {
     public const char WALL = '#';
     public const char FLOOR = '.';
-    public static Terminal.Gui.Attribute FLOOR_COLOR = new(Color.Gray, Color.Black);
-    public static Terminal.Gui.Attribute WALL_COLOR = new(Color.Brown, Color.Black);
-    public static Terminal.Gui.Attribute REVEALED_COLOR = new(Color.Blue, Color.Black); // For tiles that were seen but not in LOS
-    public static Terminal.Gui.Attribute OBSCURED_COLOR = new(Color.DarkGray, Color.Black);
+    public static Terminal.Gui.Drawing.Attribute FLOOR_COLOR = new(Color.Gray, Color.Black);
+    public static Terminal.Gui.Drawing.Attribute WALL_COLOR = new(Color.Yellow, Color.Black);
+    public static Terminal.Gui.Drawing.Attribute REVEALED_COLOR = new(Color.Blue, Color.Black); // For tiles that were seen but not in LOS
+    public static Terminal.Gui.Drawing.Attribute OBSCURED_COLOR = new(Color.DarkGray, Color.Black);
 
     public List<Map> floors;
     public List<Creature> creatures;
@@ -232,7 +232,7 @@ public class Map
             int y = rng.Next(0, yLength);
             if (cells[x, y].IsWalkable())
             {
-                Creature goblin = new Creature("Goblin", (x, y), 'g');
+                Creature goblin = new Creature("Goblin", (x, y), new('g'));
                 AddCreature(goblin);
                 creatures.Add(goblin);
             }
@@ -251,7 +251,7 @@ public class Map
 public struct Cell
 {
     public Rune rune;
-    public Terminal.Gui.Attribute colors;
+    public Terminal.Gui.Drawing.Attribute colors;
     public bool isTransparent = true;
     public bool isWalkable = true;
 
@@ -266,7 +266,7 @@ public struct Cell
     {
         rune = new('.');
     }
-    public Cell(Rune rune, bool isTransparent, bool isWalkable, Terminal.Gui.Attribute colors)
+    public Cell(Rune rune, bool isTransparent, bool isWalkable, Terminal.Gui.Drawing.Attribute colors)
     {
         this.rune = rune;
         this.isTransparent = isTransparent;
@@ -311,7 +311,7 @@ public struct Cell
         return (rune.Value == Dungeon.WALL && !isWalkable) ? true : false;
 
     }
-    public void Set(Rune rune, bool isWalkable, bool isTransparent, Terminal.Gui.Attribute colors)
+    public void Set(Rune rune, bool isWalkable, bool isTransparent, Terminal.Gui.Drawing.Attribute colors)
     {
         this.rune = rune;
         this.isWalkable = isWalkable;
@@ -320,10 +320,10 @@ public struct Cell
     }
     public void SetToWall()
     {
-        this.Set(Dungeon.WALL, false, false, Dungeon.WALL_COLOR);
+        this.Set(new(Dungeon.WALL), false, false, Dungeon.WALL_COLOR);
     }
     public void SetToFloor()
     {
-        this.Set(Dungeon.FLOOR, true, true, Dungeon.FLOOR_COLOR);
+        this.Set(new(Dungeon.FLOOR), true, true, Dungeon.FLOOR_COLOR);
     }
 }
