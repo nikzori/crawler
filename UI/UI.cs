@@ -1,4 +1,8 @@
-using Terminal.Gui;
+using Terminal.Gui.ViewBase;
+using Terminal.Gui.Views;
+using Terminal.Gui.App;
+using Terminal.Gui.Input;
+
 
 public static class UI
 {
@@ -25,12 +29,13 @@ public static class UI
             Height = 30
         };
 
-        Label playerName = new(player.name)
+        Label playerName = new Label()
         {
             Y = Pos.Top(characterView) + 1,
             Width = Dim.Fill(),
             Height = 1,
-            TextAlignment = TextAlignment.Centered
+            Text = player.name,
+            TextAlignment = Alignment.Center
         };
 
         View statView = new()
@@ -136,50 +141,50 @@ public class MapView : View
     public override void Redraw(Rect bounds)
     {
         //upper-left visible map cell coordinates 
-        mX = Game.player.pos.x - pX;
-        mY = Game.player.pos.y - pY;
+        mX = Game.player.pos.X - pX;
+        mY = Game.player.pos.Y - pY;
 
 
         for (int tx = 0; tx < boundWidth; tx++)
         {
             for (int ty = 0; ty < boundHeight; ty++)
             {
-                Rune c = ' ';
+                System.Text.Rune c = new(' ');
 
-                if (mX < Game.currentMap.cells.GetLength(0) && mX > 0 && mY < Game.currentMap.cells.GetLength(1) && mY > 0)
+                if (mX < Game.currentMap.size.X && mX > 0 && mY < Game.currentMap.size.Y && mY > 0)
                 {
                     if (Math.Abs(tx - pX) < Game.player.sightRadius && Math.Abs(ty - pY) < Game.player.sightRadius)
                     {
                         // very unnatural (and probably very inefficient) LOS made with Bresenham's algorythm, 
                         // but hey, it works
-                        if (Dungeon.CanSeeTile(Game.player.pos, (mX, mY)))
+                        if (Dungeon.CanSeeTile(Game.player.pos, new(mX, mY)))
                         {
-                            c = Game.currentMap.cells[mX, mY].GetRune();
-                            Game.currentMap.cells[mX, mY].isRevealed = true;
+                            c = Game.currentMap.cells[new(mX, mY)].GetRune();
+                            Game.currentMap.cells[new(mX, mY)].SetRevealed(true);
 
-                            if (Game.currentMap.cells[mX, mY].IsWall())
+                            if (Game.currentMap.cells[new(mX, mY)].IsWall())
                                 Application.Driver.SetAttribute(Dungeon.WALL_COLOR);
                             else Application.Driver.SetAttribute(Dungeon.FLOOR_COLOR);
                         }
-                        else if (Game.currentMap.cells[mX, mY].isRevealed)
+                        else if (Game.currentMap.cells[new(mX, mY)].isRevealed)
                         {
-                            c = Game.currentMap.cells[mX, mY].GetRune();
+                            c = Game.currentMap.cells[new(mX, mY)].GetRune();
                             Application.Driver.SetAttribute(Dungeon.REVEALED_COLOR);
                         }
                         else
                         {
-                            c = Game.currentMap.background[mX + 15, mY + 15];
+                            c = new System.Text.Rune(Game.currentMap.background[new(mX + 15, mY + 15)]);
                             Application.Driver.SetAttribute(Dungeon.OBSCURED_COLOR);
                         }
                     }
-                    else if (Game.currentMap.cells[mX, mY].isRevealed)
+                    else if (Game.currentMap.cells[new(mX, mY)].isRevealed)
                     {
-                        c = Game.currentMap.cells[mX, mY].GetRune();
+                        c = Game.currentMap.cells[new(mX, mY)].GetRune();
                         Application.Driver.SetAttribute(Dungeon.REVEALED_COLOR);
                     }
                     else
                     {
-                        c = Game.currentMap.background[mX + 15, mY + 15];
+                        c = Game.currentMap.background[new(mX + 15, mY + 15)];
                         Application.Driver.SetAttribute(Dungeon.OBSCURED_COLOR);
                     }
                 }
@@ -192,7 +197,7 @@ public class MapView : View
                 mY++;
             }
             mX++;
-            mY = Game.player.pos.y - pY;
+            mY = Game.player.pos.Y - pY;
         }
     }
     #endregion
@@ -260,7 +265,7 @@ public class MapView : View
         }
         if (keyRegistered)
         {
-            this.SetNeedsDisplay();
+            this.SetNeedsDraw();
             UI.UpdatePos();
         }
         return keyRegistered;

@@ -63,7 +63,7 @@ public class AI
                 else
                 {
                     IReadOnlyCollection<Vector2Int> newPath;
-                    if (Pathfinder.Calculate(creature.pos, creature.lastPlayerPosition, Game.dungeon.GetCurrentFloor().obstacles, out newPath))
+                    if (Pathfinder.Calculate(creature.pos, creature.lastPlayerPosition, Game.dungeon.GetCurrentFloor().GetObstacles(), out newPath))
                     {
                         creature.currentPath = newPath as Queue<Vector2Int>;
                         creature.MoveTo(creature.currentPath.Dequeue());

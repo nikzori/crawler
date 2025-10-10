@@ -211,11 +211,11 @@ public class Map
     public Dictionary<Vector2Int, char> background; // static chars to draw over unexplored tiles
     public List<Creature> creatures = new();
     public Vector2Int size;
-    public HashSet<Vector2Int> obstacles;
+    public HashSet<Vector2Int> walls;
     public Map(int stairCount, int creatureLevel = 1, int xLength = 128, int yLength = 128)
     {
         size = new(xLength, yLength);
-        obstacles = new HashSet<Vector2Int>();
+        walls = new HashSet<Vector2Int>();
         Random rng = new Random();
         cells = MapGen.GenerateCA(xLength, yLength);
         background = new Dictionary<Vector2Int, char>();
@@ -251,9 +251,17 @@ public class Map
         foreach (KeyValuePair<Vector2Int, Cell> kvp in cells)
         {
             if (cells[kvp.Key].IsWall())
-                obstacles.Add(kvp.Key);
+                walls.Add(kvp.Key);
         }
 
+    }
+    public HashSet<Vector2Int> GetObstacles()
+    {
+        HashSet<Vector2Int> obstacles = new(walls);
+        foreach (Creature crtr in creatures)
+            obstacles.Add(crtr.pos);
+
+        return obstacles;
     }
 
     public void AddCreature(Creature creature)
@@ -339,5 +347,9 @@ public struct Cell
     public void SetToFloor()
     {
         this.Set(new(Dungeon.FLOOR), true, true, Dungeon.FLOOR_COLOR);
+    }
+    public void SetRevealed(bool value)
+    {
+        this.isRevealed = value;
     }
 }
