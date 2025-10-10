@@ -39,32 +39,32 @@ public class Dungeon
     // Bresenham's line algorithm, last codeblocks: https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
     // I'm too bad with geometry so far to get how it works. Like, yeah, we're iterating over x or y 
     // because a straight line is ( ax + by + c = 0 ), but this is weird. Math is weird.
-    public static (int x, int y)[] GetLine((int x, int y) start, (int x, int y) end)
+    public static Vector2Int[] GetLine(Vector2Int start, Vector2Int end)
     {
-        List<(int x, int y)> points;
+        List<Vector2Int> points;
 
-        if (Math.Abs(end.x - start.x) > Math.Abs(end.y - start.y))
+        if (Math.Abs(end.X - start.X) > Math.Abs(end.Y - start.Y))
         {
             //need this since we're incrementing X in the function
-            if (start.x > end.x)
-                points = PlotLineLow((end.x, end.y), (start.x, start.y));
-            else points = PlotLineLow((start.x, start.y), (end.x, end.y));
+            if (start.X > end.X)
+                points = PlotLineLow(end, start);
+            else points = PlotLineLow(start, end);
         }
         else
         {
-            if (start.y > end.y)
-                points = PlotLineHigh((end.x, end.y), (start.x, start.y));
-            else points = PlotLineHigh((start.x, start.y), (end.x, end.y));
+            if (start.Y > end.Y)
+                points = PlotLineHigh(end, start);
+            else points = PlotLineHigh(start, end);
         }
-        (int x, int y)[] result = points.ToArray();
+        Vector2Int[] result = points.ToArray();
         return result;
 
-        List<(int x, int y)> PlotLineLow((int x, int y) start, (int x, int y) end)
+        List<Vector2Int> PlotLineLow(Vector2Int start, Vector2Int end)
         {
-            List<(int x, int y)> result = new List<(int x, int y)>();
+            List<Vector2Int> result = new();
 
-            int dx = end.x - start.x;
-            int dy = end.y - start.y;
+            int dx = end.X - start.X;
+            int dy = end.Y - start.Y;
             int yi = 1;
 
             if (dy < 0)
@@ -73,10 +73,11 @@ public class Dungeon
                 dy = -dy;
             }
             int D = (2 * dy) - dx;
-            int y = start.y;
-            for (int x = start.x; x <= end.x; x++)
+            int y = start.Y;
+
+            for (int x = start.X; x <= end.X; x++)
             {
-                result.Add((x, y));
+                result.Add(new(x, y));
                 if (D > 0)
                 {
                     y += yi;
@@ -88,11 +89,11 @@ public class Dungeon
         }
 
 
-        List<(int x, int y)> PlotLineHigh((int x, int y) start, (int x, int y) end)
+        List<Vector2Int> PlotLineHigh(Vector2Int start, Vector2Int end)
         {
-            List<(int x, int y)> result = new List<(int x, int y)>();
-            int dx = end.x - start.x;
-            int dy = end.y - start.y;
+            List<Vector2Int> result = new();
+            int dx = end.X - start.X;
+            int dy = end.Y - start.Y;
             int xi = 1;
             if (dx < 0)
             {
@@ -101,10 +102,10 @@ public class Dungeon
             }
 
             int D = (2 * dx) - dy;
-            int x = start.x;
-            for (int y = start.y; y <= end.y; y++)
+            int x = start.X;
+            for (int y = start.Y; y <= end.Y; y++)
             {
-                result.Add((x, y));
+                result.Add(new(x, y));
                 if (D > 0)
                 {
                     x += xi;
@@ -120,31 +121,32 @@ public class Dungeon
     /// <summary>
     /// Attempt to draw a Bresenham's Line from start to end. Returns false if any tile in the way is not transparent.
     /// </summary>
-    public static bool CanSeeTile((int x, int y) start, (int x, int y) end)
+    public static bool CanSeeTile(Vector2Int start, Vector2Int end)
     {
         bool isVisible;
 
-        if (Math.Abs(end.x - start.x) > Math.Abs(end.y - start.y))
+        if (Math.Abs(end.X - start.X) > Math.Abs(end.Y - start.Y))
         {
             //need this since we're incrementing X in the function
-            if (start.x > end.x)
-                isVisible = PlotLineLow((end.x, end.y), (start.x, start.y));
-            else isVisible = PlotLineLow((start.x, start.y), (end.x, end.y));
+            if (start.X > end.X)
+                isVisible = PlotLineLow(end, start);
+            else isVisible = PlotLineLow(start, end);
         }
         else
         {
-            if (start.y > end.y)
-                isVisible = PlotLineHigh((end.x, end.y), (start.x, start.y));
-            else isVisible = PlotLineHigh((start.x, start.y), (end.x, end.y));
+            if (start.Y > end.Y)
+                isVisible = PlotLineHigh(end, start);
+            else isVisible = PlotLineHigh(start, end);
         }
         return isVisible;
 
-        bool PlotLineLow((int x, int y) start, (int x, int y) end)
+        bool PlotLineLow(Vector2Int start, Vector2Int end)
         {
+            Vector2Int dPos;
             bool result = true;
 
-            int dx = end.x - start.x;
-            int dy = end.y - start.y;
+            int dx = end.X - start.X;
+            int dy = end.Y - start.Y;
             int yi = 1;
 
             if (dy < 0)
@@ -153,10 +155,11 @@ public class Dungeon
                 dy = -dy;
             }
             int D = (2 * dy) - dx;
-            int y = start.y;
-            for (int x = start.x; x <= end.x; x++)
+            int y = start.Y;
+            for (int x = start.X; x <= end.X; x++)
             {
-                if (!Game.currentMap.cells[x, y].isTransparent && x != end.x && x != start.x)
+                dPos = new(x, y);
+                if (!Game.currentMap.cells[dPos].isTransparent && x != end.X && x != start.X)
                     return false;
                 if (D > 0)
                 {
@@ -169,11 +172,12 @@ public class Dungeon
         }
 
 
-        bool PlotLineHigh((int x, int y) start, (int x, int y) end)
+        bool PlotLineHigh(Vector2Int start, Vector2Int end)
         {
+            Vector2Int dPos;
             bool result = true;
-            int dx = end.x - start.x;
-            int dy = end.y - start.y;
+            int dx = end.X - start.X;
+            int dy = end.Y - start.Y;
             int xi = 1;
             if (dx < 0)
             {
@@ -182,10 +186,11 @@ public class Dungeon
             }
 
             int D = (2 * dx) - dy;
-            int x = start.x;
-            for (int y = start.y; y <= end.y; y++)
+            int x = start.X;
+            for (int y = start.Y; y <= end.Y; y++)
             {
-                if (!Game.currentMap.cells[x, y].isTransparent && y != end.y && y != start.y)
+                dPos = new(x, y);
+                if (!Game.currentMap.cells[dPos].isTransparent && y != end.Y && y != start.Y)
                     return false;
                 if (D > 0)
                 {
@@ -202,27 +207,31 @@ public class Dungeon
 
 public class Map
 {
-    public Cell[,] cells;
-    public char[,] background; // static chars to draw over unexplored tiles
+    public Dictionary<Vector2Int, Cell> cells;
+    public Dictionary<Vector2Int, char> background; // static chars to draw over unexplored tiles
     public List<Creature> creatures = new();
-
+    public Vector2Int size;
+    public HashSet<Vector2Int> obstacles;
     public Map(int stairCount, int creatureLevel = 1, int xLength = 128, int yLength = 128)
     {
+        size = new(xLength, yLength);
+        obstacles = new HashSet<Vector2Int>();
         Random rng = new Random();
         cells = MapGen.GenerateCA(xLength, yLength);
-        background = new char[xLength + 30, yLength + 30]; // 15 extra tiles on each side
+        background = new Dictionary<Vector2Int, char>();
         int t;
-        for (int x = 0; x < background.GetLength(0); x++)
+        for (int x = 0; x < size.X + 30; x++) // 15 extra tiles on each side in case camera sees them
         {
-            for (int y = 0; y < background.GetLength(1); y++)
+            for (int y = 0; y < size.Y + 30; y++)
             {
-                background[x, y] = ' ';
+                Vector2Int pos = new(x, y);
+                background.Add(pos, ' ');
                 t = rng.Next(0, 300);
-                if (t < 5) background[x, y] = '`';
-                if (t < 4) background[x, y] = '/';
-                if (t < 3) background[x, y] = '*';
-                if (t < 2) background[x, y] = '\\';
-                if (t < 1) background[x, y] = 'x';
+                if (t < 5) background[pos] = '`';
+                if (t < 4) background[pos] = '/';
+                if (t < 3) background[pos] = '*';
+                if (t < 2) background[pos] = '\\';
+                if (t < 1) background[pos] = 'x';
             }
         }
 
@@ -230,21 +239,26 @@ public class Map
         {
             int x = rng.Next(0, xLength);
             int y = rng.Next(0, yLength);
-            if (cells[x, y].IsWalkable())
+            Vector2Int pos = new(x, y);
+            if (cells[pos].IsWalkable())
             {
-                Creature goblin = new Creature("Goblin", (x, y), new('g'));
+                Creature goblin = new Creature("Goblin", pos, new('g'));
                 AddCreature(goblin);
                 creatures.Add(goblin);
             }
+        }
+
+        foreach (KeyValuePair<Vector2Int, Cell> kvp in cells)
+        {
+            if (cells[kvp.Key].IsWall())
+                obstacles.Add(kvp.Key);
         }
 
     }
 
     public void AddCreature(Creature creature)
     {
-        int x = creature.pos.x;
-        int y = creature.pos.y;
-        cells[x, y].AddCreature(creature);
+        cells[creature.pos].AddCreature(creature);
     }
 }
 

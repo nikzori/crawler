@@ -3,20 +3,19 @@
 public static class MapGen
 {
     // this makes a box with a column in the middle
-    public static Cell[,] Generate(int width, int height)
+    public static Dictionary<Vector2Int, Cell> GenerateBox(int width, int height)
     {
-        Cell[,] result = new Cell[width, height];
-
+        Dictionary<Vector2Int, Cell> result = new(width * height);
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
                 if (x == 0 || y == 0)
-                    result[x, y] = new Cell(new(Dungeon.WALL), false, false, Dungeon.WALL_COLOR);
-                else result[x, y] = new Cell();
+                    result.Add(new(x, y), new(new('#'), false, false, Dungeon.WALL_COLOR));
+                else result.Add(new(x, y), new());
             }
         }
-        result[width / 2, height / 2].SetToWall();
+        result[new(width / 2, height / 2)].SetToWall();
         return result;
     }
 
@@ -25,31 +24,36 @@ public static class MapGen
     /// Then places rooms randomly for some variety
     /// </summary>
     /// TODO: move wall seeding into a separate function
-    public static Cell[,] GenerateCA(int width, int height, int iterations = 2)
+    public static Dictionary<Vector2Int, Cell> GenerateCA(int width, int height, int iterations = 2)
     {
         Random random = new Random();
         // I'll do this step by step 'cause I'm stupid
         // https://roguebasin.com/index.php/Cellular_Automata_Method_for_Generating_Random_Cave-Like_Levels
 
         // Make a boxed in room
-        Cell[,] result = new Cell[width, height];
-        for (int x = 1; x < result.GetLength(0); x++)
+        Dictionary<Vector2Int, Cell> result = new Dictionary<Vector2Int, Cell>(width * height);
+        Vector2Int pos;
+        for (int x = 1; x < width; x++)
         {
-            for (int y = 1; y < result.GetLength(1); y++)
+            for (int y = 1; y < height; y++)
             {
-                if (x == 1 || x == result.GetLength(0) - 1 || y == 1 || y == result.GetLength(1) - 1)
-                    result[x, y].SetToWall();
-                else result[x, y].SetToFloor();
+                pos = new(x, y);
+                if (pos.X == 1 || pos.X == width - 1 || pos.Y == 1 || pos.Y == height - 1)
+                    result[pos].SetToWall();
+                else result[pos].SetToFloor();
             }
         }
 
         // Make random tiles walls
-        for (int x = 0; x < result.GetLength(0); x++)
+        for (int x = 0; x < width; x++)
         {
-            for (int y = 0; y < result.GetLength(1); y++)
+            for (int y = 0; y < height; y++)
             {
                 if (random.Next(1, 100) < 45)
-                    result[x, y].SetToWall();
+                {
+                    pos = new(x, y);
+                    result[pos].SetToWall();
+                }
             }
         }
 
@@ -63,14 +67,14 @@ public static class MapGen
                 // iterate automata
 
                 for (int i = 0; i < iterations; i++)
-                    result = RunAutomata(result);
+                    result = RunAutomata(result, width, height);
                 for (int i = 0; i < 3; i++)
-                    result = RunAutomata(result, true);
-                result = RunAutomata(result);
+                    result = RunAutomata(result, width, height, true);
+                result = RunAutomata(result, width, height);
 
-                result = PlaceRooms(result, true, 10, 4, 7); // Sprinkle around rooms connected by corridors
+                result = PlaceRooms(result, width, height, true, 10, 4, 7); // Sprinkle around rooms connected by corridors
 
-                if (CleanIsolation(result) /* || cntr > 10 */) // Clean up the isolated pockets
+                if (CleanIsolation(result, width, height) /* || cntr > 10 */) // Clean up the isolated pockets
                     isMapReady = true;
                 cntr++;
             }
@@ -85,9 +89,9 @@ public static class MapGen
     /// <summary>
     /// Cellular Automata rules.
     /// </summary>
-    public static Cell[,] RunAutomata(Cell[,] input, bool placeColumns = false)
+    public static Dictionary<Vector2Int, Cell> RunAutomata(Dictionary<Vector2Int, Cell> input, int width, int height, bool placeColumns = false)
     {
-        Cell[,] result = input;
+        Dictionary<Vector2Int, Cell> result = input;
 
         // a tile becomes a wall tile if it's surrounded by at least 5 walls 
         // a tile will stay a wall tile if it's surrounded by at least 4 walls;
@@ -95,9 +99,9 @@ public static class MapGen
         int neighbourWallsCounter;
         int distantWallsCounter;
         bool setToWall;
-        for (int x = 2; x < result.GetLength(0) - 1; x++) // smaller range of coordinated to ignore border walls
+        for (int x = 2; x < width - 1; x++) // smaller range of coordinated to ignore border walls
         {
-            for (int y = 2; y < result.GetLength(1) - 1; y++)
+            for (int y = 2; y < height - 1; y++)
             {
                 // variable reset
                 neighbourWallsCounter = 0;
@@ -108,7 +112,7 @@ public static class MapGen
                 {
                     for (int yt = y - 1; yt < y + 2; yt++)
                     {
-                        if (result[xt, yt].IsWall())
+                        if (result[new(xt, yt)].IsWall())
                             neighbourWallsCounter++;
                         if (neighbourWallsCounter > 4)
                         {
@@ -126,12 +130,12 @@ public static class MapGen
                     {
                         for (int yt = y - 2; yt <= y + 2; yt++)
                         {
-                            if (xt <= 0 || yt <= 0 || xt > result.GetLength(0) - 1 || yt > result.GetLength(1) - 1)
+                            if (xt <= 0 || yt <= 0 || xt > width - 1 || yt > height - 1)
                                 continue;
                             // if tile is close on both axises, it's adjacent => skip
                             if (Math.Abs(yt - y) < 2 && Math.Abs(xt - x) < 2)
                                 continue;
-                            if (result[xt, yt].IsWall())
+                            if (result[new(xt, yt)].IsWall())
                                 distantWallsCounter++;
 
 
@@ -142,24 +146,20 @@ public static class MapGen
                 }
 
                 if (setToWall)
-                    result[x, y].SetToWall();
-                else result[x, y].SetToFloor();
+                    result[new(x, y)].SetToWall();
+                else result[new(x, y)].SetToFloor();
             }
         }
         return result;
     }
 
-    public static Cell[,] PlaceRooms(Cell[,] input, bool connectRooms = true, int roomCount = 5, int minSize = 5, int maxSize = 12)
+    public static Dictionary<Vector2Int, Cell> PlaceRooms(Dictionary<Vector2Int, Cell> input, int width, int height, bool connectRooms = true, int roomCount = 5, int minSize = 5, int maxSize = 12)
     {
         Random random = new Random();
-        Cell[,] result = input;
-        int width = result.GetLength(0);
-        int height = result.GetLength(1);
+        Dictionary<Vector2Int, Cell> result = input;
 
         // center point coordinates
-        // too lazy to use a Vector or something
-        int[] xc = new int[roomCount];
-        int[] yc = new int[roomCount];
+        Vector2Int[] roomCenters = new Vector2Int[roomCount];
 
         for (int i = 0; i < roomCount; i++)
         {
@@ -193,46 +193,42 @@ public static class MapGen
                 for (int y = y1; y <= y2; y++)
                 {
                     if (x == x1 || x == x2 || y == y1 || y == y2)
-                        result[x, y].SetToWall();
-                    else result[x, y].SetToFloor();
+                        result[new(x, y)].SetToWall();
+                    else result[new(x, y)].SetToFloor();
                 }
             }
 
-            xc[i] = x1 + ((x2 - x1) / 2);
-            yc[i] = y1 + ((y2 - y1) / 2); // since starting point values are always smaller, this should work
+            roomCenters[i] = new(x1 + ((x2 - x1) / 2), y1 + ((y2 - y1) / 2)); // since starting point values are always smaller, this should work
         }
 
-        if (connectRooms)
+        if (connectRooms) // draw a simple corridor with a single 90deg turn if it is required
         {
-            // for now, let's use simplest lines to connect rooms so as to not bother beautifying the jagged diagonal lines
-
             for (int i = 0; i < roomCount - 1; i++) // don't need to do anything with the last room
             {
-                int xStart = xc[i];
-                int xEnd = xc[i + 1];
+                Vector2Int start = roomCenters[i];
+                Vector2Int end = roomCenters[i + 1];
 
-                int yStart = yc[i];
-                int yEnd = yc[i + 1];
-
-                // we pick the most left room to be the starting point
-                if (xc[i + 1] < xc[i])
+                if (start.X < end.X)
                 {
-                    xStart = xc[i + 1];
-                    xEnd = xc[i];
-
-                    // without flipping the Y values as well we won't know which X point to use for the vertical part
-                    yStart = yc[i + 1];
-                    yEnd = yc[i];
+                    for (int x = start.X; x <= end.X; x++)
+                        result[new(x, start.Y)].SetToFloor();
+                }
+                else
+                {
+                    for (int x = end.X; x <= start.X; x++)
+                        result[new(x, end.Y)].SetToFloor();
                 }
 
-                // this is kinda ugly. oh well
-                for (int x = xStart; x <= xEnd; x++)
-                    result[x, yStart].SetToFloor();
-                if (yStart < yEnd)
-                    for (int y = yStart; y <= yEnd; y++)
-                        result[xEnd, y].SetToFloor();
-                else for (int y = yStart; y >= yEnd; y--)
-                        result[xEnd, y].SetToFloor();
+                if (start.Y < end.Y)
+                {
+                    for (int y = start.Y; y <= end.Y; y++)
+                        result[new(start.X, y)].SetToFloor();
+                }
+                else
+                {
+                    for (int y = end.Y; y <= start.Y; y++)
+                        result[new(end.X, y)].SetToFloor();
+                }
 
             }
         }
@@ -243,7 +239,7 @@ public static class MapGen
     /// <summary>
     ///   Takes a Cell array and removes isolated rooms. Returns true if the walkable space is big enough.
     /// </summary>
-    public static bool CleanIsolation(Cell[,] input) // should account for stairs later
+    public static bool CleanIsolation(Dictionary<Vector2Int, Cell> input, int width, int height) // should account for stairs later
     {
         float minFraction = 0.3f;
         // by using flood fill we can check if the interconnected space on the map is big enough
@@ -253,11 +249,11 @@ public static class MapGen
 
         //get a floor tile
         bool check = false;
-        for (x = 0; x < input.GetLength(0); x++)
+        for (x = 0; x < width; x++)
         {
-            for (y = 0; y < input.GetLength(1); y++)
+            for (y = 0; y < height; y++)
             {
-                if (input[x, y].IsWalkable())
+                if (input[new(x, y)].IsWalkable())
                 {
                     check = true;
                     break;
@@ -267,29 +263,29 @@ public static class MapGen
                 break;
         }
         //get bool array marking all connected floor tiles
-        bool[,] selectedCells = FloodSelect(input, (x, y));
+        Dictionary<Vector2Int, bool> selectedCells = FloodSelect(input, width, height, new(x, y));
 
         int areaSize = 0;
-        for (x = 0; x < selectedCells.GetLength(0); x++)
+        for (x = 0; x < width; x++)
         {
-            for (y = 0; y < selectedCells.GetLength(1); y++)
+            for (y = 0; y < height; y++)
             {
-                if (selectedCells[x, y])
+                if (selectedCells[new(x, y)])
                     areaSize++;
             }
         }
 
         // check walkable map size before clearing up isolated rooms
-        int mapSize = input.GetLength(0) * input.GetLength(1);
+        int mapSize = width * height;
         if ((float)areaSize / (float)mapSize < minFraction)
             return false;
 
-        for (x = 0; x < input.GetLength(0); x++)
+        for (x = 0; x < width; x++)
         {
-            for (y = 0; y < input.GetLength(1); y++)
+            for (y = 0; y < height; y++)
             {
-                if (!selectedCells[x, y] && input[x, y].isWalkable) // replace isolated floors with walls
-                    input[x, y].SetToWall();
+                if (!selectedCells[new(x, y)] && input[new(x, y)].isWalkable) // replace isolated floors with walls
+                    input[new(x, y)].SetToWall();
             }
         }
         return true;
@@ -299,77 +295,47 @@ public static class MapGen
     /// <summary>
     ///   Selects all tiles of the same type interconnected with the `pos` and returns a bool array.
     /// </summary>
-    public static bool[,] FloodSelect(Cell[,] input, (int x, int y) pos)
+    public static Dictionary<Vector2Int, bool> FloodSelect(Dictionary<Vector2Int, Cell> input, int width, int height, Vector2Int pos)
     {
-        bool[,] result = new bool[input.GetLength(0), input.GetLength(1)];
+        Dictionary<Vector2Int, bool> result = new Dictionary<Vector2Int, bool>(width * height);
 
         // set all to false just in case
-        for (int xt = 0; xt < result.GetLength(0); xt++)
-        {
-            for (int yt = 0; yt < result.GetLength(1); yt++)
-                result[xt, yt] = false;
-        }
+        foreach (KeyValuePair<Vector2Int, bool> kvp in result)
+            result[kvp.Key] = false;
 
-        result[pos.x, pos.y] = true; // starting point is always true
+        result[pos] = true; // starting point is always true
 
         // instantiate a queue for the loop
-        Queue<(int, int)> q = new();
+        Queue<Vector2Int> q = new();
         q.Enqueue(pos);
 
-        int x, y;
+        Vector2Int currentPos;
         while (q.Count > 0)
         {
-            (x, y) = q.Dequeue(); // pop the first position in the queue
+            currentPos = q.Dequeue(); // pop the first position in the queue
 
-            // go over the adjacent tiles (clockwise)
+            // go over the adjacent tiles 
             // add them in the queue until we run out of possible options
-            // if a tile is already marked true in the `result[]`, ignore it
-            if (y + 1 < input.GetLength(1) && input[x, y + 1].isWalkable == input[pos.x, pos.y].isWalkable && !result[x, y + 1])
+            // if a tile is already marked true in the `result[,]`, ignore it
+            Vector2Int dPos = new();
+            for (int x = -1; x <= 1; x++)
             {
-                result[x, y + 1] = true;
-                q.Enqueue((x, y + 1));
-            }
+                for (int y = -1; y <= 1; y++)
+                {
+                    dPos = currentPos + new Vector2Int(x, y);
 
-            if (x + 1 < input.GetLength(0) && y + 1 < input.GetLength(1) && input[x + 1, y + 1].isWalkable == input[pos.x, pos.y].isWalkable && !result[x + 1, y + 1])
-            {
-                result[x + 1, y + 1] = true;
-                q.Enqueue((x + 1, y + 1));
-            }
+                    if (dPos == currentPos)
+                        continue;
 
-            if (x + 1 < input.GetLength(0) && input[x + 1, y].isWalkable == input[pos.x, pos.y].isWalkable && !result[x + 1, y])
-            {
-                result[x + 1, y] = true;
-                q.Enqueue((x + 1, y));
-            }
-
-            if (x + 1 < input.GetLength(0) && y - 1 > 0 && input[x + 1, y - 1].isWalkable == input[pos.x, pos.y].isWalkable && !result[x + 1, y - 1])
-            {
-                result[x - 1, y - 1] = true;
-                q.Enqueue((x - 1, y - 1));
-            }
-
-            if (y - 1 > 0 && input[x, y - 1].isWalkable == input[pos.x, pos.y].isWalkable && !result[x, y - 1])
-            {
-                result[x, y - 1] = true;
-                q.Enqueue((x, y - 1));
-            }
-
-            if (x - 1 > 0 && y - 1 > 0 && input[x - 1, y - 1].isWalkable == input[pos.x, pos.y].isWalkable && !result[x - 1, y - 1])
-            {
-                result[x - 1, y - 1] = true;
-                q.Enqueue((x - 1, y - 1));
-            }
-
-            if (x - 1 > 0 && input[x - 1, y].isWalkable == input[pos.x, pos.y].isWalkable && !result[x - 1, y])
-            {
-                result[x - 1, y] = true;
-                q.Enqueue((x - 1, y));
-            }
-
-            if (x - 1 > 0 && y + 1 < input.GetLength(1) && input[x - 1, y + 1].isWalkable == input[pos.x, pos.y].isWalkable && !result[x - 1, y + 1])
-            {
-                result[x - 1, y + 1] = true;
-                q.Enqueue((x - 1, y + 1));
+                    if (dPos.X > -1 && dPos.X < width && dPos.Y > -1 && dPos.Y < height)
+                    {
+                        if (input[dPos].isWalkable == input[pos].isWalkable && !result[dPos])
+                        {
+                            result[dPos] = true;
+                            q.Enqueue(dPos);
+                        }
+                    }
+                }
             }
         }
 

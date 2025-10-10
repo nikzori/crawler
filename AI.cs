@@ -2,6 +2,8 @@ public class AI
 {
     static Player player = Game.player;
     public static Random rng = new();
+    static Path Pathfinder = new();
+    Queue<Vector2Int>? currentPath;
     public static void Act(Creature creature, int aut)
     {
         creature.aut += aut;
@@ -23,12 +25,14 @@ public class AI
                     else
                     {
                         int x, y;
+                        Vector2Int randomPos;
                         int cntr = 0;
                         while (true)
                         {
                             x = rng.Next(-1, 2);
                             y = rng.Next(-1, 2);
-                            if (creature.Move(x, y) || cntr > 5)
+                            randomPos = creature.pos + new Vector2Int(x, y);
+                            if (creature.Move(randomPos) || cntr > 5)
                                 break;
                             else cntr++;
                         }
@@ -39,20 +43,13 @@ public class AI
             case AIState.attack:
                 if (CanSeePlayer(creature))
                 {
-                    creature.lastPlayerPosition = Game.player.pos;
+                    creature.lastPlayerPosition = player.pos;
                     // weigh all action options, see if action can be performed (check cooldowns and such)
                     if (CanReachAttack(creature, Game.player))
                         UI.Log(creature.name + " attacks " + Game.player.name);
                     else
                     {
-                        List<Node> path = Pathfinding.GetPath(creature.pos, Game.player.pos);
-                        if (path.Count > 0)
-                            creature.MoveTo(path[0].position);
-                        else
-                        {
-                            UI.Log(creature.name + " cannot find path to player");
-                            UI.Log("Path node count: " + path.Count);
-                        }
+                        // approach the player
                     }
                 }
                 else goto case AIState.pursuit;
@@ -61,9 +58,17 @@ public class AI
             case AIState.pursuit:
                 if (CanSeePlayer(creature))
                     goto case AIState.attack;
-                // go to the last place where the player was seen 
-                // walk around?
-
+                else if (creature.currentPath?.Last() == creature.lastPlayerPosition) // player stayed still, no need to update
+                    creature.MoveTo(creature.currentPath.Dequeue());
+                else
+                {
+                    IReadOnlyCollection<Vector2Int> newPath;
+                    if (Pathfinder.Calculate(creature.pos, creature.lastPlayerPosition, Game.dungeon.GetCurrentFloor().obstacles, out newPath))
+                    {
+                        creature.currentPath = newPath as Queue<Vector2Int>;
+                        creature.MoveTo(creature.currentPath.Dequeue());
+                    }
+                }
                 break;
         }
 
@@ -74,8 +79,8 @@ public class AI
     public static bool CanSeePlayer(Creature creature)
     {
         //check whether the Player is in vision range in the first place
-        int x = Math.Abs(creature.pos.x - player.pos.x);
-        int y = Math.Abs(creature.pos.y - player.pos.y);
+        int x = Math.Abs(creature.pos.X - player.pos.Y);
+        int y = Math.Abs(creature.pos.Y - player.pos.Y);
         // since our FOV is square shaped (because of equidistant movement), 
         // we don't need to calculate the distance with a square root
         if (x > 10 || y > 10)
@@ -86,12 +91,10 @@ public class AI
 
     public static bool CanReachAttack(Creature host, Creature target)
     {
-        if (Math.Abs(host.pos.x - target.pos.x) <= 1 && Math.Abs(host.pos.y - target.pos.x) <= 1)
+        if (Math.Abs(host.pos.X - target.pos.X) <= 1 && Math.Abs(host.pos.Y - target.pos.Y) <= 1)
             return true;
         else return false;
     }
 }
 
-// stand in place until sees player
-// for now attack state will just change creature rune
 public enum AIState { idle, attack, pursuit, sleep }
