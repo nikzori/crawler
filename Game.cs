@@ -1,21 +1,22 @@
+using Terminal.Gui.App;
 public class Game
 {
 
-    public static Dungeon dungeon = new(10);
+    public static Dungeon dungeon = new(2);
     public static Map currentMap { get { return dungeon.GetCurrentFloor(); } }
     public static Player player;
     public Game(string pName)
     {
-        int mapSize = dungeon.floors[0].cells.GetLength(0);
+        Vector2Int mapSize = dungeon.floors[0].size;
         int xStart = 0;
         int yStart = 0;
 
         bool startPosFound = false;
-        for (int x = 2; x < mapSize; x++)
+        for (int x = 2; x < mapSize.X; x++)
         {
-            for (int y = 2; y < mapSize; y++)
+            for (int y = 2; y < mapSize.Y; y++)
             {
-                if (!dungeon.floors[0].cells[x, y].IsWall())
+                if (!dungeon.floors[0].cells[new(x, y)].IsWall())
                 {
                     xStart = x;
                     yStart = y;
@@ -26,11 +27,11 @@ public class Game
             if (startPosFound)
                 break;
         }
-        player = new Player(pName, (xStart, yStart), '@');
+        player = new Player(pName, new(xStart, yStart), new('@'));
         player.name = pName;
         dungeon.floors[0].AddCreature(player);
 
-        UI.Init();
+        Application.Run<UI>().Dispose();
     }
     public static void Update(int aut)
     {
@@ -38,16 +39,16 @@ public class Game
             AI.Act(c, aut);
     }
 
-    public static void ChangeFloor(int floorNumber, (int x, int y) pos)
+    public static void ChangeFloor(int floorNumber, Vector2Int pos)
     {
-        dungeon.GetCurrentFloor().cells[player.pos.x, player.pos.y].RemoveCreature();
+        dungeon.GetCurrentFloor().cells[player.pos].RemoveCreature();
         dungeon.currentFloor = floorNumber;
         player.pos = pos;
-        dungeon.GetCurrentFloor().cells[pos.x, pos.y].AddCreature(player);
-        UI.UpdatePos();
+        dungeon.GetCurrentFloor().cells[pos].AddCreature(player);
+        //        UI.UpdatePos();
     }
-    public static void Descend((int x, int y) pos) { ChangeFloor(dungeon.currentFloor + 1, pos); }
-    public static void Ascend((int x, int y) pos) { ChangeFloor(dungeon.currentFloor - 1, pos); }
+    public static void Descend(Vector2Int pos) { ChangeFloor(dungeon.currentFloor + 1, pos); }
+    public static void Ascend(Vector2Int pos) { ChangeFloor(dungeon.currentFloor - 1, pos); }
 
 }
 

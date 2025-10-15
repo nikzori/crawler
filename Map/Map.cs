@@ -220,9 +220,9 @@ public class Map
         cells = MapGen.GenerateCA(xLength, yLength);
         background = new Dictionary<Vector2Int, char>();
         int t;
-        for (int x = 0; x < size.X + 30; x++) // 15 extra tiles on each side in case camera sees them
+        for (int x = 0; x < size.X + 50; x++) // 15 extra tiles on each side in case camera sees them
         {
-            for (int y = 0; y < size.Y + 30; y++)
+            for (int y = 0; y < size.Y + 50; y++)
             {
                 Vector2Int pos = new(x, y);
                 background.Add(pos, ' ');
@@ -272,22 +272,18 @@ public class Map
 
 public struct Cell
 {
-    public Rune rune;
+    public Rune rune = new('.');
     public Terminal.Gui.Drawing.Attribute colors;
     public bool isTransparent = true;
     public bool isWalkable = true;
 
-    public bool isRevealed = false; //for line of sight
+    public bool isRevealed = true; //for line of sight
 
     public bool isStairsDown = false;
     public bool isStairsUp = false;
 
     public Creature? creature;
     public List<Item>? items;
-    public Cell()
-    {
-        rune = new('.');
-    }
     public Cell(Rune rune, bool isTransparent, bool isWalkable, Terminal.Gui.Drawing.Attribute colors)
     {
         this.rune = rune;

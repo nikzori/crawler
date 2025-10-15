@@ -1,6 +1,6 @@
-﻿using Terminal.Gui;
+﻿using Terminal.Gui.App;
 
-Application.Init();
-
-MainMenu.Init();
+Application.Run<MainMenu>().Dispose();
 Application.Shutdown();
+
+Console.WriteLine("Bye-bye!~");

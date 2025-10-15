@@ -1,30 +1,35 @@
-using Terminal.Gui;
+using Terminal.Gui.Views;
+using Terminal.Gui.ViewBase;
+using Terminal.Gui.App;
 
-public static class MainMenu
+public class MainMenu : Window
 {
-    public static void Init()
+    public MainMenu()
     {
 
-        Label Name = new("Character Name:")
+        Label Name = new()
         {
             X = Pos.Center() - 20,
             Y = 1,
             Width = 20,
+            Text = "Character Name:"
         };
-        TextField NameField = new("")
+        TextField NameField = new()
         {
             X = Pos.Center() + 1,
             Y = 1,
-            Width = 20
+            Width = 20,
+            Text = ""
         };
-        Button NewGameBtn = new Button("New Game", true)
+        Button NewGameBtn = new Button()
         {
             X = Pos.Center(),
             Y = 4,
             Width = 14,
-            Height = 1
+            Height = 3,
+            Text = "New Game"
         };
-        NewGameBtn.Clicked += () =>
+        NewGameBtn.Accepting += (s, e) =>
         {
             if (NameField.Text != "")
             {
@@ -34,17 +39,17 @@ public static class MainMenu
             else StartGame("Player");
         };
 
-        Button Exit = new("Quit")
+        Button Exit = new()
         {
             X = Pos.Center(),
             Y = 7,
-            Width = 8,
-            Height = 1
+            Width = 9,
+            Height = 3,
+            Text = "Quit"
         };
-        Exit.Clicked += () => { Application.RequestStop(Application.Top); };
+        Exit.Accepting += (s, e) => { Application.RequestStop(Application.Top); };
 
-        Application.Top.Add(Name, NameField, NewGameBtn, Exit);
-        Application.Run();
+        this.Add(Name, NameField, NewGameBtn, Exit);
     }
 
     public static void StartGame(string characterName, string CAIterations = "2")

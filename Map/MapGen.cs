@@ -31,14 +31,22 @@ public static class MapGen
         // https://roguebasin.com/index.php/Cellular_Automata_Method_for_Generating_Random_Cave-Like_Levels
 
         // Make a boxed in room
-        Dictionary<Vector2Int, Cell> result = new Dictionary<Vector2Int, Cell>(width * height);
-        Vector2Int pos;
-        for (int x = 1; x < width; x++)
+        Dictionary<Vector2Int, Cell> result = new Dictionary<Vector2Int, Cell>();
+        for (int x = 0; x < width; x++)
         {
-            for (int y = 1; y < height; y++)
+            for (int y = 0; y < height; y++)
+            {
+                result.Add(new Vector2Int(x, y), new Cell());
+            }
+        }
+
+        Vector2Int pos;
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
             {
                 pos = new(x, y);
-                if (pos.X == 1 || pos.X == width - 1 || pos.Y == 1 || pos.Y == height - 1)
+                if (pos.X == 0 || pos.X == width - 1 || pos.Y == 0 || pos.Y == height - 1)
                     result[pos].SetToWall();
                 else result[pos].SetToFloor();
             }
@@ -297,11 +305,14 @@ public static class MapGen
     /// </summary>
     public static Dictionary<Vector2Int, bool> FloodSelect(Dictionary<Vector2Int, Cell> input, int width, int height, Vector2Int pos)
     {
-        Dictionary<Vector2Int, bool> result = new Dictionary<Vector2Int, bool>(width * height);
-
-        // set all to false just in case
-        foreach (KeyValuePair<Vector2Int, bool> kvp in result)
-            result[kvp.Key] = false;
+        Dictionary<Vector2Int, bool> result = new Dictionary<Vector2Int, bool>();
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                result.Add(new Vector2Int(x, y), false);
+            }
+        }
 
         result[pos] = true; // starting point is always true
 
@@ -316,8 +327,8 @@ public static class MapGen
 
             // go over the adjacent tiles 
             // add them in the queue until we run out of possible options
-            // if a tile is already marked true in the `result[,]`, ignore it
-            Vector2Int dPos = new();
+            // if a tile is already marked true in the `result`, ignore it
+            Vector2Int dPos;
             for (int x = -1; x <= 1; x++)
             {
                 for (int y = -1; y <= 1; y++)

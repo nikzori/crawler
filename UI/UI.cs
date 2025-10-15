@@ -3,23 +3,23 @@ using Terminal.Gui.Views;
 using Terminal.Gui.App;
 using Terminal.Gui.Input;
 
-
-public static class UI
+public class UI : Window
 {
-    static Label position = new();
-    static Label floorView = new();
+    Label position = new();
+    Label floorView = new();
 
-    static MapView mapView = new(31);
-    static View characterView = new();
-    static Label logView = new();
-    static Inventory inventoryView = new();
+    MapView mapView = new(31);
+    View characterView = new();
+    Label logView = new();
+    Inventory inventoryView = new();
 
     static Player player = Game.player;
-    public static event EventHandler<InteractEventArgs> Interact = delegate { };
-    public static void Init()
+    public static event EventHandler<Vector2Int> Interact = delegate { };
+    public static event EventHandler<string> LogEvent = delegate { };
+    public UI()
     {
         player = Game.player;
-        mapView = new(33) { X = 0, Y = 0, };
+        mapView = new(33) { X = 0, Y = 0 };
 
         characterView = new()
         {
@@ -33,34 +33,34 @@ public static class UI
         {
             Y = Pos.Top(characterView) + 1,
             Width = Dim.Fill(),
-            Height = 1,
+            Height = 3,
             Text = player.name,
             TextAlignment = Alignment.Center
         };
 
-        View statView = new()
+        Window statView = new()
         {
             Y = 2,
             Width = 20,
-            Height = 5
+            Height = 10
         };
 
         position = new()
         {
             Y = Pos.Top(statView) + 2,
             Width = 15,
-            Height = 2,
+            Height = 3,
         };
         floorView = new()
         {
             Width = 15,
-            Height = 2,
+            Height = 3,
         };
 
         logView = new()
         {
             X = 1,
-            Y = Pos.Right(characterView) + 1,
+            Y = Pos.Bottom(characterView) + 1,
             Width = Dim.Fill(),
             Height = Dim.Fill(),
             Text = "Game started"
@@ -74,49 +74,133 @@ public static class UI
 
         statView.Add(playerName, position, floorView);
         characterView.Add(playerName, statView);
-        Application.Top.Add(mapView, characterView, logView, inventoryView);
+        this.Add(mapView, characterView, logView, inventoryView);
+        UI.LogEvent += (s, e) => this.PrintLog(e);
 
         UpdatePos();
     }
 
-    public static void Log(string txt)
+    public static void Log(string text)
+    {
+        LogEvent.Invoke(null, text);
+    }
+
+    public void PrintLog(string txt)
     {
         logView.Text = logView.Text.ToString().Insert(0, txt + "\n");
     }
-    public static void UpdatePos()
+    public void UpdatePos()
     {
         floorView.Text = "Floor: " + Game.dungeon.currentFloor.ToString();
-        position.Text = "X: " + player.pos.x + "\nY: " + player.pos.y;
-        mapView.Redraw(mapView.Bounds);
+        position.Text = "X: " + player.pos.X + "\nY: " + player.pos.Y;
+        mapView.Redraw();
     }
 
-    public static void ShowInventory()
+    public void ShowInventory()
     {
         HideMain();
         inventoryView.Init();
         inventoryView.Visible = true;
     }
-    public static void OpenMenu()
+    public void OpenMenu()
     {
 
     }
-    public static void ShowMain()
+    public void ShowMain()
     {
         mapView.Visible = true;
         characterView.Visible = true;
         logView.Visible = true;
     }
-    public static void HideMain()
+    public void HideMain()
     {
         mapView.Visible = false;
         characterView.Visible = false;
         logView.Visible = false;
     }
 
-    // this feels wrong. Oh well.
-    public static void InvokeInteract(object sender, InteractEventArgs e)
+    public static void InvokeInteract(Vector2Int pos)
     {
-        Interact.Invoke(sender, e);
+        Interact.Invoke(null, pos);
+    }
+    protected override bool OnKeyDown(Key key)
+    {
+        if (!Visible)
+            return false;
+        bool keyRegistered = false;
+
+        // switch-case doesn't like Key.Parameters for some reason
+        // so this will be ugly for now
+        if (key == Key.D1)
+        {
+            Game.player.TileInteract(new(-1, -1));
+            keyRegistered = true;
+        }
+        if (key == Key.D2)
+        {
+            Game.player.TileInteract(new(0, -1));
+            keyRegistered = true;
+        }
+        if (key == Key.D3)
+        {
+            Game.player.TileInteract(new(1, -1));
+            keyRegistered = true;
+        }
+        if (key == Key.D4)
+        {
+            Game.player.TileInteract(new(-1, 0));
+            keyRegistered = true;
+        }
+        if (key == Key.D5)
+        {
+            //interact mode?
+            Game.Update(10);
+            UI.Log("Key Registered");
+            keyRegistered = true;
+        }
+        if (key == Key.D6)
+        {
+            Game.player.TileInteract(new(1, 0));
+            keyRegistered = true;
+        }
+        if (key == Key.D7)
+        {
+            Game.player.TileInteract(new(-1, 1));
+            keyRegistered = true;
+        }
+        if (key == Key.D8)
+        {
+            Game.player.TileInteract(new(0, 1));
+            keyRegistered = true;
+        }
+        if (key == Key.D9)
+        {
+            Game.player.TileInteract(new(1, 1));
+            keyRegistered = true;
+        }
+        if (key == Key.I)
+        {
+            this.ShowInventory();
+            UI.Log("Open inventory.");
+            keyRegistered = true;
+        }
+        /* don't even remember what this was
+        case (Key)62:
+            keyRegistered = true;
+            UI.InvokeInteract(Game.player, new(Game.player.pos));
+            break;
+        */
+        if (key == Key.Esc)
+        {
+            keyRegistered = true;
+            Application.RequestStop(Application.Top);
+        }
+
+        if (keyRegistered)
+            this.UpdatePos();
+
+        return keyRegistered;
+
     }
 }
 
@@ -135,40 +219,48 @@ public class MapView : View
         Height = size;
         boundWidth = boundHeight = size;
         pX = pY = size / 2; // center the player on the screen
+        Redraw();
     }
 
     #region Line of Sight
-    public override void Redraw(Rect bounds)
+    public void Redraw()
     {
         //upper-left visible map cell coordinates 
         mX = Game.player.pos.X - pX;
         mY = Game.player.pos.Y - pY;
 
-
+        Vector2Int currentPos = new(mX, mY);
+        System.Text.Rune c = new('.');
         for (int tx = 0; tx < boundWidth; tx++)
         {
             for (int ty = 0; ty < boundHeight; ty++)
             {
-                System.Text.Rune c = new(' ');
-
                 if (mX < Game.currentMap.size.X && mX > 0 && mY < Game.currentMap.size.Y && mY > 0)
                 {
+                    c = Game.currentMap.cells[currentPos].GetRune();
+                    Game.currentMap.cells[currentPos].SetRevealed(true);
+
+                    if (Game.currentMap.cells[currentPos].IsWall())
+                        SetAttribute(Dungeon.WALL_COLOR);
+                    else SetAttribute(Dungeon.FLOOR_COLOR);
+                    /*
                     if (Math.Abs(tx - pX) < Game.player.sightRadius && Math.Abs(ty - pY) < Game.player.sightRadius)
                     {
+                                
                         // very unnatural (and probably very inefficient) LOS made with Bresenham's algorythm, 
                         // but hey, it works
-                        if (Dungeon.CanSeeTile(Game.player.pos, new(mX, mY)))
+                        if (Dungeon.CanSeeTile(Game.player.pos, currentPos))
                         {
-                            c = Game.currentMap.cells[new(mX, mY)].GetRune();
-                            Game.currentMap.cells[new(mX, mY)].SetRevealed(true);
+                            c = Game.currentMap.cells[currentPos].GetRune();
+                            Game.currentMap.cells[currentPos].SetRevealed(true);
 
-                            if (Game.currentMap.cells[new(mX, mY)].IsWall())
+                            if (Game.currentMap.cells[currentPos].IsWall())
                                 Application.Driver.SetAttribute(Dungeon.WALL_COLOR);
                             else Application.Driver.SetAttribute(Dungeon.FLOOR_COLOR);
                         }
-                        else if (Game.currentMap.cells[new(mX, mY)].isRevealed)
+                        else if (Game.currentMap.cells[currentPos].isRevealed)
                         {
-                            c = Game.currentMap.cells[new(mX, mY)].GetRune();
+                            c = Game.currentMap.cells[currentPos].GetRune();
                             Application.Driver.SetAttribute(Dungeon.REVEALED_COLOR);
                         }
                         else
@@ -176,114 +268,40 @@ public class MapView : View
                             c = new System.Text.Rune(Game.currentMap.background[new(mX + 15, mY + 15)]);
                             Application.Driver.SetAttribute(Dungeon.OBSCURED_COLOR);
                         }
+                        
                     }
-                    else if (Game.currentMap.cells[new(mX, mY)].isRevealed)
+                */
+                    /*
+                    else if (Game.currentMap.cells[currentPos].isRevealed)
                     {
-                        c = Game.currentMap.cells[new(mX, mY)].GetRune();
+                        c = Game.currentMap.cells[currentPos].GetRune();
                         Application.Driver.SetAttribute(Dungeon.REVEALED_COLOR);
                     }
                     else
                     {
-                        c = Game.currentMap.background[new(mX + 15, mY + 15)];
+                        c = new(Game.currentMap.background[new(mX + 15, mY + 15)]);
                         Application.Driver.SetAttribute(Dungeon.OBSCURED_COLOR);
                     }
+                    */
                 }
                 else
                 {
-                    c = Game.currentMap.background[mX + 15, mY + 15];
-                    Application.Driver.SetAttribute(Dungeon.OBSCURED_COLOR);
+                    c = new(Game.currentMap.background[new(mX + pX, mY + pY)]);
+                    SetAttribute(Dungeon.OBSCURED_COLOR);
                 }
-                AddRune(tx, boundHeight - ty, c);
+                if (Move(tx, boundHeight - ty))
+                    AddRune(tx, boundHeight - ty, c);
+                else Console.WriteLine("Couldn't add rune");
                 mY++;
+                currentPos = new(mX, mY);
             }
             mX++;
             mY = Game.player.pos.Y - pY;
+            currentPos = new(mX, mY);
         }
+        SetNeedsDraw();
     }
     #endregion
-    public override bool ProcessHotKey(KeyEvent keyEvent)
-    {
-        if (!Visible)
-            return false;
-        bool keyRegistered = false;
-        switch (keyEvent.Key)
-        {
-            case Key.D1:
-                Game.player.TileInteract(-1, -1);
-                keyRegistered = true;
-                break;
-            case Key.D2:
-                Game.player.TileInteract(0, -1);
-                keyRegistered = true;
-                break;
-            case Key.D3:
-                Game.player.TileInteract(1, -1);
-                keyRegistered = true;
-                break;
-            case Key.D4:
-                Game.player.TileInteract(-1, 0);
-                keyRegistered = true;
-                break;
-            case Key.D5:
-                //interact mode?
-                Game.player.Move(0, 0);
-                Game.Update(10);
-                UI.Log("Key Registered");
-                keyRegistered = true;
-                break;
-            case Key.D6:
-                Game.player.TileInteract(1, 0);
-                keyRegistered = true;
-                break;
-            case Key.D7:
-                Game.player.TileInteract(-1, 1);
-                keyRegistered = true;
-                break;
-            case Key.D8:
-                Game.player.TileInteract(0, 1);
-                keyRegistered = true;
-                break;
-            case Key.D9:
-                Game.player.TileInteract(1, 1);
-                keyRegistered = true;
-                break;
-            case Key.i:
-                UI.ShowInventory();
-                UI.Log("Open inventory.");
-                keyRegistered = true;
-                break;
-            case (Key)62:
-                keyRegistered = true;
-                UI.InvokeInteract(Game.player, new(Game.player.pos));
-                break;
-            case Key.Esc:
-                keyRegistered = true;
-                Application.RequestStop(Application.Top);
-                break;
-            default:
-                break;
-        }
-        if (keyRegistered)
-        {
-            this.SetNeedsDraw();
-            UI.UpdatePos();
-        }
-        return keyRegistered;
 
-    }
-}
-
-public class InteractEventArgs : EventArgs
-{
-    public (int x, int y) pos;
-    public InteractEventArgs(int x, int y)
-    {
-        pos.x = x;
-        pos.y = y;
-    }
-    public InteractEventArgs((int x, int y) pos)
-    {
-        this.pos = pos;
-    }
 }
 
