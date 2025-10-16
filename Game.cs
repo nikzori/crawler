@@ -2,7 +2,7 @@ using Terminal.Gui.App;
 public class Game
 {
 
-    public static Dungeon dungeon = new(2);
+    public static Dungeon dungeon = new(1);
     public static Map currentMap { get { return dungeon.GetCurrentFloor(); } }
     public static Player player;
     public Game(string pName)

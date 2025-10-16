@@ -93,7 +93,7 @@ public class UI : Window
     {
         floorView.Text = "Floor: " + Game.dungeon.currentFloor.ToString();
         position.Text = "X: " + player.pos.X + "\nY: " + player.pos.Y;
-        mapView.Redraw();
+        mapView.UpdateMap();
     }
 
     public void ShowInventory()
@@ -219,11 +219,11 @@ public class MapView : View
         Height = size;
         boundWidth = boundHeight = size;
         pX = pY = size / 2; // center the player on the screen
-        Redraw();
+        UpdateMap();
     }
 
     #region Line of Sight
-    public void Redraw()
+    public void UpdateMap()
     {
         //upper-left visible map cell coordinates 
         mX = Game.player.pos.X - pX;
@@ -287,11 +287,11 @@ public class MapView : View
                 else
                 {
                     c = new(Game.currentMap.background[new(mX + pX, mY + pY)]);
-                    SetAttribute(Dungeon.OBSCURED_COLOR);
+                    Application.Driver.SetAttribute(Dungeon.OBSCURED_COLOR);
                 }
-                if (Move(tx, boundHeight - ty))
-                    AddRune(tx, boundHeight - ty, c);
-                else Console.WriteLine("Couldn't add rune");
+                Application.Driver.Move(tx, boundHeight - ty);
+                Application.Driver.AddRune(/*tx, boundHeight - ty,*/ c);
+                //else UI.Log("Couldn't add rune");
                 mY++;
                 currentPos = new(mX, mY);
             }
