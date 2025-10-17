@@ -37,12 +37,11 @@ public class Creature
     {
         if (!Game.dungeon.GetCurrentFloor().cells.ContainsKey(pos))
         {
-            //UI.Log("Trying to move creature out of map boundaries; object stays at x: " + this.pos.X + "; y: " + this.pos.Y);
+            UI.Log("Trying to move creature out of map boundaries; object stays at x: " + this.pos.X + "; y: " + this.pos.Y);
             return false;
         }
-        if (!Game.dungeon.GetCurrentFloor().cells[pos].IsWalkable() || Game.dungeon.GetCurrentFloor().cells[pos].HasCreature())
-            return false;
-
+        //if (!Game.dungeon.GetCurrentFloor().cells[pos].IsWalkable() || Game.dungeon.GetCurrentFloor().cells[pos].HasCreature())
+        //  return false;
         this.pos = pos;
         return true;
     }

@@ -82,9 +82,9 @@ public static class MapGen
 
                 result = PlaceRooms(result, width, height, true, 10, 4, 7); // Sprinkle around rooms connected by corridors
 
-                if (CleanIsolation(result, width, height) /* || cntr > 10 */) // Clean up the isolated pockets
-                    isMapReady = true;
-                cntr++;
+                //if (CleanIsolation(result, width, height) /* || cntr > 10 */) // Clean up the isolated pockets
+                isMapReady = true;
+                //cntr++;
             }
         }
         catch (Exception err)
@@ -337,13 +337,15 @@ public static class MapGen
 
                     if (dPos == currentPos)
                         continue;
-
                     if (dPos.X > -1 && dPos.X < width && dPos.Y > -1 && dPos.Y < height)
                     {
-                        if (input[dPos].isWalkable == input[pos].isWalkable && !result[dPos])
+                        if (input[dPos].isWalkable == input[pos].isWalkable)
                         {
-                            result[dPos] = true;
-                            q.Enqueue(dPos);
+                            if (!result[dPos])
+                            {
+                                result[dPos] = true;
+                                q.Enqueue(dPos);
+                            }
                         }
                     }
                 }

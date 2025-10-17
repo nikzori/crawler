@@ -1,14 +1,17 @@
+using Terminal.Gui.Configuration;
 using Terminal.Gui.ViewBase;
 using Terminal.Gui.Views;
 using Terminal.Gui.App;
 using Terminal.Gui.Input;
+using System.Text;
+using Attribute = Terminal.Gui.Drawing.Attribute;
 
 public class UI : Window
 {
     Label position = new();
     Label floorView = new();
 
-    MapView mapView = new(31);
+    MapView mapView;
     View characterView = new();
     Label logView = new();
     Inventory inventoryView = new();
@@ -19,8 +22,7 @@ public class UI : Window
     public UI()
     {
         player = Game.player;
-        mapView = new(33) { X = 0, Y = 0 };
-
+        mapView = new() { X = 0, Y = 0 };
         characterView = new()
         {
             X = Pos.Right(mapView) + 4,
@@ -93,7 +95,7 @@ public class UI : Window
     {
         floorView.Text = "Floor: " + Game.dungeon.currentFloor.ToString();
         position.Text = "X: " + player.pos.X + "\nY: " + player.pos.Y;
-        mapView.UpdateMap();
+        mapView.SetNeedsDraw();
     }
 
     public void ShowInventory()
@@ -202,28 +204,32 @@ public class UI : Window
         return keyRegistered;
 
     }
+
+    public override void EndInit()
+    {
+        base.EndInit();
+        // Set the theme to "Anders" if it exists, otherwise use "Default"
+        ThemeManager.Theme = ThemeManager.GetThemeNames().FirstOrDefault(x => x == "Anders") ?? "Default";
+    }
 }
 
-public class MapView : View
+public class MapView : FrameView
 {
-    int boundWidth, boundHeight; // int values for viewport size
     int pX, pY; // player position on the screen
     int mX, mY;
-    public MapView(int size)
+    public MapView()
     {
         // viewport size needs to be an odd number to put player in the center
-        if (size % 2 != 1)
-            size--;
-
-        Width = size;
-        Height = size;
-        boundWidth = boundHeight = size;
-        pX = pY = size / 2; // center the player on the screen
-        UpdateMap();
+        Width = 31;
+        Height = 31;
+        UI.Log("Map viewport width: " + Viewport.Width.ToString() + "; height: " + Viewport.Height.ToString());
+        Visible = true;
+        pX = Viewport.Width / 2;
+        pY = Viewport.Height / 2; // center the player on the screen
     }
-
+    protected override bool OnClearingViewport() { return true; }
     #region Line of Sight
-    public void UpdateMap()
+    protected override bool OnDrawingText(DrawContext? context)
     {
         //upper-left visible map cell coordinates 
         mX = Game.player.pos.X - pX;
@@ -231,22 +237,21 @@ public class MapView : View
 
         Vector2Int currentPos = new(mX, mY);
         System.Text.Rune c = new('.');
-        for (int tx = 0; tx < boundWidth; tx++)
+        for (int tx = 0; tx < Viewport.Width; tx++)
         {
-            for (int ty = 0; ty < boundHeight; ty++)
+            for (int ty = 0; ty < Viewport.Height; ty++)
             {
-                if (mX < Game.currentMap.size.X && mX > 0 && mY < Game.currentMap.size.Y && mY > 0)
+                if (Game.currentMap.cells.ContainsKey(currentPos))
                 {
-                    c = Game.currentMap.cells[currentPos].GetRune();
-                    Game.currentMap.cells[currentPos].SetRevealed(true);
+                    c = Game.currentMap.cells[currentPos].rune;
+                    //Game.currentMap.cells[currentPos].SetRevealed(true);
 
                     if (Game.currentMap.cells[currentPos].IsWall())
                         SetAttribute(Dungeon.WALL_COLOR);
                     else SetAttribute(Dungeon.FLOOR_COLOR);
-                    /*
                     if (Math.Abs(tx - pX) < Game.player.sightRadius && Math.Abs(ty - pY) < Game.player.sightRadius)
                     {
-                                
+                        /*
                         // very unnatural (and probably very inefficient) LOS made with Bresenham's algorythm, 
                         // but hey, it works
                         if (Dungeon.CanSeeTile(Game.player.pos, currentPos))
@@ -255,43 +260,41 @@ public class MapView : View
                             Game.currentMap.cells[currentPos].SetRevealed(true);
 
                             if (Game.currentMap.cells[currentPos].IsWall())
-                                Application.Driver.SetAttribute(Dungeon.WALL_COLOR);
-                            else Application.Driver.SetAttribute(Dungeon.FLOOR_COLOR);
+                                SetAttribute(Dungeon.WALL_COLOR);
+                            else SetAttribute(Dungeon.FLOOR_COLOR);
                         }
                         else if (Game.currentMap.cells[currentPos].isRevealed)
                         {
                             c = Game.currentMap.cells[currentPos].GetRune();
-                            Application.Driver.SetAttribute(Dungeon.REVEALED_COLOR);
+                            SetAttribute(Dungeon.REVEALED_COLOR);
                         }
                         else
                         {
                             c = new System.Text.Rune(Game.currentMap.background[new(mX + 15, mY + 15)]);
-                            Application.Driver.SetAttribute(Dungeon.OBSCURED_COLOR);
+                            SetAttribute(Dungeon.OBSCURED_COLOR);
                         }
-                        
+                        */
                     }
-                */
                     /*
                     else if (Game.currentMap.cells[currentPos].isRevealed)
                     {
                         c = Game.currentMap.cells[currentPos].GetRune();
-                        Application.Driver.SetAttribute(Dungeon.REVEALED_COLOR);
+                        SetAttribute(Dungeon.REVEALED_COLOR);
                     }
+                    */
                     else
                     {
                         c = new(Game.currentMap.background[new(mX + 15, mY + 15)]);
-                        Application.Driver.SetAttribute(Dungeon.OBSCURED_COLOR);
+                        SetAttribute(Dungeon.OBSCURED_COLOR);
                     }
-                    */
                 }
                 else
                 {
                     c = new(Game.currentMap.background[new(mX + pX, mY + pY)]);
-                    Application.Driver.SetAttribute(Dungeon.OBSCURED_COLOR);
+                    SetAttribute(Dungeon.OBSCURED_COLOR);
                 }
-                Application.Driver.Move(tx, boundHeight - ty);
-                Application.Driver.AddRune(/*tx, boundHeight - ty,*/ c);
-                //else UI.Log("Couldn't add rune");
+                AddRune(tx, Viewport.Height - ty, c);
+
                 mY++;
                 currentPos = new(mX, mY);
             }
@@ -299,7 +302,7 @@ public class MapView : View
             mY = Game.player.pos.Y - pY;
             currentPos = new(mX, mY);
         }
-        SetNeedsDraw();
+        return true;
     }
     #endregion
 

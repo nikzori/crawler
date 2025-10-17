@@ -220,9 +220,9 @@ public class Map
         cells = MapGen.GenerateCA(xLength, yLength);
         background = new Dictionary<Vector2Int, char>();
         int t;
-        for (int x = 0; x < size.X + 50; x++) // 15 extra tiles on each side in case camera sees them
+        for (int x = 0; x < size.X + 500; x++) // 15 extra tiles on each side in case camera sees them
         {
-            for (int y = 0; y < size.Y + 50; y++)
+            for (int y = 0; y < size.Y + 500; y++)
             {
                 Vector2Int pos = new(x, y);
                 background.Add(pos, ' ');
@@ -235,6 +235,7 @@ public class Map
             }
         }
 
+        /*
         for (int i = 0; i < 10; i++)
         {
             int x = rng.Next(0, xLength);
@@ -247,6 +248,7 @@ public class Map
                 creatures.Add(goblin);
             }
         }
+        */
 
         foreach (KeyValuePair<Vector2Int, Cell> kvp in cells)
         {
@@ -272,7 +274,7 @@ public class Map
 
 public struct Cell
 {
-    public Rune rune = new('.');
+    public Rune rune = new Rune('.');
     public Terminal.Gui.Drawing.Attribute colors;
     public bool isTransparent = true;
     public bool isWalkable = true;
@@ -328,6 +330,14 @@ public struct Cell
     {
         return (rune.Value == Dungeon.WALL && !isWalkable) ? true : false;
 
+    }
+    public void SetRune(Rune rune)
+    {
+        this.rune = rune;
+    }
+    public void SetRune(char c)
+    {
+        this.rune = new Rune(c);
     }
     public void Set(Rune rune, bool isWalkable, bool isTransparent, Terminal.Gui.Drawing.Attribute colors)
     {
