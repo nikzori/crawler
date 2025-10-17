@@ -80,6 +80,7 @@ public class UI : Window
         UI.LogEvent += (s, e) => this.PrintLog(e);
 
         UpdatePos();
+        UI.Log("Rune: " + Game.currentMap.cells[new(0, 0)].GetRune().ToString());
     }
 
     public static void Log(string text)
@@ -205,12 +206,6 @@ public class UI : Window
 
     }
 
-    public override void EndInit()
-    {
-        base.EndInit();
-        // Set the theme to "Anders" if it exists, otherwise use "Default"
-        ThemeManager.Theme = ThemeManager.GetThemeNames().FirstOrDefault(x => x == "Anders") ?? "Default";
-    }
 }
 
 public class MapView : FrameView
@@ -243,7 +238,7 @@ public class MapView : FrameView
             {
                 if (Game.currentMap.cells.ContainsKey(currentPos))
                 {
-                    c = Game.currentMap.cells[currentPos].rune;
+                    c = Game.currentMap.cells[currentPos].GetRune();
                     //Game.currentMap.cells[currentPos].SetRevealed(true);
 
                     if (Game.currentMap.cells[currentPos].IsWall())

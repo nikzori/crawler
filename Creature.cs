@@ -40,9 +40,11 @@ public class Creature
             UI.Log("Trying to move creature out of map boundaries; object stays at x: " + this.pos.X + "; y: " + this.pos.Y);
             return false;
         }
-        //if (!Game.dungeon.GetCurrentFloor().cells[pos].IsWalkable() || Game.dungeon.GetCurrentFloor().cells[pos].HasCreature())
-        //  return false;
+        if (!Game.dungeon.GetCurrentFloor().cells[pos].IsWalkable() || Game.dungeon.GetCurrentFloor().cells[pos].HasCreature())
+            return false;
+        Game.currentMap.cells[this.pos].RemoveCreature();
         this.pos = pos;
+        Game.currentMap.cells[this.pos].AddCreature(this);
         return true;
     }
 

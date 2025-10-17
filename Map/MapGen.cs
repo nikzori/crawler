@@ -11,8 +11,8 @@ public static class MapGen
             for (int y = 0; y < height; y++)
             {
                 if (x == 0 || y == 0)
-                    result.Add(new(x, y), new(new('#'), false, false, Dungeon.WALL_COLOR));
-                else result.Add(new(x, y), new());
+                    result.Add(new(x, y), new(Dungeon.WALL, false, false, Dungeon.WALL_COLOR));
+                else result.Add(new(x, y), new(Dungeon.FLOOR, true, true, Dungeon.FLOOR_COLOR));
             }
         }
         result[new(width / 2, height / 2)].SetToWall();
@@ -31,39 +31,33 @@ public static class MapGen
         // https://roguebasin.com/index.php/Cellular_Automata_Method_for_Generating_Random_Cave-Like_Levels
 
         // Make a boxed in room
+
+        Vector2Int pos;
+        Cell cell;
         Dictionary<Vector2Int, Cell> result = new Dictionary<Vector2Int, Cell>();
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                result.Add(new Vector2Int(x, y), new Cell());
-            }
-        }
-
-        Vector2Int pos;
-        for (int x = 0; x < width; x++)
-        {
-            for (int y = 0; y < height; y++)
-            {
+                cell = new Cell(Dungeon.FLOOR, true, true, Dungeon.FLOOR_COLOR);
                 pos = new(x, y);
-                if (pos.X == 0 || pos.X == width - 1 || pos.Y == 0 || pos.Y == height - 1)
-                    result[pos].SetToWall();
-                else result[pos].SetToFloor();
+                result.Add(pos, cell);
             }
         }
 
-        // Make random tiles walls
-        for (int x = 0; x < width; x++)
+        foreach (KeyValuePair<Vector2Int, Cell> kvp in result)
         {
-            for (int y = 0; y < height; y++)
-            {
-                if (random.Next(1, 100) < 45)
-                {
-                    pos = new(x, y);
-                    result[pos].SetToWall();
-                }
-            }
+
+            // wall border
+            if (kvp.Key.X == 0 || kvp.Key.X == width - 1 || kvp.Key.Y == 0 || kvp.Key.Y == height - 1)
+                result[kvp.Key].SetToWall();
+
+            // throw random walls on the map for automata
+            if (random.Next(1, 100) < 45)
+                result[kvp.Key].SetToWall();
         }
+
+
 
         bool isMapReady = false;
         try
@@ -82,15 +76,16 @@ public static class MapGen
 
                 result = PlaceRooms(result, width, height, true, 10, 4, 7); // Sprinkle around rooms connected by corridors
 
-                //if (CleanIsolation(result, width, height) /* || cntr > 10 */) // Clean up the isolated pockets
-                isMapReady = true;
-                //cntr++;
+                if (CleanIsolation(result, width, height) || cntr > 10) // Clean up the isolated pockets
+                    isMapReady = true;
+                cntr++;
             }
         }
         catch (Exception err)
         {
             Console.WriteLine("Error: " + err);
         }
+
         return result;
     }
 
@@ -154,8 +149,8 @@ public static class MapGen
                 }
 
                 if (setToWall)
-                    result[new(x, y)].SetToWall();
-                else result[new(x, y)].SetToFloor();
+                    result[new(x, y)] = new(Dungeon.WALL, false, false, Dungeon.WALL_COLOR);
+                else result[new(x, y)] = new(Dungeon.FLOOR, true, true, Dungeon.FLOOR_COLOR);
             }
         }
         return result;
