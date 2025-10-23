@@ -1,4 +1,6 @@
 using System.Text;
+using Terminal.Gui.Drawing;
+using Attribute = Terminal.Gui.Drawing.Attribute;
 
 public class Creature
 {
@@ -9,11 +11,13 @@ public class Creature
     public Vector2Int pos;
 
     Rune _rune;
+    public Attribute color = new(Color.Red, Color.Black);
     public Rune rune { get; set; } // gonna need this for status effects and such
 
     public int aut = 0;
 
     // AI stuff
+    // putting this here feels kinda ass so idk
     public AIState state = AIState.idle;
     public bool isTrackingPlayer = false;
     public Vector2Int lastPlayerPosition;

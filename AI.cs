@@ -3,7 +3,6 @@ public class AI
     static Player player = Game.player;
     public static Random rng = new();
     static Path Pathfinder = new();
-    Queue<Vector2Int>? currentPath;
     public static void Act(Creature creature, int aut)
     {
         creature.aut += aut;
@@ -11,33 +10,9 @@ public class AI
         switch (creature.state)
         {
             case AIState.idle:
-                if (CanSeePlayer(creature))
-                {
-                    creature.lastPlayerPosition = player.pos;
-                    creature.state = AIState.attack;
-                    goto case AIState.attack; // no idea if this works
-                }
-                else
-                {
-                    // do nothing or take a step
-                    if (rng.Next(0, 101) < 5)
-                        return;
-                    else
-                    {
-                        int x, y;
-                        Vector2Int randomPos;
-                        int cntr = 0;
-                        while (true)
-                        {
-                            x = rng.Next(-1, 2);
-                            y = rng.Next(-1, 2);
-                            randomPos = creature.pos + new Vector2Int(x, y);
-                            if (creature.Move(randomPos) || cntr > 5)
-                                break;
-                            else cntr++;
-                        }
-                    }
-                }
+                // go to a random spot somewhere in another corner of a map
+
+
                 break;
 
             case AIState.attack:
@@ -79,11 +54,10 @@ public class AI
     public static bool CanSeePlayer(Creature creature)
     {
         //check whether the Player is in vision range in the first place
-        int x = Math.Abs(creature.pos.X - player.pos.Y);
-        int y = Math.Abs(creature.pos.Y - player.pos.Y);
+        Vector2Int distance = player.pos - creature.pos;
         // since our FOV is square shaped (because of equidistant movement), 
         // we don't need to calculate the distance with a square root
-        if (x > 10 || y > 10)
+        if (Math.Abs(distance.X) > 10 || Math.Abs(distance.Y) > 10)
             return false;
 
         else return Dungeon.CanSeeTile(creature.pos, player.pos);

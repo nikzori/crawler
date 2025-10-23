@@ -1,5 +1,5 @@
 using Terminal.Gui.App;
-public class Game
+public class Game //why tf would i make this non-static
 {
 
     public static Dungeon dungeon = new(1);

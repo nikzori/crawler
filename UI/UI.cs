@@ -246,7 +246,6 @@ public class MapView : FrameView
                     else SetAttribute(Dungeon.FLOOR_COLOR);
                     if (Math.Abs(tx - pX) < Game.player.sightRadius && Math.Abs(ty - pY) < Game.player.sightRadius)
                     {
-                        /*
                         // very unnatural (and probably very inefficient) LOS made with Bresenham's algorythm, 
                         // but hey, it works
                         if (Dungeon.CanSeeTile(Game.player.pos, currentPos))
@@ -254,9 +253,7 @@ public class MapView : FrameView
                             c = Game.currentMap.cells[currentPos].GetRune();
                             Game.currentMap.cells[currentPos].SetRevealed(true);
 
-                            if (Game.currentMap.cells[currentPos].IsWall())
-                                SetAttribute(Dungeon.WALL_COLOR);
-                            else SetAttribute(Dungeon.FLOOR_COLOR);
+                            SetAttribute(Game.currentMap.cells[currentPos].GetAttribute());
                         }
                         else if (Game.currentMap.cells[currentPos].isRevealed)
                         {
@@ -268,15 +265,12 @@ public class MapView : FrameView
                             c = new System.Text.Rune(Game.currentMap.background[new(mX + 15, mY + 15)]);
                             SetAttribute(Dungeon.OBSCURED_COLOR);
                         }
-                        */
                     }
-                    /*
                     else if (Game.currentMap.cells[currentPos].isRevealed)
                     {
                         c = Game.currentMap.cells[currentPos].GetRune();
                         SetAttribute(Dungeon.REVEALED_COLOR);
                     }
-                    */
                     else
                     {
                         c = new(Game.currentMap.background[new(mX + 15, mY + 15)]);

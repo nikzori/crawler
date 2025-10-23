@@ -6,9 +6,9 @@ public class Dungeon
 {
     public static Rune WALL = new Rune('#');
     public static Rune FLOOR = new Rune('.');
-    public static Attribute FLOOR_COLOR = new(Color.Gray, Color.Black);
+    public static Attribute FLOOR_COLOR = new(Color.Green, Color.Black);
     public static Attribute WALL_COLOR = new(Color.Yellow, Color.Black);
-    public static Attribute REVEALED_COLOR = new(Color.Blue, Color.Black); // For tiles that were seen but not in LOS
+    public static Attribute REVEALED_COLOR = new(Color.Gray, Color.Black); // For tiles that were seen but not in LOS
     public static Attribute OBSCURED_COLOR = new(Color.DarkGray, Color.Black);
 
     public List<Map> floors;
@@ -280,10 +280,7 @@ public class Cell
     public bool isTransparent = true;
     public bool isWalkable = true;
 
-    public bool isRevealed = true; //for line of sight
-
-    public bool isStairsDown = false;
-    public bool isStairsUp = false;
+    public bool isRevealed = false;
 
     public Creature? creature;
     public List<Item>? items;
@@ -316,9 +313,20 @@ public class Cell
             return rune;
         if (creature != null)
             return creature.rune;
-        else if (items != null && items.Count > 0)
+        if (items != null && items.Count > 0)
             return items[0].rune;
-        else return rune;
+        return rune;
+    }
+    public Attribute GetAttribute()
+    {
+        if (IsWall())
+            return Dungeon.WALL_COLOR;
+        if (creature != null)
+            return creature.color;
+        if (items != null && items.Count > 0)
+            return new Attribute(Color.DarkGray, Color.White);
+
+        else return Dungeon.FLOOR_COLOR;
     }
 
     //shortcuts for convenience
