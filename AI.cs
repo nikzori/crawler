@@ -10,9 +10,7 @@ public class AI
         switch (creature.state)
         {
             case AIState.idle:
-                // go to a random spot somewhere in another corner of a map
-
-
+                // go to a random spot somewhere in sight
                 break;
 
             case AIState.attack:
