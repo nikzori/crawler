@@ -1,4 +1,6 @@
-public class AI
+using System.Collections.Generic;
+
+public static class AI
 {
     static Player player = Game.player;
     public static Random rng = new();
@@ -6,11 +8,32 @@ public class AI
     public static void Act(Creature creature, int aut)
     {
         creature.aut += aut;
+        if (creature.currentPath is null)
+            creature.currentPath = new();
 
         switch (creature.state)
         {
             case AIState.idle:
-                // go to a random spot somewhere in sight
+                Vector2Int nextPos;
+                if (!creature.currentPath.TryDequeue(out nextPos))
+                {
+                    IReadOnlyCollection<Vector2Int> newPath;
+                    while (true)
+                    {
+                        Vector2Int nPos = new(rng.Next(1, Game.currentMap.size.X), rng.Next(1, Game.currentMap.size.Y));
+                        if (Game.currentMap.cells[nPos].isWalkable && Pathfinder.Calculate(creature.pos, nPos, Game.currentMap.GetObstacles(), out newPath))
+                        {
+                            creature.currentPath = new(newPath);
+                            break;
+                        }
+                    }
+                }
+
+                if (creature.aut >= creature.MoveSpeed)
+                {
+                    creature.MoveTo(nextPos);
+                    creature.aut -= creature.MoveSpeed;
+                }
                 break;
 
             case AIState.attack:

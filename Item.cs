@@ -1,20 +1,21 @@
 using System.Text;
-
+using Attribute = Terminal.Gui.Drawing.Attribute;
 public class Item
 {
     public string name = "Entity";
-    public Rune rune;
+    public Rune Rune { get; }
+    public Attribute Color { get; }
 
     public string description = "";
     public int price = 1;
 
-    public Item(string name, Rune rune, string description, int price)
+    public Item(string name, Rune rune, Attribute color, string description, int price)
     {
         this.name = name;
-        this.rune = rune;
+        this.Rune = rune;
+        this.Color = color;
         this.description = description;
         this.price = price;
-
     }
 }
 
@@ -32,7 +33,7 @@ public class Consumable : Item
         }
         // the inventory can be populated by all of the consumables and not render those that are at 0 charge
     }
-    public Consumable(string name, Rune rune, string description, int price, int charge) : base(name, rune, description, price)
+    public Consumable(string name, Rune rune, Attribute color, string description, int price, int charge) : base(name, rune, color, description, price)
     {
         this.charge = charge;
     }
@@ -42,7 +43,7 @@ public class Equipment : Item // kinda redundant
 {
     public EquipSlot slot;
 
-    public Equipment(string name, Rune rune, string description, int price, EquipSlot slot) : base(name, rune, description, price)
+    public Equipment(string name, Rune rune, Attribute color, string description, int price, EquipSlot slot) : base(name, rune, color, description, price)
     {
         this.slot = slot;
     }
@@ -56,7 +57,7 @@ public class Weapon : Equipment
     public float attackSpeed = 1f;
     public int baseDamage = 1;
 
-    public Weapon(string name, Rune rune, string description, int price, EquipSlot slot, bool isTwoHanded, bool isRanged, int range, float attackSpeed, int baseDamage) : base(name, rune, description, price, slot)
+    public Weapon(string name, Rune rune, Attribute color, string description, int price, EquipSlot slot, bool isTwoHanded, bool isRanged, int range, float attackSpeed, int baseDamage) : base(name, rune, color, description, price, slot)
     {
         this.isTwoHanded = isTwoHanded;
         this.isRanged = isRanged;
@@ -71,7 +72,7 @@ public class Armor : Equipment
     public int armor = 0;
     public int encumbrance = 0;
 
-    public Armor(string name, Rune rune, string description, int price, EquipSlot slot, int armor, int encumbrance) : base(name, rune, description, price, slot)
+    public Armor(string name, Rune rune, Attribute color, string description, int price, EquipSlot slot, int armor, int encumbrance) : base(name, rune, color, description, price, slot)
     {
         this.armor = armor;
         this.encumbrance = encumbrance;

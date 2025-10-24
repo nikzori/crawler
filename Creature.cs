@@ -8,34 +8,38 @@ public class Creature
     public string name;
     public float health = 10f;
     public int level = 1;
+    public int MoveSpeed { get; }
     public Vector2Int pos;
 
-    Rune _rune;
-    public Attribute color = new(Color.Red, Color.Black);
-    public Rune rune { get; set; } // gonna need this for status effects and such
-
-    public int aut = 0;
+    public Rune Rune
+    {
+        get
+        {
+            if (health <= 0)
+                return remains;
+            else return field;
+        }
+    }
+    public Attribute color = new(Color.White, Color.Black);
 
     // AI stuff
     // putting this here feels kinda ass so idk
+    public int aut = 0;
     public AIState state = AIState.idle;
     public bool isTrackingPlayer = false;
     public Vector2Int lastPlayerPosition;
-    public Queue<Vector2Int>? currentPath;
+    public Queue<Vector2Int>? currentPath = new();
 
     public Creature(string name, Vector2Int pos, Rune rune)
     {
         this.name = name;
         this.pos = pos;
-        this.rune = rune;
+        this.Rune = rune;
+        this.MoveSpeed = 10;
     }
 
     // Shorthand for single vectors
-    public bool Move(Vector2Int dir)
-    {
-        Vector2Int dPos = this.pos + dir;
-        return MoveTo(dPos);
-    }
+    public bool Move(Vector2Int dir) { return MoveTo(this.pos + dir); }
 
     public bool MoveTo(Vector2Int pos)
     {
@@ -44,7 +48,7 @@ public class Creature
             UI.Log("Trying to move creature out of map boundaries; object stays at x: " + this.pos.X + "; y: " + this.pos.Y);
             return false;
         }
-        if (!Game.dungeon.GetCurrentFloor().cells[pos].IsWalkable() || Game.dungeon.GetCurrentFloor().cells[pos].HasCreature())
+        if (!Game.dungeon.GetCurrentFloor().cells[pos].isWalkable || Game.dungeon.GetCurrentFloor().cells[pos].HasCreature())
             return false;
         Game.currentMap.cells[this.pos].RemoveCreature();
         this.pos = pos;
@@ -55,15 +59,11 @@ public class Creature
     public void ReceiveDamage(float damage)
     {
         health -= damage;
-
         if (health <= 0)
             OnCreatureDeath();
     }
 
-    void OnCreatureDeath()
-    {
-        Game.currentMap.creatures.Remove(this);
-    }
+    void OnCreatureDeath() { Game.currentMap.creatures.Remove(this); }
 
 
 }

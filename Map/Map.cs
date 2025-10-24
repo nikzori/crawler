@@ -236,24 +236,22 @@ public class Map
             }
         }
 
-        /*
         for (int i = 0; i < 10; i++)
         {
             int x = rng.Next(0, xLength);
             int y = rng.Next(0, yLength);
             Vector2Int pos = new(x, y);
-            if (cells[pos].IsWalkable())
+            if (cells[pos].isWalkable)
             {
                 Creature goblin = new Creature("Goblin", pos, new('g'));
                 AddCreature(goblin);
                 creatures.Add(goblin);
             }
         }
-        */
 
         foreach (KeyValuePair<Vector2Int, Cell> kvp in cells)
         {
-            if (cells[kvp.Key].IsWall())
+            if (!cells[kvp.Key].isWalkable)
                 walls.Add(kvp.Key);
         }
 
@@ -273,10 +271,33 @@ public class Map
     }
 }
 
+
 public class Cell
 {
-    public Rune rune = new Rune('.');
-    public Terminal.Gui.Drawing.Attribute colors;
+    public Rune Rune
+    {
+        get
+        {
+            if (creature != null)
+                return creature.Rune;
+            if (items != null && items.Count > 0)
+                return items[0].Rune;
+            return field;
+        }
+        set;
+    }
+    public Attribute Color
+    {
+        get
+        {
+            if (creature != null)
+                return creature.color;
+            if (items != null && items.Count > 0)
+                return items[0].Color;
+            else return field;
+        }
+        set;
+    }
     public bool isTransparent = true;
     public bool isWalkable = true;
 
@@ -284,19 +305,19 @@ public class Cell
 
     public Creature? creature;
     public List<Item>? items;
-    public Cell(Rune rune, bool isTransparent, bool isWalkable, Terminal.Gui.Drawing.Attribute colors)
+    public Cell(Rune rune, bool isTransparent, bool isWalkable, Attribute colors)
     {
-        this.rune = rune;
+        this.Rune = rune;
         this.isTransparent = isTransparent;
         this.isWalkable = isWalkable;
-        this.colors = colors;
+        this.Color = colors;
     }
     public Cell(char c, bool isTransparent, bool isWalkable, Attribute colors)
     {
         Rune r = new(c);
         this.isTransparent = isTransparent;
         this.isWalkable = isWalkable;
-        this.colors = colors;
+        this.Color = colors;
     }
     public void AddCreature(Creature creature)
     {
@@ -307,33 +328,7 @@ public class Cell
         creature = null;
     }
 
-    public Rune GetRune()
-    {
-        if (IsWall())
-            return rune;
-        if (creature != null)
-            return creature.rune;
-        if (items != null && items.Count > 0)
-            return items[0].rune;
-        return rune;
-    }
-    public Attribute GetAttribute()
-    {
-        if (IsWall())
-            return Dungeon.WALL_COLOR;
-        if (creature != null)
-            return creature.color;
-        if (items != null && items.Count > 0)
-            return new Attribute(Color.DarkGray, Color.White);
-
-        else return Dungeon.FLOOR_COLOR;
-    }
-
     //shortcuts for convenience
-    public bool IsWalkable()
-    {
-        return isWalkable;
-    }
     public bool IsTransparent()
     {
         return isTransparent;
@@ -342,25 +337,20 @@ public class Cell
     {
         return !(creature is null);
     }
-    public bool IsWall()
-    {
-        return (rune == Dungeon.WALL && !isWalkable) ? true : false;
-
-    }
     public void SetRune(Rune rune)
     {
-        this.rune = rune;
+        this.Rune = rune;
     }
     public void SetRune(char c)
     {
-        this.rune = new Rune(c);
+        this.Rune = new Rune(c);
     }
     public void Set(Rune rune, bool isWalkable, bool isTransparent, Terminal.Gui.Drawing.Attribute colors)
     {
-        this.rune = rune;
+        this.Rune = rune;
         this.isWalkable = isWalkable;
         this.isTransparent = isTransparent;
-        this.colors = colors;
+        this.Color = colors;
     }
     public void SetToWall()
     {

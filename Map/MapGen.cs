@@ -115,7 +115,7 @@ public static class MapGen
                 {
                     for (int yt = y - 1; yt < y + 2; yt++)
                     {
-                        if (result[new(xt, yt)].IsWall())
+                        if (!result[new(xt, yt)].isWalkable)
                             neighbourWallsCounter++;
                         if (neighbourWallsCounter > 4)
                         {
@@ -138,7 +138,7 @@ public static class MapGen
                             // if tile is close on both axises, it's adjacent => skip
                             if (Math.Abs(yt - y) < 2 && Math.Abs(xt - x) < 2)
                                 continue;
-                            if (result[new(xt, yt)].IsWall())
+                            if (!result[new(xt, yt)].isWalkable)
                                 distantWallsCounter++;
 
 
@@ -256,7 +256,7 @@ public static class MapGen
         {
             for (y = 0; y < height; y++)
             {
-                if (input[new(x, y)].IsWalkable())
+                if (input[new(x, y)].isWalkable)
                 {
                     check = true;
                     break;

@@ -1,12 +1,13 @@
 using Terminal.Gui.App;
 public class Game //why tf would i make this non-static
 {
-
     public static Dungeon dungeon = new(1);
     public static Map currentMap { get { return dungeon.GetCurrentFloor(); } }
     public static Player player;
+    public static int time = 0;
     public Game(string pName)
     {
+        dungeon = new(1);
         Vector2Int mapSize = dungeon.floors[0].size;
         int xStart = 0;
         int yStart = 0;
@@ -16,7 +17,7 @@ public class Game //why tf would i make this non-static
         {
             for (int y = 2; y < mapSize.Y; y++)
             {
-                if (!dungeon.floors[0].cells[new(x, y)].IsWall())
+                if (!dungeon.floors[0].cells[new(x, y)].isWalkable)
                 {
                     xStart = x;
                     yStart = y;
@@ -35,6 +36,7 @@ public class Game //why tf would i make this non-static
     }
     public static void Update(int aut)
     {
+        time += aut;
         foreach (Creature c in currentMap.creatures)
             AI.Act(c, aut);
     }
@@ -45,7 +47,7 @@ public class Game //why tf would i make this non-static
         dungeon.currentFloor = floorNumber;
         player.pos = pos;
         dungeon.GetCurrentFloor().cells[pos].AddCreature(player);
-        //        UI.UpdatePos();
+        //UI.UpdatePos();
     }
     public static void Descend(Vector2Int pos) { ChangeFloor(dungeon.currentFloor + 1, pos); }
     public static void Ascend(Vector2Int pos) { ChangeFloor(dungeon.currentFloor - 1, pos); }

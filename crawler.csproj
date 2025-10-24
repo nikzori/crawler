@@ -5,9 +5,10 @@
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>zCrawl</AssemblyName>
+    <AssemblyName>zori-crawl</AssemblyName>
     <PublishSingleFile>true</PublishSingleFile>
     <PublishTrimmed>true</PublishTrimmed>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
