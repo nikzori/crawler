@@ -14,17 +14,27 @@ public static class AI
         switch (creature.state)
         {
             case AIState.idle:
+                UI.Log(creature.name + " is trying to move. Current pos: " + creature.pos.ToString());
                 Vector2Int nextPos;
                 if (!creature.currentPath.TryDequeue(out nextPos))
                 {
-                    IReadOnlyCollection<Vector2Int> newPath;
                     while (true)
                     {
-                        Vector2Int nPos = new(rng.Next(1, Game.currentMap.size.X), rng.Next(1, Game.currentMap.size.Y));
-                        if (Game.currentMap.cells[nPos].isWalkable && Pathfinder.Calculate(creature.pos, nPos, Game.currentMap.GetObstacles(), out newPath))
+                        Vector2Int nPos = new(rng.Next(creature.pos.X - 5, creature.pos.X + 5), rng.Next(creature.pos.Y - 5, creature.pos.Y + 5));
+                        if (Game.currentMap.cells.ContainsKey(nPos))
                         {
-                            creature.currentPath = new(newPath);
-                            break;
+                            UI.Log("Target pos for " + creature.name + ": " + nPos.ToString());
+                            if (Game.currentMap.cells[nPos].isWalkable && Pathfinder.Calculate(creature.pos, nPos, Game.currentMap.GetObstacles(), ref creature.currentPath))
+                            {
+                                string path = "";
+                                foreach (Vector2Int vctr in creature.currentPath)
+                                {
+                                    path += vctr.ToString() + "; ";
+                                }
+                                UI.Log("Generated path for " + creature.name + ": " + path);
+                                if (creature.currentPath.TryDequeue(out nextPos))
+                                    break;
+                            }
                         }
                     }
                 }
@@ -58,10 +68,8 @@ public static class AI
                     creature.MoveTo(creature.currentPath.Dequeue());
                 else
                 {
-                    IReadOnlyCollection<Vector2Int> newPath;
-                    if (Pathfinder.Calculate(creature.pos, creature.lastPlayerPosition, Game.dungeon.GetCurrentFloor().GetObstacles(), out newPath))
+                    if (Pathfinder.Calculate(creature.pos, creature.lastPlayerPosition, Game.dungeon.GetCurrentFloor().GetObstacles(), ref creature.currentPath))
                     {
-                        creature.currentPath = newPath as Queue<Vector2Int>;
                         creature.MoveTo(creature.currentPath.Dequeue());
                     }
                 }

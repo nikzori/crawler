@@ -236,7 +236,7 @@ public class Map
             }
         }
 
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 1; i++)
         {
             int x = rng.Next(0, xLength);
             int y = rng.Next(0, yLength);

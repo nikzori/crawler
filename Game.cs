@@ -17,7 +17,7 @@ public class Game //why tf would i make this non-static
         {
             for (int y = 2; y < mapSize.Y; y++)
             {
-                if (!dungeon.floors[0].cells[new(x, y)].isWalkable)
+                if (dungeon.floors[0].cells[new(x, y)].isWalkable)
                 {
                     xStart = x;
                     yStart = y;

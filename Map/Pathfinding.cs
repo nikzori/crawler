@@ -3,11 +3,11 @@
 
 
 
-internal readonly struct PathNode
+internal readonly struct PathNode : IComparable<PathNode>
 {
     public Vector2Int Position { get; }
-    public double TraverseDistance { get; }
-    public double EstimatedTotalCost { get; }
+    public readonly double TraverseDistance { get; }
+    public readonly double EstimatedTotalCost { get; }
 
     public PathNode(Vector2Int Position, Vector2Int target, double TraverseDistance)
     {
@@ -15,6 +15,11 @@ internal readonly struct PathNode
         this.TraverseDistance = TraverseDistance;
         double heuristicDistance = (Position - target).DistanceEstimate();
         this.EstimatedTotalCost = TraverseDistance + heuristicDistance;
+    }
+
+    public int CompareTo(PathNode otherNode)
+    {
+        return EstimatedTotalCost.CompareTo(otherNode.EstimatedTotalCost);
     }
 }
 
@@ -50,26 +55,29 @@ public class Path
     private readonly int maxSteps;
     private readonly IBinaryHeap<Vector2Int, PathNode> frontier;
     private readonly HashSet<Vector2Int> ignoredPositions;
-    private readonly IList<Vector2Int> output;
-    private readonly Dictionary<Vector2Int, Vector2Int> links;
+    private readonly List<Vector2Int> output;
+    private readonly IDictionary<Vector2Int, Vector2Int> links;
 
     public Path(int maxSteps = int.MaxValue, int initialCapacity = 10)
     {
-        this.maxSteps = maxSteps;
+        if (maxSteps <= 0)
+            throw new ArgumentOutOfRangeException(nameof(maxSteps));
+        if (initialCapacity < 0)
+            throw new ArgumentOutOfRangeException(nameof(initialCapacity));
 
-        var comparer = Comparer<PathNode>.Create((a, b) => b.EstimatedTotalCost.CompareTo(a.EstimatedTotalCost));
-        frontier = new BinaryHeap(comparer);
+        this.maxSteps = maxSteps;
+        frontier = new BinaryHeap<Vector2Int, PathNode>(a => a.Position, initialCapacity);
         ignoredPositions = new HashSet<Vector2Int>(initialCapacity);
         output = new List<Vector2Int>(initialCapacity);
         links = new Dictionary<Vector2Int, Vector2Int>(initialCapacity);
     }
 
     public bool Calculate(Vector2Int start, Vector2Int target, IReadOnlyCollection<Vector2Int> obstacles,
-            out IReadOnlyCollection<Vector2Int> path)
+            ref Queue<Vector2Int> path)
     {
         if (!GenerateNodes(start, target, obstacles))
         {
-            path = Array.Empty<Vector2Int>();
+            path.Clear();
             return false;
         }
 
@@ -78,7 +86,12 @@ public class Path
 
         while (links.TryGetValue(target, out target))
             output.Add(target);
-        path = (IReadOnlyCollection<Vector2Int>)output;
+        for (int i = output.Count - 1; i > 0; i--)
+        {
+            path.Enqueue(output[i]);
+        }
+
+
         return true;
     }
 
@@ -92,7 +105,6 @@ public class Path
 
         while (links.TryGetValue(target, out target))
             output.Add(target);
-
         return output.AsReadOnly();
     }
 
@@ -152,17 +164,19 @@ public class Path
 
     // using binary heap instead of a List to speed up the node sorting (log(n) speed, baby)
 
-    internal class BinaryHeap : IBinaryHeap<Vector2Int, PathNode>
+    internal class BinaryHeap<TKey, T> : IBinaryHeap<TKey, T>
+        where TKey : IEquatable<TKey>
+        where T : IComparable<T>
     {
-        private readonly IDictionary<Vector2Int, int> map;
-        private readonly IList<PathNode> collection;
-        private readonly IComparer<PathNode> comparer;
+        private readonly IDictionary<TKey, int> map;
+        private readonly IList<T> collection;
+        private readonly Func<T, TKey> lookupFunc;
 
-        public BinaryHeap(IComparer<PathNode> comparer)
+        public BinaryHeap(Func<T, TKey> lookupFunc, int capacity)
         {
-            this.comparer = comparer;
-            collection = new List<PathNode>();
-            map = new Dictionary<Vector2Int, int>();
+            this.lookupFunc = lookupFunc;
+            collection = new List<T>(capacity);
+            map = new Dictionary<TKey, int>(capacity);
         }
 
         public int Count => collection.Count;
@@ -173,17 +187,17 @@ public class Path
             map.Clear();
         }
 
-        public void Enqueue(PathNode item)
+        public void Enqueue(T item)
         {
             collection.Add(item);
             int i = collection.Count - 1;
-            map[item.Position] = i;
+            map[lookupFunc(item)] = i;
 
             // Sort nodes from bottom to top
             while (i > 0)
             {
                 int j = (i - 1) / 2;
-                if (comparer.Compare(collection[i], collection[j]) <= 0)
+                if (collection[i].CompareTo(collection[j]) > 0)
                     break;
 
                 Swap(i, j);
@@ -192,27 +206,27 @@ public class Path
         }
         private void Swap(int i, int j)
         {
-            PathNode temp = collection[i];
+            T temp = collection[i];
             collection[i] = collection[j];
             collection[j] = temp;
-            map[collection[i].Position] = i;
-            map[collection[j].Position] = j;
+            map[lookupFunc(collection[i])] = i;
+            map[lookupFunc(collection[j])] = j;
         }
 
-        public PathNode Dequeue()
+        public T Dequeue()
         {
             if (collection.Count == 0) return default;
 
-            PathNode result = collection.First();
+            T result = collection.First();
             RemoveRoot();
-            map.Remove(result.Position);
+            map.Remove(lookupFunc(result));
             return result;
         }
 
         private void RemoveRoot()
         {
             collection[0] = collection.Last();
-            map[collection[0].Position] = 0;
+            map[lookupFunc(collection[0])] = 0;
             collection.RemoveAt(collection.Count - 1);
 
             // sort nodes
@@ -233,16 +247,16 @@ public class Path
             int rightIndex = 2 * i + 2;
             int largest = i;
 
-            if (leftIndex < collection.Count && comparer.Compare(collection[leftIndex], collection[largest]) > 0)
+            if (leftIndex < collection.Count && collection[leftIndex].CompareTo(collection[largest]) > 0)
                 largest = leftIndex;
-            if (rightIndex < collection.Count && comparer.Compare(collection[rightIndex], collection[largest]) > 0)
+            if (rightIndex < collection.Count && collection[rightIndex].CompareTo(collection[largest]) > 0)
                 largest = rightIndex;
 
             return largest;
 
         }
 
-        public bool TryGet(Vector2Int key, out PathNode value)
+        public bool TryGet(TKey key, out T value)
         {
             if (!map.TryGetValue(key, out int index))
             {
@@ -254,9 +268,9 @@ public class Path
             return true;
         }
 
-        public void Modify(PathNode value)
+        public void Modify(T value)
         {
-            if (!map.TryGetValue(value.Position, out int index))
+            if (!map.TryGetValue(lookupFunc(value), out int index))
                 throw new KeyNotFoundException(nameof(value));
 
             collection[index] = value;
