@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 public static class AI
 {
     static Player player = Game.player;
@@ -8,13 +6,10 @@ public static class AI
     public static void Act(Creature creature, int aut)
     {
         creature.aut += aut;
-        if (creature.currentPath is null)
-            creature.currentPath = new();
 
         switch (creature.state)
         {
             case AIState.idle:
-                UI.Log(creature.name + " is trying to move. Current pos: " + creature.pos.ToString());
                 Vector2Int nextPos;
                 if (!creature.currentPath.TryDequeue(out nextPos))
                 {
@@ -23,7 +18,6 @@ public static class AI
                         Vector2Int nPos = new(rng.Next(creature.pos.X - 5, creature.pos.X + 5), rng.Next(creature.pos.Y - 5, creature.pos.Y + 5));
                         if (Game.currentMap.cells.ContainsKey(nPos))
                         {
-                            UI.Log("Target pos for " + creature.name + ": " + nPos.ToString());
                             if (Game.currentMap.cells[nPos].isWalkable && Pathfinder.Calculate(creature.pos, nPos, Game.currentMap.GetObstacles(), ref creature.currentPath))
                             {
                                 string path = "";
@@ -31,7 +25,6 @@ public static class AI
                                 {
                                     path += vctr.ToString() + "; ";
                                 }
-                                UI.Log("Generated path for " + creature.name + ": " + path);
                                 if (creature.currentPath.TryDequeue(out nextPos))
                                     break;
                             }

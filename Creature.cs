@@ -28,7 +28,7 @@ public class Creature
     public AIState state = AIState.idle;
     public bool isTrackingPlayer = false;
     public Vector2Int lastPlayerPosition;
-    public Queue<Vector2Int>? currentPath = new();
+    public Queue<Vector2Int> currentPath = new();
 
     public Creature(string name, Vector2Int pos, Rune rune)
     {

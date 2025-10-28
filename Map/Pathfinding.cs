@@ -86,7 +86,7 @@ public class Path
 
         while (links.TryGetValue(target, out target))
             output.Add(target);
-        for (int i = output.Count - 1; i > 0; i--)
+        for (int i = output.Count - 2; i >= 0; i--) // `Count - 2` to ignore NPC's starting position
         {
             path.Enqueue(output[i]);
         }

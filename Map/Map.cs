@@ -236,7 +236,7 @@ public class Map
             }
         }
 
-        for (int i = 0; i < 1; i++)
+        while (true)
         {
             int x = rng.Next(0, xLength);
             int y = rng.Next(0, yLength);
@@ -246,6 +246,7 @@ public class Map
                 Creature goblin = new Creature("Goblin", pos, new('g'));
                 AddCreature(goblin);
                 creatures.Add(goblin);
+                break;
             }
         }
 
