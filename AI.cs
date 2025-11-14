@@ -11,9 +11,9 @@ public static class AI
         {
             case AIState.idle:
                 Vector2Int nextPos;
-                if (!creature.currentPath.TryDequeue(out nextPos))
+                if (!creature.currentPath.TryDequeue(out nextPos)) //current path queue is empty
                 {
-                    while (true)
+                    while (true) // pick a random point nearby to go to
                     {
                         Vector2Int nPos = new(rng.Next(creature.pos.X - 5, creature.pos.X + 5), rng.Next(creature.pos.Y - 5, creature.pos.Y + 5));
                         if (Game.currentMap.cells.ContainsKey(nPos))
@@ -31,7 +31,6 @@ public static class AI
                         }
                     }
                 }
-
                 if (creature.aut >= creature.MoveSpeed)
                 {
                     creature.MoveTo(nextPos);

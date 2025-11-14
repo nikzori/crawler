@@ -12,10 +12,9 @@ public static class FOV
         int hCenter = viewportSize.X / 2;
         int vCenter = viewportSize.Y / 2;
 
-        //set up quadrants (clockwise)
-        Quadrant[] quadrants = new Quadrant[4];
-        for (int i = 0; i < 4; i++)
-            quadrants[i] = new((QuadrantDirection)i, centerPos);
+        // set up quadrants or octants starting from NNW 
+        // for each area move from diagonal to cardinal line
+        //  
 
 
         return result;
@@ -28,41 +27,8 @@ public static class FOV
     }
 }
 
-public struct Quadrant
+public struct Slope
 {
-    QuadrantDirection direction;
-    Vector2Int origin;
-    public Quadrant(QuadrantDirection direction, Vector2Int origin)
-    {
-        this.direction = direction;
-        this.origin = origin;
-    }
-
-    // convert a row + column position relative to the quadrant into map-relative vector
-    public Vector2Int Transform(Vector2Int quadrantPosition)
-    {
-        Vector2Int result;
-        switch (direction)
-        {
-            case QuadrantDirection.North:
-                result = new Vector2Int(origin.X + quadrantPosition.Y, origin.Y - quadrantPosition.X);
-                break;
-            case QuadrantDirection.East:
-                result = new Vector2Int(origin.X + quadrantPosition.Y, origin.Y + quadrantPosition.Y);
-                break;
-            case QuadrantDirection.South:
-                result = new Vector2Int(origin.X + quadrantPosition.Y, origin.Y + quadrantPosition.X);
-                break;
-            case QuadrantDirection.West:
-                result = new Vector2Int(origin.X - quadrantPosition.X, origin.Y + quadrantPosition.Y);
-                break;
-
-            default:
-                result = new Vector2Int(origin.X + quadrantPosition.X, origin.Y - quadrantPosition.Y);
-                break;
-        }
-        return result;
-
-    }
+    public readonly int X, Y;
+    public Slope(int x, int y) { X = x; Y = y; }
 }
-public enum QuadrantDirection { North, East, South, West }
