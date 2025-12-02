@@ -1,5 +1,5 @@
 using Terminal.Gui.App;
-public class Game //why tf would i make this non-static
+public class Game
 {
     public static Dungeon dungeon = new(1);
     public static Map currentMap { get { return dungeon.GetCurrentFloor(); } }
