@@ -1,34 +1,30 @@
 using Terminal.Gui.Views;
 using Terminal.Gui.ViewBase;
+using Terminal.Gui.Input;
 
-public class Inventory : View
+public class InventoryView : View
 {
-    public void Init()
+    Player player = Game.player;
+    public InventoryView()
     {
         Label test = new() { X = 1, Y = 1, Width = 30, Height = 3, Text = "This is a test entry" };
         this.Add(test);
-        SetNeedsDraw();
+
     }
 
-    /*
-    public override bool ProcessHotKey(Terminal.Gui.Input.Key keyEvent)
+    // re-checks player's item list to render it correctly
+    public void Update()
     {
-        if (!Visible)
-            return false;
-        bool keyProcessed = false;
-        switch (keyEvent.Key)
-        {
-            case Key.Esc:
-                keyProcessed = true;
-                this.Visible = false;
-                UI.ShowMain();
-                break;
-            default:
-                UI.Log("Pressed " + keyEvent.Key.ToString() + " in inventory");
-                break;
-        }
-        return keyProcessed;
+        
     }
-    */
+    
+    protected override bool OnKeyDown(Key key)
+    {
+        bool processed = false;
+
+        //here be navigation controls
+
+        return processed;
+    }
 }
 

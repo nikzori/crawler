@@ -4,7 +4,7 @@ using Terminal.Gui.App;
 
 public class MainMenu : Window
 {
-    Game game;
+    Game? game; 
     public MainMenu()
     {
 
@@ -36,6 +36,7 @@ public class MainMenu : Window
             if (NameField.Text != "")
                 StartGame(NameField.Text.ToString());
             else StartGame("Player");
+            e.Handled = true;
         };
 
         Button Exit = new()
@@ -47,7 +48,11 @@ public class MainMenu : Window
             Text = "Quit",
             ShadowStyle = ShadowStyle.None
         };
-        Exit.Accepting += (s, e) => { Application.RequestStop(Application.Top); };
+        Exit.Accepting += (s, e) => 
+        { 
+            this.Dispose();
+            e.Handled = true;
+        };
 
         this.Add(Name, NameField, NewGameBtn, Exit);
     }
@@ -58,5 +63,7 @@ public class MainMenu : Window
         Int32.TryParse(CAIterations, out iterations);
 
         game = new Game(characterName);
+        this.App?.Run(new GameWindow());
+        this.Dispose();
     }
 }

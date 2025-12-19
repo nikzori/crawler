@@ -44,7 +44,7 @@ public static class AI
                     creature.lastPlayerPosition = player.pos;
                     // weigh all action options, see if action can be performed (check cooldowns and such)
                     if (CanReachAttack(creature, Game.player))
-                        UI.Log(creature.name + " attacks " + Game.player.name);
+                        GameWindow.Log(creature.name + " attacks " + Game.player.name);
                     else
                     {
                         // approach the player

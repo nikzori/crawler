@@ -3,7 +3,7 @@ using Terminal.Gui.Views;
 using Terminal.Gui.App;
 using Terminal.Gui.Input;
 
-public class UI : Window
+public class GameWindow : Window
 {
     Label position = new();
     Label floorView = new();
@@ -12,14 +12,15 @@ public class UI : Window
     View characterView = new();
     Label logView = new();
     Label timeView;
-    Inventory inventoryView = new();
+    InventoryView inventory = new();
 
     static Player player = Game.player;
     public static event EventHandler<Vector2Int> Interact = delegate { };
     public static event EventHandler<string> LogEvent = delegate { };
-    public UI()
+    public GameWindow()
     {
         player = Game.player;
+
         mapView = new() { X = 0, Y = 0 };
         characterView = new()
         {
@@ -72,19 +73,17 @@ public class UI : Window
             Height = Dim.Fill(),
             Text = "Game started"
         };
-        inventoryView = new()
-        {
-            Width = Dim.Fill(),
-            Height = Dim.Fill(),
-            Visible = false
-        };
+
 
         statView.Add(playerName, position, floorView);
         characterView.Add(playerName, statView, timeView);
-        this.Add(mapView, characterView, logView, inventoryView);
-        UI.LogEvent += (s, e) => this.PrintLog(e);
+        this.Add(mapView, characterView, logView);
+        GameWindow.LogEvent += (s, e) => this.PrintLog(e);
 
         UpdatePos();
+
+        IApplication? app = App;
+        app?.Run(this);
     }
 
     public static void Log(string text)
@@ -104,27 +103,20 @@ public class UI : Window
         mapView.SetNeedsDraw();
     }
 
-    public void ShowInventory()
+    public void OpenInventory()
     {
-        HideMain();
-        inventoryView.Init();
-        inventoryView.Visible = true;
+        this.Enabled = false;
+        this.Visible = false;
+        inventory.Enabled = true;
+        inventory.Visible = true;        
     }
     public void OpenMenu()
     {
 
     }
-    public void ShowMain()
-    {
-        mapView.Visible = true;
-        characterView.Visible = true;
-        logView.Visible = true;
-    }
     public void HideMain()
     {
-        mapView.Visible = false;
-        characterView.Visible = false;
-        logView.Visible = false;
+        
     }
 
     public static void InvokeInteract(Vector2Int pos)
@@ -133,8 +125,6 @@ public class UI : Window
     }
     protected override bool OnKeyDown(Key key)
     {
-        if (!Visible)
-            return false;
         bool keyRegistered = false;
 
         // switch-case doesn't like Key.Parameters for some reason
@@ -163,7 +153,7 @@ public class UI : Window
         {
             //interact mode?
             Game.Update(10);
-            UI.Log("Key Registered");
+            GameWindow.Log("Key Registered");
             keyRegistered = true;
         }
         if (key == Key.D6)
@@ -188,8 +178,7 @@ public class UI : Window
         }
         if (key == Key.I)
         {
-            this.ShowInventory();
-            UI.Log("Open inventory.");
+            OpenInventory();
             keyRegistered = true;
         }
         /* don't even remember what this was
@@ -201,7 +190,7 @@ public class UI : Window
         if (key == Key.Esc)
         {
             keyRegistered = true;
-            Application.RequestStop(Application.Top);
+            this.Dispose();
         }
 
         if (keyRegistered)

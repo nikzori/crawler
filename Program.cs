@@ -1,11 +1,16 @@
 ﻿using Terminal.Gui.App;
-using Terminal.Gui.Configuration;
+using Terminal.Gui.Views;
 
 AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(UnhandledException);
-ConfigurationManager.Enable(ConfigLocations.All);
 
-Application.Run<MainMenu>().Dispose();
-Application.Shutdown();
+using (var app = Application.Create().Init())
+{
+    MainMenu mainMenu = new MainMenu();
+    app.Run(mainMenu);
+    mainMenu.Dispose();
+}
+
+Console.WriteLine("Bye-bye!~");
 
 static void UnhandledException(object sender, UnhandledExceptionEventArgs e)
 {
@@ -21,4 +26,3 @@ static void UnhandledException(object sender, UnhandledExceptionEventArgs e)
     }
 }
 
-Console.WriteLine("Bye-bye!~");

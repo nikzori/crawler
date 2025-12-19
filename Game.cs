@@ -1,4 +1,6 @@
 using Terminal.Gui.App;
+using Terminal.Gui.ViewBase;
+
 public class Game
 {
     public static Dungeon dungeon = new(1);
@@ -31,8 +33,6 @@ public class Game
         player = new Player(pName, new(xStart, yStart), new('@'));
         player.name = pName;
         dungeon.floors[0].AddCreature(player);
-
-        Application.Run<UI>().Dispose();
     }
     public static void Update(int aut)
     {

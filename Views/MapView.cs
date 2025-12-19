@@ -10,7 +10,7 @@ public class MapView : FrameView
         // viewport size needs to be an odd number to put player in the center
         Width = 31;
         Height = 31;
-        UI.Log("Map viewport width: " + Viewport.Width.ToString() + "; height: " + Viewport.Height.ToString());
+        GameWindow.Log("Map viewport width: " + Viewport.Width.ToString() + "; height: " + Viewport.Height.ToString());
         Visible = true;
         pX = Viewport.Width / 2;
         pY = Viewport.Height / 2; // center the player on the screen
