@@ -1,13 +1,14 @@
 ﻿using Terminal.Gui.App;
-using Terminal.Gui.Views;
+using Terminal.Gui.Input;
 
 AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(UnhandledException);
-
 using (var app = Application.Create().Init())
 {
-    MainMenu mainMenu = new MainMenu();
-    app.Run(mainMenu);
-    mainMenu.Dispose();
+    Application.QuitKey = Key.Q.WithCtrl;
+
+    MainWindow MainWindow = new();
+    app.Run(MainWindow);
+    MainWindow.Dispose();
 }
 
 Console.WriteLine("Bye-bye!~");

@@ -12,7 +12,6 @@ public class GameWindow : Window
     View characterView = new();
     Label logView = new();
     Label timeView;
-    InventoryView inventory = new();
 
     static Player player = Game.player;
     public static event EventHandler<Vector2Int> Interact = delegate { };
@@ -78,12 +77,11 @@ public class GameWindow : Window
         statView.Add(playerName, position, floorView);
         characterView.Add(playerName, statView, timeView);
         this.Add(mapView, characterView, logView);
-        GameWindow.LogEvent += (s, e) => this.PrintLog(e);
+        LogEvent += (s, e) => this.PrintLog(e);
 
         UpdatePos();
 
         IApplication? app = App;
-        app?.Run(this);
     }
 
     public static void Log(string text)
@@ -105,10 +103,6 @@ public class GameWindow : Window
 
     public void OpenInventory()
     {
-        this.Enabled = false;
-        this.Visible = false;
-        inventory.Enabled = true;
-        inventory.Visible = true;        
     }
     public void OpenMenu()
     {
@@ -116,7 +110,6 @@ public class GameWindow : Window
     }
     public void HideMain()
     {
-        
     }
 
     public static void InvokeInteract(Vector2Int pos)
@@ -153,7 +146,7 @@ public class GameWindow : Window
         {
             //interact mode?
             Game.Update(10);
-            GameWindow.Log("Key Registered");
+            Log("Key Registered");
             keyRegistered = true;
         }
         if (key == Key.D6)
@@ -187,11 +180,6 @@ public class GameWindow : Window
             UI.InvokeInteract(Game.player, new(Game.player.pos));
             break;
         */
-        if (key == Key.Esc)
-        {
-            keyRegistered = true;
-            this.Dispose();
-        }
 
         if (keyRegistered)
             this.UpdatePos();

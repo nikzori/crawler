@@ -47,7 +47,6 @@ public class Game
         dungeon.currentFloor = floorNumber;
         player.pos = pos;
         dungeon.GetCurrentFloor().cells[pos].AddCreature(player);
-        //UI.UpdatePos();
     }
     public static void Descend(Vector2Int pos) { ChangeFloor(dungeon.currentFloor + 1, pos); }
     public static void Ascend(Vector2Int pos) { ChangeFloor(dungeon.currentFloor - 1, pos); }
