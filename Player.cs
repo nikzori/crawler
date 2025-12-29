@@ -21,9 +21,6 @@ public class Player : Creature
                 Game.currentMap.cells[tmp].creature.ReceiveDamage(10f);
             else if (Game.currentMap.cells[tmp].isWalkable)
                 this.Move(pos);
-
-
-            //Game.Update(10);
         }
     }
 

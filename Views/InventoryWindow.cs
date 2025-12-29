@@ -2,18 +2,15 @@ using Terminal.Gui.Views;
 using Terminal.Gui.Input;
 
 public class InventoryWindow : Window
-{
+{   
+    GameWindow gameWindow;
     Player player = Game.player;
-    public InventoryWindow()
+    Label test;
+    public InventoryWindow(GameWindow GameWindow)
     {
-        Label test = new() { X = 1, Y = 1, Width = 30, Height = 3, Text = "This is a test entry" };
+        this.gameWindow = GameWindow;
+        test = new() { X = 1, Y = 1, Width = 30, Height = 3, Text = "This is a test entry" };
         this.Add(test);
-
-    }
-
-    // re-checks player's item list to render it correctly
-    public void Update()
-    {
 
     }
 
@@ -23,7 +20,18 @@ public class InventoryWindow : Window
 
         if (key == Key.Esc)
         {
-            // Close/Hide this View and show GameUI
+            processed = true;
+            App?.RequestStop(this);
+        }
+        if (key == Key.D5)
+        {
+            processed = true;
+            test.Text = "Another One.";            
+        }
+        if (key == Key.D4)
+        {
+            processed = true;
+            test.Text = "aeiou";
         }
 
         return processed;

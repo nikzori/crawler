@@ -4,11 +4,8 @@ using Terminal.Gui.ViewBase;
 public class MainWindow : Window
 {
     Game? game;
-    View MainMenu;
-
     public MainWindow()
     {
-        MainMenu = new() { Width = Dim.Fill(), Height = Dim.Fill() };
         Label Name = new()
         {
             X = Pos.Center() - 20,
@@ -55,8 +52,7 @@ public class MainWindow : Window
             e.Handled = true;
         };
 
-        MainMenu.Add(Name, NameField, NewGameBtn, Exit);
-        this.Add(MainMenu);
+        this.Add(Name, NameField, NewGameBtn, Exit);
     }
 
     public void StartGame(string characterName, string CAIterations = "2")
@@ -65,7 +61,8 @@ public class MainWindow : Window
         Int32.TryParse(CAIterations, out iterations);
 
         game = new Game(characterName);
-        App?.Run(new GameWindow());
-        this.Dispose();
+        GameWindow gw = new();
+        this.App?.Run(gw);
+        gw.Dispose();
     }
 }

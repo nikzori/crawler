@@ -5,6 +5,8 @@ using Terminal.Gui.Input;
 
 public class GameWindow : Window
 {
+    InventoryWindow inventoryWindow;
+
     Label position = new();
     Label floorView = new();
 
@@ -18,6 +20,7 @@ public class GameWindow : Window
     public static event EventHandler<string> LogEvent = delegate { };
     public GameWindow()
     {
+        inventoryWindow = new(this);
         player = Game.player;
 
         mapView = new() { X = 0, Y = 0 };
@@ -103,6 +106,7 @@ public class GameWindow : Window
 
     public void OpenInventory()
     {
+        App?.Run(inventoryWindow);
     }
     public void OpenMenu()
     {
@@ -124,55 +128,55 @@ public class GameWindow : Window
         // so this will be ugly for now
         if (key == Key.D1)
         {
-            Game.player.TileInteract(new(-1, -1));
             keyRegistered = true;
+            Game.player.TileInteract(new(-1, -1));
         }
         if (key == Key.D2)
         {
-            Game.player.TileInteract(new(0, -1));
             keyRegistered = true;
+            Game.player.TileInteract(new(0, -1));
         }
         if (key == Key.D3)
         {
-            Game.player.TileInteract(new(1, -1));
             keyRegistered = true;
+            Game.player.TileInteract(new(1, -1));
         }
         if (key == Key.D4)
         {
-            Game.player.TileInteract(new(-1, 0));
             keyRegistered = true;
+            Game.player.TileInteract(new(-1, 0));
         }
         if (key == Key.D5)
         {
+            keyRegistered = true;
             //interact mode?
             Game.Update(10);
             Log("Key Registered");
-            keyRegistered = true;
         }
         if (key == Key.D6)
         {
-            Game.player.TileInteract(new(1, 0));
             keyRegistered = true;
+            Game.player.TileInteract(new(1, 0));
         }
         if (key == Key.D7)
         {
-            Game.player.TileInteract(new(-1, 1));
             keyRegistered = true;
+            Game.player.TileInteract(new(-1, 1));
         }
         if (key == Key.D8)
         {
-            Game.player.TileInteract(new(0, 1));
             keyRegistered = true;
+            Game.player.TileInteract(new(0, 1));
         }
         if (key == Key.D9)
         {
-            Game.player.TileInteract(new(1, 1));
             keyRegistered = true;
+            Game.player.TileInteract(new(1, 1));
         }
         if (key == Key.I)
         {
-            OpenInventory();
             keyRegistered = true;
+            OpenInventory();
         }
         /* don't even remember what this was
         case (Key)62:
