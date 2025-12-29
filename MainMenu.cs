@@ -1,10 +1,9 @@
 using Terminal.Gui.Views;
 using Terminal.Gui.ViewBase;
-using Terminal.Gui.App;
 
 public class MainMenu : Window
 {
-    Game? game; 
+    Game? game;
     public MainMenu()
     {
 
@@ -48,8 +47,8 @@ public class MainMenu : Window
             Text = "Quit",
             ShadowStyle = ShadowStyle.None
         };
-        Exit.Accepting += (s, e) => 
-        { 
+        Exit.Accepting += (s, e) =>
+        {
             this.Dispose();
             e.Handled = true;
         };

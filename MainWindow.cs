@@ -48,8 +48,8 @@ public class MainWindow : Window
         };
         Exit.Accepting += (s, e) =>
         {
-            this.Dispose();
             e.Handled = true;
+            App?.RequestStop(this);
         };
 
         this.Add(Name, NameField, NewGameBtn, Exit);
