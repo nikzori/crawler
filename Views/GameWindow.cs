@@ -124,55 +124,6 @@ public class GameWindow : Window
     {
         bool keyRegistered = false;
 
-        // switch-case doesn't like Key.Parameters for some reason
-        // so this will be ugly for now
-        if (key == Key.D1)
-        {
-            keyRegistered = true;
-            Game.player.TileInteract(new(-1, -1));
-        }
-        if (key == Key.D2)
-        {
-            keyRegistered = true;
-            Game.player.TileInteract(new(0, -1));
-        }
-        if (key == Key.D3)
-        {
-            keyRegistered = true;
-            Game.player.TileInteract(new(1, -1));
-        }
-        if (key == Key.D4)
-        {
-            keyRegistered = true;
-            Game.player.TileInteract(new(-1, 0));
-        }
-        if (key == Key.D5)
-        {
-            keyRegistered = true;
-            //interact mode?
-            Game.Update(10);
-            Log("Key Registered");
-        }
-        if (key == Key.D6)
-        {
-            keyRegistered = true;
-            Game.player.TileInteract(new(1, 0));
-        }
-        if (key == Key.D7)
-        {
-            keyRegistered = true;
-            Game.player.TileInteract(new(-1, 1));
-        }
-        if (key == Key.D8)
-        {
-            keyRegistered = true;
-            Game.player.TileInteract(new(0, 1));
-        }
-        if (key == Key.D9)
-        {
-            keyRegistered = true;
-            Game.player.TileInteract(new(1, 1));
-        }
         if (key == Key.I)
         {
             keyRegistered = true;

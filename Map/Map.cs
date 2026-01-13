@@ -125,7 +125,8 @@ public class Dungeon
     public static bool CanSeeTile(Vector2Int start, Vector2Int end)
     {
         bool isVisible;
-
+        if (start == end) 
+            return true;
         if (Math.Abs(end.X - start.X) > Math.Abs(end.Y - start.Y))
         {
             //need this since we're incrementing X in the function
@@ -160,7 +161,7 @@ public class Dungeon
             for (int x = start.X; x <= end.X; x++)
             {
                 dPos = new(x, y);
-                if (!Game.currentMap.cells[dPos].isTransparent && x != end.X && x != start.X)
+                if (!Game.currentMap.cells[dPos].IsTransparent && x != end.X && x != start.X)
                     return false;
                 if (D > 0)
                 {
@@ -191,7 +192,7 @@ public class Dungeon
             for (int y = start.Y; y <= end.Y; y++)
             {
                 dPos = new(x, y);
-                if (!Game.currentMap.cells[dPos].isTransparent && y != end.Y && y != start.Y)
+                if (!Game.currentMap.cells[dPos].IsTransparent && y != end.Y && y != start.Y)
                     return false;
                 if (D > 0)
                 {
@@ -241,7 +242,7 @@ public class Map
             int x = rng.Next(0, xLength);
             int y = rng.Next(0, yLength);
             Vector2Int pos = new(x, y);
-            if (cells[pos].isWalkable)
+            if (cells[pos].IsWalkable)
             {
                 Creature goblin = new Creature("Goblin", pos, new('g'));
                 AddCreature(goblin);
@@ -252,7 +253,7 @@ public class Map
 
         foreach (KeyValuePair<Vector2Int, Cell> kvp in cells)
         {
-            if (!cells[kvp.Key].isWalkable)
+            if (!cells[kvp.Key].IsWalkable)
                 walls.Add(kvp.Key);
         }
 
@@ -275,50 +276,19 @@ public class Map
 
 public class Cell
 {
-    public Rune Rune
-    {
-        get
-        {
-            if (creature != null)
-                return creature.Rune;
-            if (items != null && items.Count > 0)
-                return items[0].Rune;
-            return field;
-        }
-        set;
-    }
-    public Attribute Color
-    {
-        get
-        {
-            if (creature != null)
-                return creature.color;
-            if (items != null && items.Count > 0)
-                return items[0].Color;
-            else return field;
-        }
-        set;
-    }
-    public bool isTransparent = true;
-    public bool isWalkable = true;
+    public CellType Type { get; set; }
+    public bool IsTransparent = true;
+    public bool IsWalkable = true;
 
     public bool isRevealed = false;
 
     public Creature? creature;
     public List<Item>? items;
-    public Cell(Rune rune, bool isTransparent, bool isWalkable, Attribute colors)
+    public Cell(CellType type, bool isTransparent, bool isWalkable)
     {
-        this.Rune = rune;
-        this.isTransparent = isTransparent;
-        this.isWalkable = isWalkable;
-        this.Color = colors;
-    }
-    public Cell(char c, bool isTransparent, bool isWalkable, Attribute colors)
-    {
-        Rune r = new(c);
-        this.isTransparent = isTransparent;
-        this.isWalkable = isWalkable;
-        this.Color = colors;
+        this.Type = type;
+        this.IsTransparent = isTransparent;
+        this.IsWalkable = isWalkable;
     }
     public void AddCreature(Creature creature)
     {
@@ -329,40 +299,17 @@ public class Cell
         creature = null;
     }
 
-    //shortcuts for convenience
-    public bool IsTransparent()
+    public bool HasCreature() { return !(creature is null); }
+
+    public void Set(CellType type, bool isWalkable, bool isTransparent)
     {
-        return isTransparent;
+        this.Type = type;
+        this.IsWalkable = isWalkable;
+        this.IsTransparent = isTransparent;
     }
-    public bool HasCreature()
-    {
-        return !(creature is null);
-    }
-    public void SetRune(Rune rune)
-    {
-        this.Rune = rune;
-    }
-    public void SetRune(char c)
-    {
-        this.Rune = new Rune(c);
-    }
-    public void Set(Rune rune, bool isWalkable, bool isTransparent, Terminal.Gui.Drawing.Attribute colors)
-    {
-        this.Rune = rune;
-        this.isWalkable = isWalkable;
-        this.isTransparent = isTransparent;
-        this.Color = colors;
-    }
-    public void SetToWall()
-    {
-        this.Set(Dungeon.WALL, false, false, Dungeon.WALL_COLOR);
-    }
-    public void SetToFloor()
-    {
-        this.Set(Dungeon.FLOOR, true, true, Dungeon.FLOOR_COLOR);
-    }
-    public void SetRevealed(bool value)
-    {
-        this.isRevealed = value;
-    }
+    public void SetToWall() { this.Set(CellType.Wall, false, false); }
+    public void SetToFloor() { this.Set(CellType.Floor, true, true); }
+    public void SetRevealed(bool value) { this.isRevealed = value; }
 }
+
+public enum CellType { Floor, Wall }

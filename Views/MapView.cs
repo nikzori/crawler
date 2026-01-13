@@ -1,5 +1,7 @@
+using System.Text;
 using Terminal.Gui.ViewBase;
 using Terminal.Gui.Views;
+using Terminal.Gui.Input;
 
 public class MapView : FrameView
 {
@@ -14,6 +16,8 @@ public class MapView : FrameView
         Visible = true;
         pX = Viewport.Width / 2;
         pY = Viewport.Height / 2; // center the player on the screen
+
+        SetFocus();
     }
     protected override bool OnClearingViewport() { return true; }
     #region Line of Sight
@@ -24,42 +28,43 @@ public class MapView : FrameView
         mY = Game.player.pos.Y - pY;
 
         Vector2Int currentPos = new(mX, mY);
-        System.Text.Rune c = new('.');
+        Rune c;
         for (int tx = 0; tx < Viewport.Width; tx++)
         {
             for (int ty = 0; ty < Viewport.Height; ty++)
             {
                 if (Game.currentMap.cells.ContainsKey(currentPos))
                 {
-                    c = Game.currentMap.cells[currentPos].Rune;
+                    Cell cell = Game.currentMap.cells[currentPos];
+                    c = GetRune(cell);
+                    if (cell.Type == CellType.Wall)                        
+                        SetAttribute(Dungeon.WALL_COLOR);
+                    else SetAttribute(Dungeon.FLOOR_COLOR);
                     //Game.currentMap.cells[currentPos].SetRevealed(true);
 
-                    SetAttribute(Game.currentMap.cells[currentPos].Color);
                     if (Math.Abs(tx - pX) < Game.player.sightRadius && Math.Abs(ty - pY) < Game.player.sightRadius)
                     {
                         // very unnatural (and probably very inefficient) LOS made with Bresenham's algorythm, 
                         // but hey, it works
                         if (Dungeon.CanSeeTile(Game.player.pos, currentPos))
                         {
-                            c = Game.currentMap.cells[currentPos].Rune;
-                            Game.currentMap.cells[currentPos].SetRevealed(true);
-
-                            SetAttribute(Game.currentMap.cells[currentPos].Color);
+                            cell.isRevealed = true;
+                            if (cell.Type == CellType.Wall)                        
+                                SetAttribute(Dungeon.WALL_COLOR);
+                            else SetAttribute(Dungeon.FLOOR_COLOR);
                         }
                         else if (Game.currentMap.cells[currentPos].isRevealed)
                         {
-                            c = Game.currentMap.cells[currentPos].Rune;
                             SetAttribute(Dungeon.REVEALED_COLOR);
                         }
                         else
                         {
-                            c = new System.Text.Rune(Game.currentMap.background[new(mX + 15, mY + 15)]);
+                            c = new Rune(Game.currentMap.background[new(mX + 15, mY + 15)]);
                             SetAttribute(Dungeon.OBSCURED_COLOR);
                         }
                     }
                     else if (Game.currentMap.cells[currentPos].isRevealed)
                     {
-                        c = Game.currentMap.cells[currentPos].Rune;
                         SetAttribute(Dungeon.REVEALED_COLOR);
                     }
                     else
@@ -85,5 +90,75 @@ public class MapView : FrameView
         return true;
     }
     #endregion
+    public Rune GetRune(Cell cell)
+    {
+        if (cell.creature != null)
+            return cell.creature.Rune;
+        else
+        {
+            if  (cell.Type == CellType.Floor)
+                return Dungeon.FLOOR;
+            else if (cell.Type == CellType.Wall)
+                return Dungeon.WALL;
+            else return new('?');
+        }
+    }
 
+    protected override bool OnKeyDown(Key key)
+    {
+        bool keyRegistered = false;
+
+        // switch-case doesn't like Key.Parameters for some reason
+        // so this will be ugly for now
+        if (key == Key.D1)
+        {
+            keyRegistered = true;
+            Game.player.TileInteract(new(-1, -1));
+        }
+        if (key == Key.D2)
+        {
+            keyRegistered = true;
+            Game.player.TileInteract(new(0, -1));
+        }
+        if (key == Key.D3)
+        {
+            keyRegistered = true;
+            Game.player.TileInteract(new(1, -1));
+        }
+        if (key == Key.D4)
+        {
+            keyRegistered = true;
+            Game.player.TileInteract(new(-1, 0));
+        }
+        if (key == Key.D5)
+        {
+            keyRegistered = true;
+            //interact mode?
+            Game.Update(10);
+            GameWindow.Log("Key Registered");
+        }
+        if (key == Key.D6)
+        {
+            keyRegistered = true;
+            Game.player.TileInteract(new(1, 0));
+        }
+        if (key == Key.D7)
+        {
+            keyRegistered = true;
+            Game.player.TileInteract(new(-1, 1));
+        }
+        if (key == Key.D8)
+        {
+            keyRegistered = true;
+            Game.player.TileInteract(new(0, 1));
+        }
+        if (key == Key.D9)
+        {
+            keyRegistered = true;
+            Game.player.TileInteract(new(1, 1));
+        }
+        if (keyRegistered)
+            SetNeedsDraw();
+        return keyRegistered;
+    }
 }

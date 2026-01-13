@@ -25,7 +25,7 @@ public class Stairs : IInteractable
         {
             Map otherMap = Game.dungeon.floors[newFloorIndex];
             newPos = new(rng.Next(1, otherMap.size.X), rng.Next(1, otherMap.size.Y));
-            if (otherMap.cells.ContainsKey(newPos) && otherMap.cells[newPos].isWalkable)
+            if (otherMap.cells.ContainsKey(newPos) && otherMap.cells[newPos].IsWalkable)
                 break;
         }
         Game.ChangeFloor(newFloorIndex, newPos);

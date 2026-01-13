@@ -11,8 +11,8 @@ public static class MapGen
             for (int y = 0; y < height; y++)
             {
                 if (x == 0 || y == 0)
-                    result.Add(new(x, y), new(Dungeon.WALL, false, false, Dungeon.WALL_COLOR));
-                else result.Add(new(x, y), new(Dungeon.FLOOR, true, true, Dungeon.FLOOR_COLOR));
+                    result.Add(new(x, y), new(CellType.Wall, false, false));
+                else result.Add(new(x, y), new(CellType.Floor, true, true));
             }
         }
         result[new(width / 2, height / 2)].SetToWall();
@@ -39,7 +39,7 @@ public static class MapGen
         {
             for (int y = 0; y < height; y++)
             {
-                cell = new Cell(Dungeon.FLOOR, true, true, Dungeon.FLOOR_COLOR);
+                cell = new Cell(CellType.Floor, true, true);
                 pos = new(x, y);
                 result.Add(pos, cell);
             }
@@ -115,7 +115,7 @@ public static class MapGen
                 {
                     for (int yt = y - 1; yt < y + 2; yt++)
                     {
-                        if (!result[new(xt, yt)].isWalkable)
+                        if (!result[new(xt, yt)].IsWalkable)
                             neighbourWallsCounter++;
                         if (neighbourWallsCounter > 4)
                         {
@@ -138,7 +138,7 @@ public static class MapGen
                             // if tile is close on both axises, it's adjacent => skip
                             if (Math.Abs(yt - y) < 2 && Math.Abs(xt - x) < 2)
                                 continue;
-                            if (!result[new(xt, yt)].isWalkable)
+                            if (!result[new(xt, yt)].IsWalkable)
                                 distantWallsCounter++;
 
 
@@ -149,8 +149,8 @@ public static class MapGen
                 }
 
                 if (setToWall)
-                    result[new(x, y)] = new(Dungeon.WALL, false, false, Dungeon.WALL_COLOR);
-                else result[new(x, y)] = new(Dungeon.FLOOR, true, true, Dungeon.FLOOR_COLOR);
+                    result[new(x, y)] = new(CellType.Wall, false, false);
+                else result[new(x, y)] = new(CellType.Floor, true, true);
             }
         }
         return result;
@@ -256,7 +256,7 @@ public static class MapGen
         {
             for (y = 0; y < height; y++)
             {
-                if (input[new(x, y)].isWalkable)
+                if (input[new(x, y)].IsWalkable)
                 {
                     check = true;
                     break;
@@ -287,7 +287,7 @@ public static class MapGen
         {
             for (y = 0; y < height; y++)
             {
-                if (!selectedCells[new(x, y)] && input[new(x, y)].isWalkable) // replace isolated floors with walls
+                if (!selectedCells[new(x, y)] && input[new(x, y)].IsWalkable) // replace isolated floors with walls
                     input[new(x, y)].SetToWall();
             }
         }
@@ -334,7 +334,7 @@ public static class MapGen
                         continue;
                     if (dPos.X > -1 && dPos.X < width && dPos.Y > -1 && dPos.Y < height)
                     {
-                        if (input[dPos].isWalkable == input[pos].isWalkable)
+                        if (input[dPos].IsWalkable == input[pos].IsWalkable)
                         {
                             if (!result[dPos])
                             {

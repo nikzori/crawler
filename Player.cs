@@ -19,7 +19,7 @@ public class Player : Creature
         {
             if (Game.currentMap.cells[tmp].creature != null)
                 Game.currentMap.cells[tmp].creature.ReceiveDamage(10f);
-            else if (Game.currentMap.cells[tmp].isWalkable)
+            else if (Game.currentMap.cells[tmp].IsWalkable)
                 this.Move(pos);
         }
     }

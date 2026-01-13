@@ -18,7 +18,7 @@ public static class AI
                         Vector2Int nPos = new(rng.Next(creature.pos.X - 5, creature.pos.X + 5), rng.Next(creature.pos.Y - 5, creature.pos.Y + 5));
                         if (Game.currentMap.cells.ContainsKey(nPos))
                         {
-                            if (Game.currentMap.cells[nPos].isWalkable && Pathfinder.Calculate(creature.pos, nPos, Game.currentMap.GetObstacles(), ref creature.currentPath))
+                            if (Game.currentMap.cells[nPos].IsWalkable && Pathfinder.Calculate(creature.pos, nPos, Game.currentMap.GetObstacles(), ref creature.currentPath))
                             {
                                 string path = "";
                                 foreach (Vector2Int vctr in creature.currentPath)

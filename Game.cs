@@ -19,7 +19,7 @@ public class Game
         {
             for (int y = 2; y < mapSize.Y; y++)
             {
-                if (dungeon.floors[0].cells[new(x, y)].isWalkable)
+                if (dungeon.floors[0].cells[new(x, y)].IsWalkable)
                 {
                     xStart = x;
                     yStart = y;
@@ -31,7 +31,6 @@ public class Game
                 break;
         }
         player = new Player(pName, new(xStart, yStart), new('@'));
-        player.name = pName;
         dungeon.floors[0].AddCreature(player);
     }
     public static void Update(int aut)
