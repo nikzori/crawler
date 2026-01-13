@@ -1,9 +1,20 @@
-﻿using Terminal.Gui.App;
+﻿using System.Runtime.InteropServices;
+using Terminal.Gui.App;
 using Terminal.Gui.Input;
+using Terminal.Gui.Drivers;
 
 AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(UnhandledException);
-using (var app = Application.Create().Init())
+
+using (IApplication app = Application.Create())
 {
+    /*
+    if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX) || RuntimeInformation.IsOSPlatform(OSPlatform.FreeBSD))
+        app.Init(driverName: DriverRegistry.Names.UNIX);
+    else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) 
+        app.Init(driverName: DriverRegistry.Names.WINDOWS);
+    else app.Init(driverName: DriverRegistry.Names.ANSI); */
+    app.Init(driverName: DriverRegistry.Names.DOTNET);
+    
     Application.QuitKey = Key.Q.WithCtrl;
 
     MainWindow MainWindow = new();

@@ -21,7 +21,7 @@ public class MapView : FrameView
     }
     protected override bool OnClearingViewport() { return true; }
     #region Line of Sight
-    protected override bool OnDrawingText(DrawContext? context)
+    protected override bool OnDrawingContent(DrawContext? context)
     {
         //upper-left visible map cell coordinates 
         mX = Game.player.pos.X - pX;
@@ -106,59 +106,60 @@ public class MapView : FrameView
 
     protected override bool OnKeyDown(Key key)
     {
-        bool keyRegistered = false;
+        bool processed = false;
 
         // switch-case doesn't like Key.Parameters for some reason
         // so this will be ugly for now
         if (key == Key.D1)
         {
-            keyRegistered = true;
+            processed = true;
             Game.player.TileInteract(new(-1, -1));
         }
         if (key == Key.D2)
         {
-            keyRegistered = true;
+            processed = true;
             Game.player.TileInteract(new(0, -1));
         }
         if (key == Key.D3)
         {
-            keyRegistered = true;
+            processed = true;
             Game.player.TileInteract(new(1, -1));
         }
         if (key == Key.D4)
         {
-            keyRegistered = true;
+            processed = true;
             Game.player.TileInteract(new(-1, 0));
         }
         if (key == Key.D5)
         {
-            keyRegistered = true;
+            processed = true;
             //interact mode?
             Game.Update(10);
             GameWindow.Log("Key Registered");
         }
         if (key == Key.D6)
         {
-            keyRegistered = true;
+            processed = true;
             Game.player.TileInteract(new(1, 0));
         }
         if (key == Key.D7)
         {
-            keyRegistered = true;
+            processed = true;
             Game.player.TileInteract(new(-1, 1));
         }
         if (key == Key.D8)
         {
-            keyRegistered = true;
+            processed = true;
             Game.player.TileInteract(new(0, 1));
         }
         if (key == Key.D9)
         {
-            keyRegistered = true;
+            processed = true;
             Game.player.TileInteract(new(1, 1));
         }
-        if (keyRegistered)
+        if (processed)
             SetNeedsDraw();
-        return keyRegistered;
+        key.Handled = processed; // unclear if I need to do this, but just in case 
+        return processed;
     }
 }

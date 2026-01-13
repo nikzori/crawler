@@ -11,7 +11,7 @@ public class InventoryWindow : Window
         this.gameWindow = GameWindow;
         test = new() { X = 1, Y = 1, Width = 30, Height = 3, Text = "This is a test entry" };
         this.Add(test);
-
+        SetFocus();
     }
 
     protected override bool OnKeyDown(Key key)
@@ -33,7 +33,7 @@ public class InventoryWindow : Window
             processed = true;
             test.Text = "aeiou";
         }
-
+        key.Handled = processed; // unclear if I need to do this, but just in case 
         return processed;
     }
 }

@@ -20,13 +20,6 @@ public class Creature
             else return field;
         }
     }
-    public Attribute color = new(Color.White, Color.Black);
-
-    // AI stuff
-    // putting this here feels kinda ass so idk
-    public int aut = 0;
-    public AIState state = AIState.idle;
-    public bool isTrackingPlayer = false;
     public Vector2Int lastPlayerPosition;
     public Queue<Vector2Int> currentPath = new();
 

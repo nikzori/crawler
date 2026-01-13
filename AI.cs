@@ -3,13 +3,15 @@ public static class AI
     static Player player = Game.player;
     public static Random rng = new();
     static Path Pathfinder = new();
-    public static void Act(Creature creature, int aut)
+
+    /*
+    public static void Act(Creature creature, int addedAut)
     {
-        creature.aut += aut;
+        creature.aut += addedAut;
 
         switch (creature.state)
         {
-            case AIState.idle:
+            case AIState.Idle:
                 Vector2Int nextPos;
                 if (!creature.currentPath.TryDequeue(out nextPos)) //current path queue is empty
                 {
@@ -38,7 +40,7 @@ public static class AI
                 }
                 break;
 
-            case AIState.attack:
+            case AIState.Attack:
                 if (CanSeePlayer(creature))
                 {
                     creature.lastPlayerPosition = player.pos;
@@ -50,12 +52,12 @@ public static class AI
                         // approach the player
                     }
                 }
-                else goto case AIState.pursuit;
+                else goto case AIState.Pursuit;
                 break;
 
-            case AIState.pursuit:
+            case AIState.Pursuit:
                 if (CanSeePlayer(creature))
-                    goto case AIState.attack;
+                    goto case AIState.Attack;
                 else if (creature.currentPath?.Last() == creature.lastPlayerPosition) // player stayed still, no need to update
                     creature.MoveTo(creature.currentPath.Dequeue());
                 else
@@ -67,11 +69,11 @@ public static class AI
                 }
                 break;
         }
-
+        
         // things to add:
         // sleep timer
     }
-
+    */
     public static bool CanSeePlayer(Creature creature)
     {
         //check whether the Player is in vision range in the first place
@@ -92,4 +94,19 @@ public static class AI
     }
 }
 
-public enum AIState { idle, attack, pursuit, sleep }
+/// <summary>
+/// Container for AI-related values.
+/// </summary>
+public class AIData
+{
+    public AIState state;
+    public int aut;
+
+    public AIData(AIState state = AIState.Idle, int aut = 0)
+    {
+        this.state = state;
+        this.aut = aut;
+    }
+}
+
+public enum AIState { Idle, Attack, Pursuit, Sleep }

@@ -9,7 +9,7 @@ public class Player : Creature
 
     public Player(string name, Vector2Int pos, Rune rune) : base(name, pos, rune)
     {
-        color = new Attribute(Color.Black, Color.White);
+        //color = new Attribute(Color.Black, Color.White);
     }
 
     public void TileInteract(Vector2Int pos)

@@ -36,8 +36,8 @@ public class Game
     public static void Update(int aut)
     {
         time += aut;
-        foreach (Creature c in currentMap.creatures)
-            AI.Act(c, aut);
+        foreach (Creature c in currentMap.creatures) {}
+            //AI.Act(c, aut);
     }
 
     public static void ChangeFloor(int floorNumber, Vector2Int pos)

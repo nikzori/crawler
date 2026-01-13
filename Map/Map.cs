@@ -4,6 +4,7 @@ using Attribute = Terminal.Gui.Drawing.Attribute;
 
 public class Dungeon
 {
+    // should move these to a separate container for ncurses
     public static Rune WALL = new Rune('#');
     public static Rune FLOOR = new Rune('.');
     public static Attribute FLOOR_COLOR = new(Color.Green, Color.Black);
