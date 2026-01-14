@@ -1,58 +1,47 @@
-using System.Text;
-using Terminal.Gui.Drawing;
-using Attribute = Terminal.Gui.Drawing.Attribute;
-
-public class Creature
+public class Creature : IDamageable
 {
-    public static Rune remains = new('\u223B'); // to be shown on decomposition
-    public string name;
-    public float health = 10f;
-    public int level = 1;
-    public int MoveSpeed { get; }
-    public Vector2Int pos;
+    const int BASE_MOVESPEED = 10;
+    const int BASE_HEALTH = 3;
 
-    public Rune Rune
-    {
-        get
-        {
-            if (health <= 0)
-                return remains;
-            else return field;
-        }
-    }
-    public Vector2Int lastPlayerPosition;
-    public Queue<Vector2Int> currentPath = new();
+    public string Name;
+    public float Health { get; set; }
+    public float MoveSpeed { get; }
+    public float Damage { get; }
+    public int SightRadius { get; set; }
+    public Vector2Int Pos { get; set; }
 
-    public Creature(string name, Vector2Int pos, Rune rune)
+    public List<Item> inventory = new();
+
+
+    public Creature(string name, Vector2Int pos)
     {
-        this.name = name;
-        this.pos = pos;
-        this.Rune = rune;
-        this.MoveSpeed = 10;
+        this.Name = name;
+        this.Pos = pos;
+        this.MoveSpeed = BASE_MOVESPEED;
     }
 
     // Shorthand for single vectors
-    public bool Move(Vector2Int dir) { return MoveTo(this.pos + dir); }
+    public bool Move(Vector2Int dir) { return MoveTo(this.Pos + dir); }
 
     public bool MoveTo(Vector2Int pos)
     {
         if (!Game.dungeon.GetCurrentFloor().cells.ContainsKey(pos))
         {
-            GameWindow.Log("Trying to move creature out of map boundaries; object stays at x: " + this.pos.X + "; y: " + this.pos.Y);
+            Game.Log("Trying to move creature out of map boundaries; object stays at x: " + this.Pos.X + "; y: " + this.Pos.Y);
             return false;
         }
         if (!Game.dungeon.GetCurrentFloor().cells[pos].IsWalkable || Game.dungeon.GetCurrentFloor().cells[pos].HasCreature())
             return false;
-        Game.currentMap.cells[this.pos].RemoveCreature();
-        this.pos = pos;
-        Game.currentMap.cells[this.pos].AddCreature(this);
+        Game.currentMap.cells[this.Pos].RemoveCreature();
+        this.Pos = pos;
+        Game.currentMap.cells[this.Pos].AddCreature(this);
         return true;
     }
 
     public void ReceiveDamage(float damage)
     {
-        health -= damage;
-        if (health <= 0)
+        Health -= damage;
+        if (Health <= 0)
             OnCreatureDeath();
     }
 
@@ -63,6 +52,6 @@ public class Creature
 
 public interface IDamageable
 {
-    int Health { get; }
-    void ReceiveDamage(int value);
+    float Health { get; set; }
+    void ReceiveDamage(float damage);
 }

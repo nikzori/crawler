@@ -126,7 +126,7 @@ public class Dungeon
     public static bool CanSeeTile(Vector2Int start, Vector2Int end)
     {
         bool isVisible;
-        if (start == end) 
+        if (start == end)
             return true;
         if (Math.Abs(end.X - start.X) > Math.Abs(end.Y - start.Y))
         {
@@ -245,7 +245,7 @@ public class Map
             Vector2Int pos = new(x, y);
             if (cells[pos].IsWalkable)
             {
-                Creature goblin = new Creature("Goblin", pos, new('g'));
+                Creature goblin = new Creature("Goblin", pos);
                 AddCreature(goblin);
                 creatures.Add(goblin);
                 break;
@@ -263,14 +263,14 @@ public class Map
     {
         HashSet<Vector2Int> obstacles = new(walls);
         foreach (Creature crtr in creatures)
-            obstacles.Add(crtr.pos);
+            obstacles.Add(crtr.Pos);
 
         return obstacles;
     }
 
     public void AddCreature(Creature creature)
     {
-        cells[creature.pos].AddCreature(creature);
+        cells[creature.Pos].AddCreature(creature);
     }
 }
 

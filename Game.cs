@@ -1,11 +1,8 @@
-using Terminal.Gui.App;
-using Terminal.Gui.ViewBase;
-
 public class Game
 {
     public static Dungeon dungeon = new(1);
     public static Map currentMap { get { return dungeon.GetCurrentFloor(); } }
-    public static Player player;
+    public static Creature Player = new("Player", new(1, 1));
     public static int time = 0;
     public Game(string pName)
     {
@@ -30,25 +27,28 @@ public class Game
             if (startPosFound)
                 break;
         }
-        player = new Player(pName, new(xStart, yStart), new('@'));
-        dungeon.floors[0].AddCreature(player);
+        Player.Name = pName;
+        Player.Pos = new(xStart, yStart);
+        dungeon.floors[0].AddCreature(Player);
     }
     public static void Update(int aut)
     {
         time += aut;
-        foreach (Creature c in currentMap.creatures) {}
-            //AI.Act(c, aut);
+        // poke AI class to go through NPCs
     }
 
     public static void ChangeFloor(int floorNumber, Vector2Int pos)
     {
-        dungeon.GetCurrentFloor().cells[player.pos].RemoveCreature();
+        dungeon.GetCurrentFloor().cells[Player.Pos].RemoveCreature();
         dungeon.currentFloor = floorNumber;
-        player.pos = pos;
-        dungeon.GetCurrentFloor().cells[pos].AddCreature(player);
+        Player.Pos = pos;
+        dungeon.GetCurrentFloor().cells[pos].AddCreature(Player);
     }
     public static void Descend(Vector2Int pos) { ChangeFloor(dungeon.currentFloor + 1, pos); }
     public static void Ascend(Vector2Int pos) { ChangeFloor(dungeon.currentFloor - 1, pos); }
+
+    public static event EventHandler<string> LogEvent = delegate { };
+    public static void Log(string text) { LogEvent.Invoke(null, text); }
 
 }
 

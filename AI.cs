@@ -1,6 +1,6 @@
 public static class AI
 {
-    static Player player = Game.player;
+    static Creature Player = Game.Player;
     public static Random rng = new();
     static Path Pathfinder = new();
 
@@ -77,18 +77,18 @@ public static class AI
     public static bool CanSeePlayer(Creature creature)
     {
         //check whether the Player is in vision range in the first place
-        Vector2Int distance = player.pos - creature.pos;
+        Vector2Int distance = Player.Pos - creature.Pos;
         // since our FOV is square shaped (because of equidistant movement), 
         // we don't need to calculate the distance with a square root
         if (Math.Abs(distance.X) > 10 || Math.Abs(distance.Y) > 10)
             return false;
 
-        else return Dungeon.CanSeeTile(creature.pos, player.pos);
+        else return Dungeon.CanSeeTile(creature.Pos, Player.Pos);
     }
 
     public static bool CanReachAttack(Creature host, Creature target)
     {
-        if (Math.Abs(host.pos.X - target.pos.X) <= 1 && Math.Abs(host.pos.Y - target.pos.Y) <= 1)
+        if (Math.Abs(host.Pos.X - target.Pos.X) <= 1 && Math.Abs(host.Pos.Y - target.Pos.Y) <= 1)
             return true;
         else return false;
     }

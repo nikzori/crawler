@@ -15,13 +15,12 @@ public class GameWindow : Window
     Label logView = new();
     Label timeView;
 
-    static Player player = Game.player;
+    static Creature Player = Game.Player;
     public static event EventHandler<Vector2Int> Interact = delegate { };
-    public static event EventHandler<string> LogEvent = delegate { };
     public GameWindow()
     {
         inventoryWindow = new(this);
-        player = Game.player;
+        Player = Game.Player;
 
         mapView = new() { X = 0, Y = 0 };
         characterView = new()
@@ -37,7 +36,7 @@ public class GameWindow : Window
             Y = Pos.Top(characterView) + 1,
             Width = Dim.Fill(),
             Height = 3,
-            Text = player.name,
+            Text = Player.Name,
             TextAlignment = Alignment.Center
         };
 
@@ -80,16 +79,11 @@ public class GameWindow : Window
         statView.Add(playerName, position, floorView);
         characterView.Add(playerName, statView, timeView);
         this.Add(mapView, characterView, logView);
-        LogEvent += (s, e) => this.PrintLog(e);
+        Game.LogEvent += (s, e) => this.PrintLog(e);
 
         UpdatePos();
 
         IApplication? app = App;
-    }
-
-    public static void Log(string text)
-    {
-        LogEvent.Invoke(null, text);
     }
 
     public void PrintLog(string txt)
@@ -99,7 +93,7 @@ public class GameWindow : Window
     public void UpdatePos()
     {
         floorView.Text = "Floor: " + Game.dungeon.currentFloor.ToString();
-        position.Text = "X: " + player.pos.X + "\nY: " + player.pos.Y;
+        position.Text = "X: " + Player.Pos.X + "\nY: " + Player.Pos.Y;
         timeView.Text = "Time: " + Game.time;
         mapView.SetNeedsDraw();
     }

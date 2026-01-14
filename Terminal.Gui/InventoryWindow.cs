@@ -2,9 +2,9 @@ using Terminal.Gui.Views;
 using Terminal.Gui.Input;
 
 public class InventoryWindow : Window
-{   
+{
     GameWindow gameWindow;
-    Player player = Game.player;
+    Creature Player = Game.Player;
     Label test;
     public InventoryWindow(GameWindow GameWindow)
     {
@@ -26,7 +26,7 @@ public class InventoryWindow : Window
         if (key == Key.D5)
         {
             processed = true;
-            test.Text = "Another One.";            
+            test.Text = "Another One.";
         }
         if (key == Key.D4)
         {
