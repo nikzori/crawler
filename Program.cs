@@ -12,9 +12,10 @@ using (IApplication app = Application.Create())
         app.Init(driverName: DriverRegistry.Names.UNIX);
     else if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows)) 
         app.Init(driverName: DriverRegistry.Names.WINDOWS);
-    else app.Init(driverName: DriverRegistry.Names.ANSI); */
-    app.Init(driverName: DriverRegistry.Names.DOTNET);
-    
+    else app.Init(driverName: DriverRegistry.Names.ANSI); 
+    //app.Init(driverName: DriverRegistry.Names.DOTNET); 
+    */
+    app.Init();
     Application.QuitKey = Key.Q.WithCtrl;
 
     MainWindow MainWindow = new();
