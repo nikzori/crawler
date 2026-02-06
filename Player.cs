@@ -4,12 +4,15 @@ public static class PlayerController
     public static void CellInteract(Vector2Int pos)
     {
         Vector2Int tmp = Player.Pos + pos;
-        if (Game.currentMap.cells.ContainsKey(tmp))
+        if (Game.CurrentMap.cells.ContainsKey(tmp))
         {
-            if (Game.currentMap.cells[tmp].creature != null)
-                Game.currentMap.cells[tmp].creature?.ReceiveDamage(Player.Damage);
-            else if (Game.currentMap.cells[tmp].IsWalkable)
+            if (Game.CurrentMap.cells[tmp].creature != null)
+            {
+                Game.CurrentMap.cells[tmp].creature?.ReceiveDamage(999); // perish lmao
+            }
+            else if (Game.CurrentMap.cells[tmp].IsWalkable)
                 Player.Move(pos);
+            Game.Log("Player pos: [" + Player.Pos.X + ", " + Player.Pos.Y + "]");
         }
     }
 

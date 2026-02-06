@@ -24,71 +24,149 @@ public class MapView : FrameView
     #region Line of Sight
     protected override bool OnDrawingContent(DrawContext? context)
     {
-        //upper-left visible map cell coordinates 
-        mX = Player.Pos.X - pX;
-        mY = Player.Pos.Y - pY;
-
-        Vector2Int currentPos = new(mX, mY);
-        Rune c;
-        for (int tx = 0; tx < Viewport.Width; tx++)
+        try
         {
-            for (int ty = 0; ty < Viewport.Height; ty++)
-            {
-                if (Game.currentMap.cells.ContainsKey(currentPos))
-                {
-                    Cell cell = Game.currentMap.cells[currentPos];
-                    c = GetRune(cell);
-                    if (cell.Type == CellType.Wall)
-                        SetAttribute(Dungeon.WALL_COLOR);
-                    else SetAttribute(Dungeon.FLOOR_COLOR);
-                    //Game.currentMap.cells[currentPos].SetRevealed(true);
+            bool[,] vision = FOV.Shadowcast(Game.CurrentMap, Player.Pos, Player.SightRadius);
+            mX = Player.Pos.X - pX;
+            mY = Player.Pos.Y - pY;
 
-                    if (Math.Abs(tx - pX) < Player.SightRadius && Math.Abs(ty - pY) < Player.SightRadius)
+            Rune c;
+            Vector2Int currentPos;
+            for (int tx = 0; tx < Viewport.Width; tx++)
+            {
+                for (int ty = 0; ty < Viewport.Height; ty++)
+                {
+                    currentPos = new(mX, mY);
+
+                    if (Game.CurrentMap.cells.ContainsKey(currentPos))
                     {
-                        // very unnatural (and probably very inefficient) LOS made with Bresenham's algorythm, 
-                        // but hey, it works
-                        if (Dungeon.CanSeeTile(Player.Pos, currentPos))
+                        Cell cell = Game.CurrentMap.cells[currentPos];
+                        if (vision[currentPos.X, currentPos.Y])
                         {
-                            cell.isRevealed = true;
-                            if (cell.Type == CellType.Wall)
-                                SetAttribute(Dungeon.WALL_COLOR);
-                            else SetAttribute(Dungeon.FLOOR_COLOR);
+                            if (cell.HasCreature())
+                            {
+                                c = new('@');
+                                SetAttribute(new Terminal.Gui.Drawing.Attribute(Terminal.Gui.Drawing.StandardColor.Green, Terminal.Gui.Drawing.StandardColor.Black));
+                            }
+                            else
+                            {
+                                if (cell.Type == CellType.Wall)
+                                {
+                                    c = Dungeon.WALL;
+                                    SetAttribute(Dungeon.WALL_COLOR);
+                                }
+                                else
+                                {
+                                    c = Dungeon.FLOOR;
+                                    SetAttribute(Dungeon.FLOOR_COLOR);
+                                }
+                            }
                         }
-                        else if (Game.currentMap.cells[currentPos].isRevealed)
+                        else
+                        {
+                            if (cell.isRevealed)
+                            {
+                                if (cell.Type == CellType.Wall)
+                                    c = Dungeon.WALL;
+                                else c = Dungeon.FLOOR;
+                                SetAttribute(Dungeon.REVEALED_COLOR);
+                            }
+                            else
+                            {
+                                c = new(Game.CurrentMap.background[new(mX + 15, mY + 15)]);
+                                SetAttribute(Dungeon.OBSCURED_COLOR);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        c = new(Game.CurrentMap.background[new(mX + 15, mY + 15)]);
+                        SetAttribute(Dungeon.OBSCURED_COLOR);
+                    }
+
+                    AddRune(tx, Viewport.Height - ty, c);
+
+                    mY++;
+                }
+
+                mX++;
+                mY = Player.Pos.Y - pY;
+            }
+
+            /*
+            //upper-left visible map cell coordinates 
+            mX = Player.Pos.X - pX;
+            mY = Player.Pos.Y - pY;
+
+            Vector2Int currentPos = new(mX, mY);
+            Rune c;
+            for (int tx = 0; tx < Viewport.Width; tx++)
+            {
+                for (int ty = 0; ty < Viewport.Height; ty++)
+                {
+                    if (Game.CurrentMap.cells.ContainsKey(currentPos))
+                    {
+                        Cell cell = Game.CurrentMap.cells[currentPos];
+                        c = GetRune(cell);
+                        if (cell.Type == CellType.Wall)
+                            SetAttribute(Dungeon.WALL_COLOR);
+                        else SetAttribute(Dungeon.FLOOR_COLOR);
+                        //Game.CurrentMap.cells[currentPos].SetRevealed(true);
+
+                        if (Math.Abs(tx - pX) < Player.SightRadius && Math.Abs(ty - pY) < Player.SightRadius)
+                        {
+                            // very unnatural (and probably very inefficient) LOS made with Bresenham's algorythm, 
+                            // but hey, it works
+                            if (Dungeon.CanSeeTile(Player.Pos, currentPos))
+                            {
+                                cell.isRevealed = true;
+                                if (cell.Type == CellType.Wall)
+                                    SetAttribute(Dungeon.WALL_COLOR);
+                                else SetAttribute(Dungeon.FLOOR_COLOR);
+                            }
+                            else if (Game.CurrentMap.cells[currentPos].isRevealed)
+                            {
+                                SetAttribute(Dungeon.REVEALED_COLOR);
+                            }
+                            else
+                            {
+                                c = new Rune(Game.CurrentMap.background[new(mX + 15, mY + 15)]);
+                                SetAttribute(Dungeon.OBSCURED_COLOR);
+                            }
+                        }
+                        else if (Game.CurrentMap.cells[currentPos].isRevealed)
                         {
                             SetAttribute(Dungeon.REVEALED_COLOR);
                         }
                         else
                         {
-                            c = new Rune(Game.currentMap.background[new(mX + 15, mY + 15)]);
+                            c = new(Game.CurrentMap.background[new(mX + 15, mY + 15)]);
                             SetAttribute(Dungeon.OBSCURED_COLOR);
                         }
                     }
-                    else if (Game.currentMap.cells[currentPos].isRevealed)
-                    {
-                        SetAttribute(Dungeon.REVEALED_COLOR);
-                    }
                     else
                     {
-                        c = new(Game.currentMap.background[new(mX + 15, mY + 15)]);
+                        c = new(Game.CurrentMap.background[new(mX + pX, mY + pY)]);
                         SetAttribute(Dungeon.OBSCURED_COLOR);
                     }
-                }
-                else
-                {
-                    c = new(Game.currentMap.background[new(mX + pX, mY + pY)]);
-                    SetAttribute(Dungeon.OBSCURED_COLOR);
-                }
-                AddRune(tx, Viewport.Height - ty, c);
+                    AddRune(tx, Viewport.Height - ty, c);
 
-                mY++;
+                    mY++;
+                    currentPos = new(mX, mY);
+                }
+                mX++;
+                mY = Player.Pos.Y - pY;
                 currentPos = new(mX, mY);
             }
-            mX++;
-            mY = Player.Pos.Y - pY;
-            currentPos = new(mX, mY);
+            */
+            return true;
         }
-        return true;
+        catch (Exception e)
+        {
+            Game.Log(e.Message);
+            File.WriteAllText(AppContext.BaseDirectory, e.Message);
+            return true;
+        }
     }
     #endregion
     public Rune GetRune(Cell cell)

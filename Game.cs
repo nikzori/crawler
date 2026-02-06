@@ -1,7 +1,7 @@
 public class Game
 {
     public static Dungeon dungeon = new(1);
-    public static Map currentMap { get { return dungeon.GetCurrentFloor(); } }
+    public static Map CurrentMap { get { return dungeon.GetCurrentFloor(); } }
     public static Creature Player = new("Player", new(1, 1));
     public static int time = 0;
     public Game(string pName)

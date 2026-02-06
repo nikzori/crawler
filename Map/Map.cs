@@ -7,7 +7,7 @@ public class Dungeon
     // should move these to a separate container for ncurses
     public static Rune WALL = new Rune('#');
     public static Rune FLOOR = new Rune('.');
-    public static Attribute FLOOR_COLOR = new(Color.Green, Color.Black);
+    public static Attribute FLOOR_COLOR = new(Color.BrightGreen, Color.Black);
     public static Attribute WALL_COLOR = new(Color.Yellow, Color.Black);
     public static Attribute REVEALED_COLOR = new(Color.Gray, Color.Black); // For tiles that were seen but not in LOS
     public static Attribute OBSCURED_COLOR = new(Color.DarkGray, Color.Black);
@@ -162,7 +162,7 @@ public class Dungeon
             for (int x = start.X; x <= end.X; x++)
             {
                 dPos = new(x, y);
-                if (!Game.currentMap.cells[dPos].IsTransparent && x != end.X && x != start.X)
+                if (!Game.CurrentMap.cells[dPos].IsTransparent && x != end.X && x != start.X)
                     return false;
                 if (D > 0)
                 {
@@ -193,7 +193,7 @@ public class Dungeon
             for (int y = start.Y; y <= end.Y; y++)
             {
                 dPos = new(x, y);
-                if (!Game.currentMap.cells[dPos].IsTransparent && y != end.Y && y != start.Y)
+                if (!Game.CurrentMap.cells[dPos].IsTransparent && y != end.Y && y != start.Y)
                     return false;
                 if (D > 0)
                 {
@@ -210,7 +210,7 @@ public class Dungeon
 
 public class Map
 {
-    public Dictionary<Vector2Int, Cell> cells;
+    public Dictionary<Vector2Int, Cell> cells; // this feels like a wrong way to do gridmap
     public Dictionary<Vector2Int, char> background; // static chars to draw over unexplored tiles
     public List<Creature> creatures = new();
     public Vector2Int size;
@@ -274,7 +274,7 @@ public class Map
     }
 }
 
-
+// should probably be refactored into a struct with creatures and objects being tracked separately
 public class Cell
 {
     public CellType Type { get; set; }
