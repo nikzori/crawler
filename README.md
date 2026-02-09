@@ -11,8 +11,8 @@ For now, the plan is to just put out a playable release.
 
 ## Progress so far
 - Decent looking dungeons generated with cellular automata and some rooms thrown in at random positions.
-- Movement (including between floors) and proper dungeon render with super simple LOS
-- Lots of foundation bits for UI, creatures, etc.
+- Shadowcasting 
+- Basic movement
 
 ## To-Do:
 - map gen:
@@ -29,7 +29,6 @@ For now, the plan is to just put out a playable release.
 - UI:
   - add test items to inventory
   - add tile/entity inspection
-  - implement better FOV
 - AI: 
   - create some sort of Action class/interface that both NPCs and Player will use
   - hook up basic functions like attacking and moving around

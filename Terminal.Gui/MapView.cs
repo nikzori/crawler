@@ -1,19 +1,21 @@
 using System.Text;
 using Terminal.Gui.ViewBase;
-using Terminal.Gui.Views;
 using Terminal.Gui.Input;
+using Terminal.Gui.Views;
 
 public class MapView : FrameView
 {
     Creature Player = Game.Player;
     int pX, pY; // player position on the screen
     int mX, mY;
+    bool FOVenabled = true; // if disabled, renders every single cell on the screen
     public MapView()
     {
         // viewport size needs to be an odd number to put player in the center
         Width = 31;
         Height = 31;
         Game.Log("Map viewport width: " + Viewport.Width.ToString() + "; height: " + Viewport.Height.ToString());
+        BorderStyle = 0;
         Visible = true;
         pX = Viewport.Width / 2;
         pY = Viewport.Height / 2; // center the player on the screen
@@ -26,7 +28,19 @@ public class MapView : FrameView
     {
         try
         {
-            bool[,] vision = FOV.Shadowcast(Game.CurrentMap, Player.Pos, Player.SightRadius);
+            bool[,] vision;
+            if (FOVenabled)
+                vision = FOV.Shadowcast(Game.CurrentMap, Player.Pos, Player.SightRadius);
+            else
+            {
+                vision = new bool[Game.CurrentMap.size.X, Game.CurrentMap.size.Y];
+                for (int i = 0; i < vision.GetLength(0); i++)
+                {
+                    for (int j = 0; j < vision.GetLength(1); j++)
+                        vision[i, j] = true;
+                }
+            }
+
             mX = Player.Pos.X - pX;
             mY = Player.Pos.Y - pY;
 
@@ -92,73 +106,6 @@ public class MapView : FrameView
                 mX++;
                 mY = Player.Pos.Y - pY;
             }
-
-            /*
-            //upper-left visible map cell coordinates 
-            mX = Player.Pos.X - pX;
-            mY = Player.Pos.Y - pY;
-
-            Vector2Int currentPos = new(mX, mY);
-            Rune c;
-            for (int tx = 0; tx < Viewport.Width; tx++)
-            {
-                for (int ty = 0; ty < Viewport.Height; ty++)
-                {
-                    if (Game.CurrentMap.cells.ContainsKey(currentPos))
-                    {
-                        Cell cell = Game.CurrentMap.cells[currentPos];
-                        c = GetRune(cell);
-                        if (cell.Type == CellType.Wall)
-                            SetAttribute(Dungeon.WALL_COLOR);
-                        else SetAttribute(Dungeon.FLOOR_COLOR);
-                        //Game.CurrentMap.cells[currentPos].SetRevealed(true);
-
-                        if (Math.Abs(tx - pX) < Player.SightRadius && Math.Abs(ty - pY) < Player.SightRadius)
-                        {
-                            // very unnatural (and probably very inefficient) LOS made with Bresenham's algorythm, 
-                            // but hey, it works
-                            if (Dungeon.CanSeeTile(Player.Pos, currentPos))
-                            {
-                                cell.isRevealed = true;
-                                if (cell.Type == CellType.Wall)
-                                    SetAttribute(Dungeon.WALL_COLOR);
-                                else SetAttribute(Dungeon.FLOOR_COLOR);
-                            }
-                            else if (Game.CurrentMap.cells[currentPos].isRevealed)
-                            {
-                                SetAttribute(Dungeon.REVEALED_COLOR);
-                            }
-                            else
-                            {
-                                c = new Rune(Game.CurrentMap.background[new(mX + 15, mY + 15)]);
-                                SetAttribute(Dungeon.OBSCURED_COLOR);
-                            }
-                        }
-                        else if (Game.CurrentMap.cells[currentPos].isRevealed)
-                        {
-                            SetAttribute(Dungeon.REVEALED_COLOR);
-                        }
-                        else
-                        {
-                            c = new(Game.CurrentMap.background[new(mX + 15, mY + 15)]);
-                            SetAttribute(Dungeon.OBSCURED_COLOR);
-                        }
-                    }
-                    else
-                    {
-                        c = new(Game.CurrentMap.background[new(mX + pX, mY + pY)]);
-                        SetAttribute(Dungeon.OBSCURED_COLOR);
-                    }
-                    AddRune(tx, Viewport.Height - ty, c);
-
-                    mY++;
-                    currentPos = new(mX, mY);
-                }
-                mX++;
-                mY = Player.Pos.Y - pY;
-                currentPos = new(mX, mY);
-            }
-            */
             return true;
         }
         catch (Exception e)
@@ -235,6 +182,11 @@ public class MapView : FrameView
         {
             processed = true;
             PlayerController.CellInteract(new(1, 1));
+        }
+        if (key == Key.V)
+        {
+            processed = true;
+            FOVenabled = !FOVenabled;
         }
         if (processed)
             SetNeedsDraw();

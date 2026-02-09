@@ -123,12 +123,6 @@ public class GameWindow : Window
             keyRegistered = true;
             OpenInventory();
         }
-        /* don't even remember what this was
-        case (Key)62:
-            keyRegistered = true;
-            UI.InvokeInteract(Game.player, new(Game.player.pos));
-            break;
-        */
 
         if (keyRegistered)
             this.UpdatePos();

@@ -24,7 +24,7 @@ public static class MapGen
     /// Then places rooms randomly for some variety
     /// </summary>
     /// TODO: move wall seeding into a separate function
-    public static Dictionary<Vector2Int, Cell> GenerateCA(int width, int height, int iterations = 2)
+    public static Dictionary<Vector2Int, Cell> GenerateCA(int width, int height, int iterations = 1)
     {
         Random random = new Random();
         // I'll do this step by step 'cause I'm stupid
@@ -53,7 +53,7 @@ public static class MapGen
                 result[kvp.Key].SetToWall();
 
             // throw random walls on the map for automata
-            if (random.Next(1, 100) < 45)
+            if (random.Next(1, 100) < 47)
                 result[kvp.Key].SetToWall();
         }
 
@@ -102,7 +102,7 @@ public static class MapGen
         int neighbourWallsCounter;
         int distantWallsCounter;
         bool setToWall;
-        for (int x = 2; x < width - 1; x++) // smaller range of coordinated to ignore border walls
+        for (int x = 2; x < width - 1; x++) // smaller range of coordinates to ignore border walls
         {
             for (int y = 2; y < height - 1; y++)
             {
