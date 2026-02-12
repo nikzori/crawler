@@ -210,11 +210,11 @@ public class Dungeon
 
 public class Map
 {
-    public Dictionary<Vector2Int, Cell> cells; // this feels like a wrong way to do gridmap
+    public Dictionary<Vector2Int, Cell> cells; // this feels like a very, very wrong way to do gridmap
     public Dictionary<Vector2Int, char> background; // static chars to draw over unexplored tiles
-    public List<Creature> creatures = new();
     public Vector2Int size;
     public HashSet<Vector2Int> walls;
+    public Dictionary<Creature, AIData> creatures = new();
     public Map(int stairCount, int creatureLevel = 1, int xLength = 128, int yLength = 128)
     {
         size = new(xLength, yLength);
@@ -247,7 +247,7 @@ public class Map
             {
                 Creature goblin = new Creature("Goblin", pos);
                 AddCreature(goblin);
-                creatures.Add(goblin);
+                creatures.Add(goblin, new());
                 break;
             }
         }
@@ -262,8 +262,8 @@ public class Map
     public HashSet<Vector2Int> GetObstacles()
     {
         HashSet<Vector2Int> obstacles = new(walls);
-        foreach (Creature crtr in creatures)
-            obstacles.Add(crtr.Pos);
+        foreach (KeyValuePair<Creature, AIData> kvp in creatures)
+            obstacles.Add(kvp.Key.Pos);
 
         return obstacles;
     }

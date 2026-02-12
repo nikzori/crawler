@@ -34,7 +34,7 @@ public class Game
     public static void Update(int aut)
     {
         time += aut;
-        // poke AI class to go through NPCs
+        AI.ActAll(CurrentMap);
     }
 
     public static void ChangeFloor(int floorNumber, Vector2Int pos)

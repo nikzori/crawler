@@ -1,7 +1,7 @@
 public class Creature : IDamageable
 {
     //const int BASE_MOVESPEED = 10;
-    const int BASE_HEALTH = 3;
+    const int BASE_HEALTH = 5;
     const int BASE_SIGHTRADIUS = 10;
     const int FACTION_PLAYER = 0;
     const int FACTION_DUNGEON = 1;
@@ -12,19 +12,24 @@ public class Creature : IDamageable
     public int MaxHealth { get; set; }
     public int SightRadius { get; set; }
     public Vector2Int Pos { get; set; }
+    public float MovementSpeed { get; set; }
+    public float AttackSpeed { get; set; }
 
-    public List<Item> inventory = new();
+    public Inventory Inventory { get; }
 
-
-    public Creature(string name, Vector2Int pos, int maxHealth = BASE_HEALTH, int sightRadius = BASE_SIGHTRADIUS, int faction = FACTION_DUNGEON)
+    public Creature(string name, Vector2Int pos, int maxHealth = BASE_HEALTH, int sightRadius = BASE_SIGHTRADIUS,
+            float movementSpeed = 5f, float attackSpeed = 5f, int faction = FACTION_DUNGEON)
     {
         this.Name = name;
         this.Pos = pos;
         this.MaxHealth = maxHealth;
         this.Health = MaxHealth;
         this.SightRadius = sightRadius;
+        this.MovementSpeed = movementSpeed;
+        this.AttackSpeed = attackSpeed;
 
         this.Faction = faction;
+        this.Inventory = new();
     }
 
     // Shorthand for normalized vectors

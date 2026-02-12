@@ -29,15 +29,18 @@ public static class FOV
 
         result[viewerPos.X, viewerPos.Y] = true; //set player tile as visible
 
-        // slopes are defined with two points as (x1 - x2) / (y1 - y2), where [x1,y1] is a point on the map and [x2,y2] is the viewer(player) pos
-        // since we're using local coordinates with viewer at [0,0], slopes become (x/y). 
+        // This algorythm is a bit too strict, but definitely beats raycasting
+        // Slopes are defined with two points as (x1 - x2) / (y1 - y2), where [x1,y1] is a point on the map and [x2,y2] is the viewer(player) pos.
+        // Since we're using local coordinates with viewer at [0,0], slopes become (x/y). 
         // Then we add local [x,y] to global coords, multiplying x and y to "rotate" coordinates (see Transform[] transforms above)
         //
-        // We use slopes to defy an quadrand (?), e.g. slopes of -1 and 1 defy area from NW diagonal to NE diagonal
-        // for each quadrand, we go row by row for vertical ones and column by column for horizontal ones
-        // if the slope between a point on the map and playerPos is in the range of quadrand, that point is visible
-        // if we run into an obstacle, we use it's position to call the same method using the obstacle's slope as one of the limiting slopes
-        // we continue the initial method call, looking for an open cell. If we find one, we use its pos to assign a new left slope for this call
+        // We use slopes to defy an quadrant, e.g. slopes of -1 and 1 defy quadrant from NW diagonal to NE diagonal
+        // for each quadrant, we go row by row for vertical ones and column by column for horizontal ones
+        // If the slope of a particualr in the range of quadrant, that point is visible, because
+        // if we run into an obstacle, we use it's position to recursively call the lightcast method 
+        // using the obstacle's slope as one of the limiting slopes.
+        //
+        // We continue the initial method call, looking for an open cell. If we find one, we use its pos to assign a new left slope for this call
         // if we end a row on an obstacle, we break the loop.
         // that way, we call separate methods for each gap made by obstacles recursively
 
