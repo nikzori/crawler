@@ -4,6 +4,7 @@ public class Game
     public static Map CurrentMap { get { return dungeon.GetCurrentFloor(); } }
     public static Creature Player = new("Player", new(1, 1));
     public static int time = 0;
+    public static EventHandler GameUpdated = delegate { };
     public Game(string pName)
     {
         dungeon = new(1);
@@ -35,6 +36,7 @@ public class Game
     {
         time += aut;
         AI.ActAll(CurrentMap);
+        GameUpdated.Invoke(null, new());
     }
 
     public static void ChangeFloor(int floorNumber, Vector2Int pos)

@@ -84,6 +84,7 @@ public class GameWindow : Window
         UpdatePos();
 
         IApplication? app = App;
+        Game.GameUpdated += OnGameUpdate;
     }
 
     public void PrintLog(string txt)
@@ -96,6 +97,10 @@ public class GameWindow : Window
         position.Text = "X: " + Player.Pos.X + "\nY: " + Player.Pos.Y;
         timeView.Text = "Time: " + Game.time;
         mapView.SetNeedsDraw();
+    }
+    public void OnGameUpdate(object? sender, EventArgs e)
+    {
+        UpdatePos();
     }
 
     public void OpenInventory()

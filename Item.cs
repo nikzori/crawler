@@ -1,23 +1,19 @@
+using System.Diagnostics;
+
 public class Inventory
 {
     public Dictionary<Item, int> items = new();
-    public float TotalWeight
+    public void AddItem(Item item, int count = 1)
     {
-        get
-        {
-            float res = 0f;
-            foreach (KeyValuePair<Item, int> kvp in items)
-                res += kvp.Key.Weight * kvp.Value;
-            return res;
-        }
+        if (items.ContainsKey(item))
+            items[item] += count;
+        else items.Add(item, count);
     }
-    public bool AddItem(Item item)
+    public void RemoveItem(Item item, int count = 1)
     {
-        return true;
-    }
-    public bool RemoveItem(Item item)
-    {
-        return true;
+        if (items.ContainsKey(item) && items[item] >= count)
+            items[item] -= count;
+        else Debug.WriteLine("Trying to remove item " + item.Name + " from Player's inventory, but it doesn't exist or the count is too low.");
     }
 
 }
@@ -28,14 +24,12 @@ public class Item
 
     public string Description { get; }
     public int Price { get; }
-    public float Weight { get; }
 
-    public Item(string name = "Item", string description = "It's uuuh... It's a- it's the, um...", int price = 1, float weight = 0.2f)
+    public Item(string name = "Item", string description = "It's uuuh... It's a- it's the, um...", int price = 1)
     {
         this.Name = name;
         this.Description = description;
         this.Price = price;
-        this.Weight = weight;
     }
 }
 

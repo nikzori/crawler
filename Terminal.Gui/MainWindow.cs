@@ -27,7 +27,7 @@ public class MainWindow : Window
             Width = 14,
             Height = 3,
             Text = "New Game",
-            ShadowStyle = ShadowStyle.None
+            ShadowStyle = 0
         };
         NewGameBtn.Accepting += (s, e) =>
         {
@@ -44,7 +44,7 @@ public class MainWindow : Window
             Width = 9,
             Height = 3,
             Text = "Quit",
-            ShadowStyle = ShadowStyle.None
+            ShadowStyle = 0
         };
         Exit.Accepting += (s, e) =>
         {

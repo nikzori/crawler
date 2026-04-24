@@ -1,11 +1,12 @@
-﻿using Terminal.Gui.App;
-using Terminal.Gui.Input;
+﻿using Terminal.Gui.Configuration;
+using Terminal.Gui.App;
+
+ConfigurationManager.Enable(ConfigLocations.All);
 
 AppDomain.CurrentDomain.UnhandledException += new UnhandledExceptionEventHandler(UnhandledException);
 using (IApplication app = Application.Create())
 {
     app.Init();
-    Application.QuitKey = Key.Q.WithCtrl;
 
     MainWindow MainWindow = new();
     app.Run(MainWindow);

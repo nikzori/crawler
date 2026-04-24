@@ -284,12 +284,28 @@ public class Cell
     public bool isRevealed = false;
 
     public Creature? creature;
-    public List<Item>? items;
+    public List<Item>? items; // very ineffective. Oh well
     public Cell(CellType type, bool isTransparent, bool isWalkable)
     {
         this.Type = type;
         this.IsTransparent = isTransparent;
         this.IsWalkable = isWalkable;
+    }
+    public Cell(CellType type)
+    {
+        this.Type = type;
+        switch (Type)
+        {
+            case CellType.Floor:
+                this.IsTransparent = true;
+                this.IsWalkable = true;
+                break;
+            case CellType.Wall:
+                this.IsTransparent = false;
+                this.IsWalkable = false;
+                break;
+            default: goto case CellType.Floor;
+        }
     }
     public void AddCreature(Creature creature)
     {

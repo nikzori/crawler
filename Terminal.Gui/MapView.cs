@@ -3,7 +3,7 @@ using Terminal.Gui.ViewBase;
 using Terminal.Gui.Input;
 using Terminal.Gui.Views;
 
-public class MapView : FrameView
+public class MapView : FrameView // for some reason basic View doesn't get re-rendered; SetNeedsDraw() doesn't work
 {
     Creature Player = Game.Player;
     int pX, pY; // player position on the screen
@@ -190,7 +190,7 @@ public class MapView : FrameView
         }
         if (processed)
             SetNeedsDraw();
-        key.Handled = processed; // unclear if I need to do this, but just in case 
+        key.Handled = processed;
         return processed;
     }
 }

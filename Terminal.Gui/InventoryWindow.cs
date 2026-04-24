@@ -3,15 +3,19 @@ using Terminal.Gui.Input;
 
 public class InventoryWindow : Window
 {
-    GameWindow gameWindow;
     Creature Player = Game.Player;
+    Inventory inventory = Game.Player.Inventory;
+    List<Button> itemSlots = new(50);
     Label test;
     public InventoryWindow(GameWindow GameWindow)
     {
-        this.gameWindow = GameWindow;
         test = new() { X = 1, Y = 1, Width = 30, Height = 3, Text = "This is a test entry" };
         this.Add(test);
         SetFocus();
+    }
+
+    public void UpdateInventory()
+    {
     }
 
     protected override bool OnKeyDown(Key key)
