@@ -61,6 +61,8 @@ public static class FOV
 
             for (int yc = startColumn; yc <= visionRange; yc++) // outer loop with y coords
             {
+                if (leftSlope > rightSlope)
+                    break;
                 for (int xc = -visionRange; xc <= visionRange; xc++)
                 {
                     int realX = viewerPos.X + xc * transform.xx + yc * transform.xy;
@@ -70,22 +72,16 @@ public static class FOV
                         realY < 1 || realY >= result.GetLength(1) - 1) // OOB check
                         continue;
 
-                    float posSlopeLeft;
-                    float posSlopeRight;
-                    if (xc > 0)
-                    {
-                        posSlopeLeft = (xc + 0.5f) / (yc - 0.5f);
-                        posSlopeRight = (xc - 0.5f) / (yc + 0.5f);
-                    }
-                    else
-                    {
-                        posSlopeLeft = (xc - 0.5f) / (yc + 0.5f);
-                        posSlopeRight = (xc + 0.5f) / (yc - 0.5f);
-                    }
+                    float posSlopeLeft = (xc + 0.5f) / (yc - 0.5f);
+                    float posSlopeRight = (xc - 0.5f) / (yc + 0.5f);
 
-                    if (posSlopeLeft > rightSlope)
+                    // quadrant voodoo
+                    float tileLeftSlope = Math.Min(posSlopeLeft, posSlopeRight);
+                    float tileRightSlope = Math.Max(posSlopeLeft, posSlopeRight);
+
+                    if (tileLeftSlope > rightSlope)
                         break;
-                    if (posSlopeRight < leftSlope)
+                    if (tileRightSlope < leftSlope)
                         continue;
 
 
@@ -94,33 +90,22 @@ public static class FOV
                     Cell cell = map.cells[currentPos];
                     cell.SetRevealed(true);
 
-                    if (prevWasBlocked)
+                    if (!cell.IsTransparent)
                     {
-                        if (!cell.IsTransparent)
-                            slopeBuffer = posSlopeRight;
-                        else
+                        if (!prevWasBlocked)
                         {
-                            prevWasBlocked = false;
-                            leftSlope = slopeBuffer;
+                            //first wall in the row
+                            if (tileLeftSlope > leftSlope)
+                                LumosMaxima(map, viewerPos, yc + 1, visionRange, leftSlope, tileLeftSlope, transform, ref result);
+
+                            prevWasBlocked = true;
+                            slopeBuffer = tileRightSlope;
                         }
+                        leftSlope = Math.Max(leftSlope, tileRightSlope);
                     }
                     else
                     {
-                        if (!cell.IsTransparent)
-                        {
-                            // ran into a wall after a clearing
-                            // the current cycle will look for an opening, setting the right slope of the last block before the opening
-                            // as the new left slope;
-                            // so we start new cycles for any prior gaps between walls
-                            if (posSlopeLeft <= leftSlope)
-                                LumosMaxima(map, viewerPos, yc + 1, visionRange,
-                                    leftSlope, posSlopeLeft, transform, ref result);
-                            else LumosMaxima(map, viewerPos, yc + 1, visionRange,
-                                leftSlope, posSlopeRight, transform, ref result);
-
-                            prevWasBlocked = true;
-                            slopeBuffer = posSlopeRight;
-                        }
+                        prevWasBlocked = false;
                     }
                 }
                 // last tile in a row was a wall, we've already started cycles for gaps -- terminate this cycle
