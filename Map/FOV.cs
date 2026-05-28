@@ -44,7 +44,8 @@ public static class FOV
         // if we end a row on an obstacle, we break the loop.
         // that way, we call separate methods for each gap made by obstacles recursively
 
-        for (int i = 0; i < transforms.Length; i++)
+        //for (int i = 0; i < transforms.Length; i++)
+        for (int i = 0; i < 1; i++)
             LumosMaxima(map, viewerPos, 1, visionRange, -1f, 1f, transforms[i], ref result);
 
         return result;
@@ -56,31 +57,40 @@ public static class FOV
         try
         {
             bool prevWasBlocked = false;
+            float slopeBuffer = -1;
 
             for (int yc = startColumn; yc <= visionRange; yc++) // outer loop with y coords
             {
-                if (prevWasBlocked)
-                    break;
-
-                float slopeBuffer = -1;
-                float newRightSlope = rightSlope;
                 for (int xc = -visionRange; xc <= visionRange; xc++)
                 {
                     int realX = viewerPos.X + xc * transform.xx + yc * transform.xy;
                     int realY = viewerPos.Y + xc * transform.yx + yc * transform.yy;
 
-                    if (realX < 1 || realX >= result.GetLength(0) - 1 || realY < 1 || realY >= result.GetLength(1) - 1) // OOB check
+                    if (realX < 1 || realX >= result.GetLength(0) - 1 ||
+                        realY < 1 || realY >= result.GetLength(1) - 1) // OOB check
                         continue;
 
-                    float posSlopeLeft = (xc - 0.5f) / (yc + 0.5f);
-                    if (posSlopeLeft < leftSlope)
-                        continue;
-                    float posSlopeRight = (xc + 0.5f) / (yc + 0.5f);
-                    if (posSlopeRight > rightSlope)
+                    float posSlopeLeft;
+                    float posSlopeRight;
+                    if (xc > 0)
+                    {
+                        posSlopeLeft = (xc + 0.5f) / (yc - 0.5f);
+                        posSlopeRight = (xc - 0.5f) / (yc + 0.5f);
+                    }
+                    else
+                    {
+                        posSlopeLeft = (xc - 0.5f) / (yc + 0.5f);
+                        posSlopeRight = (xc + 0.5f) / (yc - 0.5f);
+                    }
+
+                    if (posSlopeLeft > rightSlope)
                         break;
+                    if (posSlopeRight < leftSlope)
+                        continue;
+
 
                     Vector2Int currentPos = new(realX, realY);
-                    result[realX, realY] = true; // everything between slopes is visible 
+                    result[realX, realY] = true; // everything between slopes is visible
                     Cell cell = map.cells[currentPos];
                     cell.SetRevealed(true);
 
@@ -98,15 +108,24 @@ public static class FOV
                     {
                         if (!cell.IsTransparent)
                         {
-                            if (posSlopeLeft >= leftSlope)
-                                LumosMaxima(map, viewerPos, yc + 1, visionRange, leftSlope, posSlopeLeft, transform, ref result);
+                            // ran into a wall after a clearing
+                            // the current cycle will look for an opening, setting the right slope of the last block before the opening
+                            // as the new left slope;
+                            // so we start new cycles for any prior gaps between walls
+                            if (posSlopeLeft <= leftSlope)
+                                LumosMaxima(map, viewerPos, yc + 1, visionRange,
+                                    leftSlope, posSlopeLeft, transform, ref result);
+                            else LumosMaxima(map, viewerPos, yc + 1, visionRange,
+                                leftSlope, posSlopeRight, transform, ref result);
 
                             prevWasBlocked = true;
                             slopeBuffer = posSlopeRight;
                         }
                     }
                 }
-
+                // last tile in a row was a wall, we've already started cycles for gaps -- terminate this cycle
+                if (prevWasBlocked)
+                    break;
             }
         }
         catch (Exception e)

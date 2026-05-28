@@ -25,7 +25,7 @@ public class MainWindow : Window
             X = Pos.Center(),
             Y = 4,
             Width = 14,
-            Height = 3,
+            Height = 2,
             Text = "New Game",
             ShadowStyle = 0
         };
@@ -42,7 +42,7 @@ public class MainWindow : Window
             X = Pos.Center(),
             Y = 7,
             Width = 9,
-            Height = 3,
+            Height = 2,
             Text = "Quit",
             ShadowStyle = 0
         };

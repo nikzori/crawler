@@ -1,11 +1,22 @@
 using System.Text.Json;
-using System.IO;
 
 public static class ResourceLoader
 {
     static string ResourcePath = System.AppContext.BaseDirectory + "/Resources";
 
     public static List<Item> Items = new();
+
+    // Ways to implement custom objects in the game:
+    // [X] JSON deserialization
+    // -- can't be extended outside of the source code
+    //
+    // [✓] Lua implementation
+    // -- widely extendable
+    // -- common scripting solution for a lot of moddable game
+    //
+    // [X] C# scripting
+    // -- widely extendable
+    // -- less learning on my side 
     public static void LoadResources()
     {
         string[] allFiles = Directory.GetFiles(ResourcePath, ".json", SearchOption.AllDirectories);
