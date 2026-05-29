@@ -272,6 +272,13 @@ public class Map
     {
         cells[creature.Pos].AddCreature(creature);
     }
+    public void ResetRevealedTiles() 
+    {
+      foreach (KeyValuePair<Vector2Int, Cell> kvp in cells)
+      {
+          cells[kvp.Key].SetRevealed(false);
+      }
+    }
 }
 
 // should probably be refactored into a struct with creatures and objects being tracked separately

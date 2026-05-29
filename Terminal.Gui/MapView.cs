@@ -116,6 +116,7 @@ public class MapView : FrameView // for some reason basic View doesn't get re-re
         }
     }
     #endregion
+
     public Rune GetRune(Cell cell)
     {
         if (cell.creature != null)
@@ -129,7 +130,7 @@ public class MapView : FrameView // for some reason basic View doesn't get re-re
             else return new('?');
         }
     }
-
+    
     protected override bool OnKeyDown(Key key)
     {
         bool processed = false;
@@ -187,6 +188,7 @@ public class MapView : FrameView // for some reason basic View doesn't get re-re
         {
             processed = true;
             FOVenabled = !FOVenabled;
+            Game.CurrentMap.ResetRevealedTiles();
         }
         if (processed)
             SetNeedsDraw();
