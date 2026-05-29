@@ -29,7 +29,7 @@ public static class FOV
 
         result[viewerPos.X, viewerPos.Y] = true; //set player tile as visible
 
-        // This algorythm is a bit too strict, but definitely beats raycasting
+        // This algorithm is a bit too strict, but definitely beats raycasting
         // Slopes are defined with two points as (x1 - x2) / (y1 - y2), where [x1,y1] is a point on the map and [x2,y2] is the viewer(player) pos.
         // Since we're using local coordinates with viewer at [0,0], slopes become (x/y). 
         // Then we add local [x,y] to global coords, multiplying x and y to "rotate" coordinates (see Transform[] transforms above)
@@ -44,8 +44,8 @@ public static class FOV
         // if we end a row on an obstacle, we break the loop.
         // that way, we call separate methods for each gap made by obstacles recursively
 
-        //for (int i = 0; i < transforms.Length; i++)
-        for (int i = 0; i < 1; i++)
+        for (int i = 0; i < transforms.Length; i++)
+        //for (int i = 0; i < 1; i++)
             LumosMaxima(map, viewerPos, 1, visionRange, -1f, 1f, transforms[i], ref result);
 
         return result;
@@ -72,18 +72,17 @@ public static class FOV
                         realY < 1 || realY >= result.GetLength(1) - 1) // OOB check
                         continue;
 
-                    float posSlopeLeft = (xc + 0.5f) / (yc - 0.5f);
+                    float posSlopeLeft = (xc + 0.5f) / (yc + 0.5f);
                     float posSlopeRight = (xc - 0.5f) / (yc + 0.5f);
 
-                    // quadrant voodoo
+                    // quadrant voodoo to pick correct tile corners when going past xc=0
                     float tileLeftSlope = Math.Min(posSlopeLeft, posSlopeRight);
                     float tileRightSlope = Math.Max(posSlopeLeft, posSlopeRight);
-
-                    if (tileLeftSlope > rightSlope)
+                    
+                    if (tileLeftSlope >= rightSlope)  // has to be '>=' or the +xc side of the quadrant will have an extra visible tile
                         break;
-                    if (tileRightSlope < leftSlope)
-                        continue;
-
+                    if (tileRightSlope <= leftSlope)  // has to be '<=' or the tiles on slope (-1/1) 
+                        continue;                     // will be visible even when they are obscured by a wall
 
                     Vector2Int currentPos = new(realX, realY);
                     result[realX, realY] = true; // everything between slopes is visible
