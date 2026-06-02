@@ -23,7 +23,7 @@ public static class AI
                     data.state = AIState.Sleep;
                     goto case AIState.Sleep;
                 case AIState.Idle:
-                    if (CanSeeEnemies(creature, ref data.enemies))
+                    if (CanSeeEnemies(map, creature, ref data.enemies))
                     {
                         data.state = AIState.Attack;
                         data.lastEnemyPos = GetClosestEnemy(creature, data.enemies).Pos;
@@ -43,7 +43,7 @@ public static class AI
                             int y = rng.Next(creature.Pos.Y - creature.SightRadius, creature.Pos.Y + creature.SightRadius);
                             if (x < 1 || x >= map.size.X - 1 || y < 1 || y >= map.size.Y - 1) // OOB check
                                 continue;
-                            else if (Dungeon.CanSeeTile(creature.Pos, new Vector2Int(x, y)) &&
+                            else if (Dungeon.CanSeeTile(map, creature.Pos, new Vector2Int(x, y)) &&
                                     Pathfinder.Calculate(creature.Pos, new Vector2Int(x, y), Game.CurrentMap.GetObstacles(), ref data.path))
                                 break;
                         }
@@ -52,7 +52,7 @@ public static class AI
                         creature.MoveTo(nextPos);
                     break;
                 case AIState.Attack:
-                    if (CanSeeEnemies(creature, ref data.enemies))
+                    if (CanSeeEnemies(map, creature, ref data.enemies))
                     {
                         Creature closestEnemy = GetClosestEnemy(creature, data.enemies);
                         data.lastEnemyPos = closestEnemy.Pos;
@@ -78,12 +78,12 @@ public static class AI
                 case AIState.Pursuit:
                     if (data.path.TryDequeue(out nextPos))
                         creature.MoveTo(nextPos);
-                    if (CanSeeTarget(creature, Player))
+                    if (CanSeeTarget(map, creature, Player))
                         goto case AIState.Attack;
                     else data.state = AIState.Idle;
                     break;
                 case AIState.Sleep:
-                    if (!CanSeeEnemies(creature, ref data.enemies) && rng.Next(1, 100) > 60)
+                    if (!CanSeeEnemies(map, creature, ref data.enemies) && rng.Next(1, 100) > 60)
                         goto case AIState.Attack;
                     break;
 
@@ -97,7 +97,7 @@ public static class AI
             kvp.Value.aut += aut;
         }
     }
-    public static bool CanSeeTarget(Creature host, Creature target)
+    public static bool CanSeeTarget(Map map, Creature host, Creature target)
     {
         //check whether the Player is in vision range in the first place
         Vector2Int distance = target.Pos - host.Pos;
@@ -106,11 +106,11 @@ public static class AI
         if (Math.Abs(distance.X) > host.SightRadius || Math.Abs(distance.Y) > host.SightRadius)
             return false;
 
-        else return Dungeon.CanSeeTile(host.Pos, target.Pos);
+        else return Dungeon.CanSeeTile(map, host.Pos, target.Pos);
     }
 
     // needs rework; maybe it's better to go over every creature on the map that isn't of the same faction
-    public static bool CanSeeEnemies(Creature creature, ref List<Creature> enemies)
+    public static bool CanSeeEnemies(Map map, Creature creature, ref List<Creature> enemies)
     {
         bool result = false;
         enemies.Clear();
@@ -124,7 +124,7 @@ public static class AI
                 if (Game.CurrentMap.cells[enemyPos].creature is not null)
                 {
                     Creature enemy = Game.CurrentMap.cells[enemyPos].creature;
-                    if (enemy.Faction != creature.Faction && CanSeeTarget(creature, enemy))
+                    if (enemy.Faction != creature.Faction && CanSeeTarget(map, creature, enemy))
                     {
                         enemies.Add(Game.CurrentMap.cells[new(x, y)].creature);
                         result = true;

@@ -29,21 +29,6 @@ public static class FOV
 
         result[viewerPos.X, viewerPos.Y] = true; //set player tile as visible
 
-        // This algorithm is a bit too strict, but definitely beats raycasting
-        // Slopes are defined with two points as (x1 - x2) / (y1 - y2), where [x1,y1] is a point on the map and [x2,y2] is the viewer(player) pos.
-        // Since we're using local coordinates with viewer at [0,0], slopes become (x/y). 
-        // Then we add local [x,y] to global coords, multiplying x and y to "rotate" coordinates (see Transform[] transforms above)
-        //
-        // We use slopes to defy an quadrant, e.g. slopes of -1 and 1 defy quadrant from NW diagonal to NE diagonal
-        // for each quadrant, we go row by row for vertical ones and column by column for horizontal ones
-        // If the slope of a particualr in the range of quadrant, that point is visible, because
-        // if we run into an obstacle, we use it's position to recursively call the lightcast method 
-        // using the obstacle's slope as one of the limiting slopes.
-        //
-        // We continue the initial method call, looking for an open cell. If we find one, we use its pos to assign a new left slope for this call
-        // if we end a row on an obstacle, we break the loop.
-        // that way, we call separate methods for each gap made by obstacles recursively
-
         for (int i = 0; i < transforms.Length; i++)
         //for (int i = 0; i < 1; i++)
             LumosMaxima(map, viewerPos, 1, visionRange, -1f, 1f, transforms[i], ref result);
@@ -51,6 +36,25 @@ public static class FOV
         return result;
     }
 
+    /**
+     * This algorithm is a bit too strict, but it sure beats raycasting. 
+     * You can probably check for different points in a tile to make it more permissive, idk.
+     *
+     * Slopes between two points can be defined as (x1 - x2) / (y1 - y2). We're using local coordinates for the slope, 
+     * with player position always at [0, 0], thus a slope between any random point [x1, y1] and player will always be (x1 / y1).
+     * 
+     * This function goes row by row, left to right through a quadrant defined as space between slopes (x1 / y1) = -1 and (x1 / y1) = 1, 
+     * e.g. the area between NW diagonal and NE one. If a tile in a row is between the slopes, it's visible. The trick is that,
+     * every time we find a wall, we set our left slope to the wall's position. Thus, everything behind the wall is now outside the slope.
+     * However, this would also exclude open tiles that appeared before the wall; to counter this, we track whether the previous tile in the loop
+     * was empty, and if the current tile is a wall, we recursively call this same method using yCurrent+1, current left slope, and the wall's position
+     * for the right slope.
+     * 
+     * Since we're using local coords, we need to convert them to global to get correct tiles from the map object. 
+     * This is done via transforms: see Transform[] above and realX with realY below).
+     *
+     * To get the entire area around the Player, go through all 4 quadrants with appropriate transforms. 
+     */
     private static void LumosMaxima(Map map, Vector2Int viewerPos, int startColumn, int visionRange,
             float leftSlope, float rightSlope, Transform transform, ref bool[,] result)
     {
@@ -59,10 +63,8 @@ public static class FOV
             bool prevWasBlocked = false;
             float slopeBuffer = -1;
 
-            for (int yc = startColumn; yc <= visionRange; yc++) // outer loop with y coords
+            for (int yc = startColumn; yc <= visionRange; yc++)
             {
-                if (leftSlope > rightSlope)
-                    break;
                 for (int xc = -visionRange; xc <= visionRange; xc++)
                 {
                     int realX = viewerPos.X + xc * transform.xx + yc * transform.xy;
@@ -72,14 +74,14 @@ public static class FOV
                         realY < 1 || realY >= result.GetLength(1) - 1) // OOB check
                         continue;
 
-                    float posSlopeLeft = (xc + 0.5f) / (yc + 0.5f);
-                    float posSlopeRight = (xc - 0.5f) / (yc + 0.5f);
+                    float posSlopeLeft = (xc - 0.5f) / (yc + 0.5f);
+                    float posSlopeRight = (xc + 0.5f) / (yc + 0.5f);
 
                     // quadrant voodoo to pick correct tile corners when going past xc=0
                     float tileLeftSlope = Math.Min(posSlopeLeft, posSlopeRight);
                     float tileRightSlope = Math.Max(posSlopeLeft, posSlopeRight);
                     
-                    if (tileLeftSlope >= rightSlope)  // has to be '>=' or the +xc side of the quadrant will have an extra visible tile
+                    if (tileLeftSlope >= rightSlope)  // has to be '>=' or the +x side of the quadrant will have an extra visible tile
                         break;
                     if (tileRightSlope <= leftSlope)  // has to be '<=' or the tiles on slope (-1/1) 
                         continue;                     // will be visible even when they are obscured by a wall
@@ -93,7 +95,8 @@ public static class FOV
                     {
                         if (!prevWasBlocked)
                         {
-                            //first wall in the row
+                            // found an obstacle after open tiles - start a cycle for it;
+                            // this check prevents the first tile in every row being always visible
                             if (tileLeftSlope > leftSlope)
                                 LumosMaxima(map, viewerPos, yc + 1, visionRange, leftSlope, tileLeftSlope, transform, ref result);
 
@@ -121,9 +124,10 @@ public static class FOV
 
 
     // for NPCs
+    // better switch this to DCSS style creature vision
     public static bool CanSeePosition(Map map, Vector2Int start, Vector2Int target)
     {
-        return false;
+        return Dungeon.CanSeeTile(map, start, target);
     }
 }
 

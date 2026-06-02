@@ -97,6 +97,7 @@ public class Dungeon
             int dx = end.X - start.X;
             int dy = end.Y - start.Y;
             int xi = 1;
+
             if (dx < 0)
             {
                 xi = -1;
@@ -123,7 +124,7 @@ public class Dungeon
     /// <summary>
     /// Attempt to draw a Bresenham's Line from start to end. Returns false if any tile in the way is not transparent.
     /// </summary>
-    public static bool CanSeeTile(Vector2Int start, Vector2Int end)
+    public static bool CanSeeTile(Map map, Vector2Int start, Vector2Int end)
     {
         bool isVisible;
         if (start == end)
@@ -132,18 +133,18 @@ public class Dungeon
         {
             //need this since we're incrementing X in the function
             if (start.X > end.X)
-                isVisible = PlotLineLow(end, start);
-            else isVisible = PlotLineLow(start, end);
+                isVisible = PlotLineLow(map, end, start);
+            else isVisible = PlotLineLow(map, start, end);
         }
         else
         {
             if (start.Y > end.Y)
-                isVisible = PlotLineHigh(end, start);
-            else isVisible = PlotLineHigh(start, end);
+                isVisible = PlotLineHigh(map, end, start);
+            else isVisible = PlotLineHigh(map, start, end);
         }
         return isVisible;
 
-        bool PlotLineLow(Vector2Int start, Vector2Int end)
+        bool PlotLineLow(Map map, Vector2Int start, Vector2Int end)
         {
             Vector2Int dPos;
             bool result = true;
@@ -162,7 +163,7 @@ public class Dungeon
             for (int x = start.X; x <= end.X; x++)
             {
                 dPos = new(x, y);
-                if (!Game.CurrentMap.cells[dPos].IsTransparent && x != end.X && x != start.X)
+                if (!map.cells[dPos].IsTransparent && x != end.X && x != start.X)
                     return false;
                 if (D > 0)
                 {
@@ -175,7 +176,7 @@ public class Dungeon
         }
 
 
-        bool PlotLineHigh(Vector2Int start, Vector2Int end)
+        bool PlotLineHigh(Map map, Vector2Int start, Vector2Int end)
         {
             Vector2Int dPos;
             bool result = true;
@@ -193,7 +194,7 @@ public class Dungeon
             for (int y = start.Y; y <= end.Y; y++)
             {
                 dPos = new(x, y);
-                if (!Game.CurrentMap.cells[dPos].IsTransparent && y != end.Y && y != start.Y)
+                if (!map.cells[dPos].IsTransparent && y != end.Y && y != start.Y)
                     return false;
                 if (D > 0)
                 {

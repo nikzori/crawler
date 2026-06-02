@@ -13,11 +13,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="LuaCSharp" Version="0.5.5" />
     <PackageReference Include="Terminal.Gui" Version="2.4.1" />
   </ItemGroup>
   <Target Name="PrepublishScript" BeforeTargets="PrepareForPublish">
     <ItemGroup>
-      <ItemData Include="$(ProjectDir)/Resources" />
+      <ItemData Include="$(ProjectDir)Resources/*" />
     </ItemGroup>
     <Copy SourceFiles="@(ItemData)" DestinationFolder="$(PublishDir)" SkipUnchangedFiles="false" />
   </Target>
