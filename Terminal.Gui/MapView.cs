@@ -1,9 +1,8 @@
 using System.Text;
 using Terminal.Gui.ViewBase;
 using Terminal.Gui.Input;
-using Terminal.Gui.Views;
 
-public class MapView : FrameView // for some reason basic View doesn't get re-rendered; SetNeedsDraw() doesn't work
+public class MapView : View 
 {
     Creature Player = Game.Player;
     int pX, pY; // player position on the screen
@@ -11,6 +10,7 @@ public class MapView : FrameView // for some reason basic View doesn't get re-re
     bool FOVenabled = true; // if disabled, renders every single cell on the screen
     public MapView()
     {
+        CanFocus = true; 
         // viewport size needs to be an odd number to put player in the center
         Width = 31;
         Height = 31;
@@ -19,8 +19,6 @@ public class MapView : FrameView // for some reason basic View doesn't get re-re
         Visible = true;
         pX = Viewport.Width / 2;
         pY = Viewport.Height / 2; // center the player on the screen
-
-        SetFocus();
     }
     protected override bool OnClearingViewport() { return true; }
     #region Line of Sight
@@ -78,7 +76,7 @@ public class MapView : FrameView // for some reason basic View doesn't get re-re
                         }
                         else
                         {
-                            if (cell.isRevealed)
+                            if (cell.IsRevealed)
                             {
                                 if (cell.Type == CellType.Wall)
                                     c = Dungeon.WALL;
@@ -112,7 +110,7 @@ public class MapView : FrameView // for some reason basic View doesn't get re-re
         {
             Game.Log(e.Message);
             File.WriteAllText(AppContext.BaseDirectory, e.Message);
-            return true;
+            return false;
         }
     }
     #endregion

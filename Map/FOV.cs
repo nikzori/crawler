@@ -131,12 +131,6 @@ public static class FOV
     }
 }
 
-public struct Slope
-{
-    public readonly int X, Y;
-    public Slope(int x, int y) { X = x; Y = y; }
-}
-
 public class Transform
 {
     public int xx { get; private set; }

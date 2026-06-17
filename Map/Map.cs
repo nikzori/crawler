@@ -5,19 +5,21 @@ using Attribute = Terminal.Gui.Drawing.Attribute;
 public class Dungeon
 {
     // should move these to a separate container for ncurses
-    public static Rune WALL = new Rune('#');
-    public static Rune FLOOR = new Rune('.');
+    public static Rune WALL = new('#');
+    public static Rune FLOOR = new('.');
+    public static Rune STAIR_DOWN = new('>');
+    public static Rune STAIR_UP = new('<');
     public static Attribute FLOOR_COLOR = new(Color.BrightGreen, Color.Black);
     public static Attribute WALL_COLOR = new(Color.Yellow, Color.Black);
+    public static Attribute STAIR_COLOR = new(Color.Green, Color.Black);
     public static Attribute REVEALED_COLOR = new(Color.Gray, Color.Black); // For tiles that were seen but not in LOS
     public static Attribute OBSCURED_COLOR = new(Color.DarkGray, Color.Black);
 
     public List<Map> floors;
-    public List<Creature> creatures;
     public int currentFloor = 0;
 
     public Dungeon(int floorCount)
-    {
+    { 
         Random rng = new();
         floors = new();
         for (int i = 0; i < floorCount; i++)
@@ -211,8 +213,10 @@ public class Dungeon
 
 public class Map
 {
-    public Dictionary<Vector2Int, Cell> cells; // this feels like a very, very wrong way to do gridmap
+    public Dictionary<Vector2Int, Cell> cells;  // this feels like a very, very wrong way to do gridmap. 
+                                                // But I'd rather use vectors without any conversion
     public Dictionary<Vector2Int, char> background; // static chars to draw over unexplored tiles
+    const int BACKGROUND_EXTRA_SIZE = 100;
     public Vector2Int size;
     public HashSet<Vector2Int> walls;
     public Dictionary<Creature, AIData> creatures = new();
@@ -224,9 +228,9 @@ public class Map
         cells = MapGen.GenerateCA(xLength, yLength);
         background = new Dictionary<Vector2Int, char>();
         int t;
-        for (int x = 0; x < size.X + 500; x++) // 15 extra tiles on each side in case camera sees them
+        for (int x = 0; x < size.X + BACKGROUND_EXTRA_SIZE; x++) // extra tiles for camera to see past map borders
         {
-            for (int y = 0; y < size.Y + 500; y++)
+            for (int y = 0; y < size.Y + BACKGROUND_EXTRA_SIZE; y++)
             {
                 Vector2Int pos = new(x, y);
                 background.Add(pos, ' ');
@@ -281,60 +285,3 @@ public class Map
       }
     }
 }
-
-// should probably be refactored into a struct with creatures and objects being tracked separately
-public class Cell
-{
-    public CellType Type { get; set; }
-    public bool IsTransparent = true;
-    public bool IsWalkable = true;
-
-    public bool isRevealed = false;
-
-    public Creature? creature;
-    public List<Item>? items; // very ineffective. Oh well
-    public Cell(CellType type, bool isTransparent, bool isWalkable)
-    {
-        this.Type = type;
-        this.IsTransparent = isTransparent;
-        this.IsWalkable = isWalkable;
-    }
-    public Cell(CellType type)
-    {
-        this.Type = type;
-        switch (Type)
-        {
-            case CellType.Floor:
-                this.IsTransparent = true;
-                this.IsWalkable = true;
-                break;
-            case CellType.Wall:
-                this.IsTransparent = false;
-                this.IsWalkable = false;
-                break;
-            default: goto case CellType.Floor;
-        }
-    }
-    public void AddCreature(Creature creature)
-    {
-        this.creature = creature;
-    }
-    public void RemoveCreature()
-    {
-        creature = null;
-    }
-
-    public bool HasCreature() { return !(creature is null); }
-
-    public void Set(CellType type, bool isWalkable, bool isTransparent)
-    {
-        this.Type = type;
-        this.IsWalkable = isWalkable;
-        this.IsTransparent = isTransparent;
-    }
-    public void SetToWall() { this.Set(CellType.Wall, false, false); }
-    public void SetToFloor() { this.Set(CellType.Floor, true, true); }
-    public void SetRevealed(bool value) { this.isRevealed = value; }
-}
-
-public enum CellType { Floor, Wall }

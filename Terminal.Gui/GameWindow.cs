@@ -7,11 +7,11 @@ public class GameWindow : Window
 {
     InventoryWindow inventoryWindow;
 
-    Label position = new();
     Label floorView = new();
 
     MapView mapView;
     View characterView = new();
+    DebugInfo debugView = new();
     Label logView = new();
     Label timeView;
 
@@ -53,12 +53,6 @@ public class GameWindow : Window
             Height = 3
         };
 
-        position = new()
-        {
-            Y = Pos.Top(statView) + 2,
-            Width = 15,
-            Height = 3
-        };
 
         floorView = new()
         {
@@ -76,7 +70,7 @@ public class GameWindow : Window
         };
 
 
-        statView.Add(playerName, position, floorView);
+        statView.Add(playerName, floorView, debugView);
         characterView.Add(playerName, statView, timeView);
         this.Add(mapView, characterView, logView);
         Game.LogEvent += (s, e) => this.PrintLog(e);
@@ -94,7 +88,6 @@ public class GameWindow : Window
     public void UpdatePos()
     {
         floorView.Text = "Floor: " + Game.dungeon.currentFloor.ToString();
-        position.Text = "X: " + Player.Pos.X + "\nY: " + Player.Pos.Y;
         timeView.Text = "Time: " + Game.time;
         mapView.SetNeedsDraw();
     }
@@ -114,6 +107,10 @@ public class GameWindow : Window
     public void HideMain()
     {
     }
+    void ToggleDebugInfo()
+    {
+        debugView.Visible = !debugView.Visible;
+    }
 
     public static void InvokeInteract(Vector2Int pos)
     {
@@ -129,6 +126,10 @@ public class GameWindow : Window
             OpenInventory();
         }
 
+        if (key == Key.F1)
+        {
+            ToggleDebugInfo();
+        }
         if (keyRegistered)
             this.UpdatePos();
 

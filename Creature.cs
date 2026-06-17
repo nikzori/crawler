@@ -57,7 +57,11 @@ public class Creature : IDamageable
             OnCreatureDeath();
     }
 
-    void OnCreatureDeath() { Game.CurrentMap.creatures.Remove(this); Game.CurrentMap.cells[Pos]?.RemoveCreature(); }
+    void OnCreatureDeath() { 
+        Game.CurrentMap.creatures.Remove(this); 
+        Game.CurrentMap.cells[Pos]?.RemoveCreature(); 
+
+    }
 
 
 }

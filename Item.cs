@@ -18,10 +18,8 @@ public class Inventory
 
 }
 
-/**
- * 
- */
-
+// This probably needs to be redone to work with some sort of deepcopy method to dupe item objects
+// Structs can probably work, too 
 public class Item
 {
     public string Name { get; }
@@ -37,9 +35,19 @@ public class Item
     }
 }
 
-public interface IAttack
+public class Weapon : Item 
 {
-    int BaseDamage { get; }
-    void GetDamageValue();
+  public int BaseDamage { get; }
+  public DamageType Type { get; }
+  public Action OnHit { get; } 
+  public Weapon(Action? onHit, string name = "Weapon", string description = "Whatever it is, it hits well enough.", int price = 1, int baseDamage = 1, DamageType damageType = DamageType.Physical) : base(name, description, price) 
+  {
+    this.BaseDamage = baseDamage;
+    this.Type = damageType;
+    if (onHit is not null)
+        OnHit = onHit;
+    else OnHit = () => { return; };
+  }
 }
 
+public enum DamageType { Physical, Fire, Ice, Electric, True };
