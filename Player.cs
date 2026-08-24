@@ -6,15 +6,20 @@ public static class PlayerController
         Vector2Int tmp = Player.Pos + pos;
         if (Game.CurrentMap.cells.ContainsKey(tmp))
         {
+            Cell tCell = Game.CurrentMap.cells[tmp];
             if (Game.CurrentMap.cells[tmp].IsWalkable)
             {
                 if (Game.CurrentMap.cells[tmp].creature != null)
-                    Game.CurrentMap.cells[tmp].creature?.ReceiveDamage(999); // perish lmao
+                    Attack(tCell.creature);
                 else Player.Move(pos);
 
                 Game.Update(5);
             }
         }
+    }
+    public static void Attack(Creature target)
+    {
+        Game.Log("");
     }
 
 }

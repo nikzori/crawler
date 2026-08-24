@@ -59,17 +59,17 @@ public static class AI
                         if (data.path.Last() != data.lastEnemyPos)
                             Pathfinder.Calculate(creature.Pos, data.lastEnemyPos, Game.CurrentMap.GetObstacles(), ref data.path);
 
-                        if (CanReachAttack(creature, closestEnemy.Pos) && data.aut >= creature.AttackSpeed)
+                        if (CanReachAttack(creature, closestEnemy.Pos) && data.aut >= creature.AttackTime)
                         {
                             closestEnemy.ReceiveDamage(1f);
-                            data.aut -= creature.AttackSpeed;
+                            data.aut -= creature.AttackTime;
                         }
                         else if (data.path.TryDequeue(out nextPos))
                         {
-                            if (data.aut >= creature.MovementSpeed)
+                            if (data.aut >= creature.MovementTime)
                             {
                                 creature.MoveTo(nextPos);
-                                data.aut -= creature.MovementSpeed;
+                                data.aut -= creature.MovementTime;
                             }
                         }
                     }

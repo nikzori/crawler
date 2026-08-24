@@ -1,5 +1,8 @@
 public class Game
 {
+    public static int FACTION_DUNGEON = 0;
+    public static int FACTION_PLAYER = 1; 
+    
     public static Dungeon dungeon = new(1);
     public static Map CurrentMap { get { return dungeon.GetCurrentFloor(); } }
     public static Creature Player = new("Player", new(1, 1));
@@ -51,6 +54,12 @@ public class Game
 
     public static event EventHandler<string> LogEvent = delegate { };
     public static void Log(string text) { LogEvent.Invoke(null, text); }
+
+
+    static void IncludeDefaultItems()
+    {
+
+    }
 
 }
 

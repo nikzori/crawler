@@ -25,7 +25,7 @@ public class Item
     public string Name { get; }
 
     public string Description { get; }
-    public int Price { get; }
+    public int Price { get; init; }
 
     public Item(string name = "Item", string description = "It's uuuh... It's a- it's the, um...", int price = 1)
     {
@@ -34,13 +34,29 @@ public class Item
         this.Price = price;
     }
 }
-
-public class Weapon : Item 
+public enum EquipmentSlot {Head, Body, Feet, Arms, MainHand, OffHand}
+public class Equippable : Item 
 {
-  public int BaseDamage { get; }
+    public int BaseValue { get; init; } 
+    public List<EquipmentSlot> Slot = new();
+    public Dictionary<object, int> Modifiers = new();
+    public int GetModifiers() 
+    {
+        int result = 0;
+        foreach (KeyValuePair<object, int> kvp in Modifiers)
+          result += kvp.Value;
+        return result;
+    }
+
+    public int Value { get => BaseValue + GetModifiers(); }
+}
+public class Weapon : Equippable
+{
+  public int BaseDamage { get; init; }
+  public int Range {get; init; }
   public DamageType Type { get; }
   public Action OnHit { get; } 
-  public Weapon(Action? onHit, string name = "Weapon", string description = "Whatever it is, it hits well enough.", int price = 1, int baseDamage = 1, DamageType damageType = DamageType.Physical) : base(name, description, price) 
+  public Weapon(Action? onHit, string name = "Weapon", string description = "Whatever it is, it hits well enough.", int price = 1, int baseDamage = 1, DamageType damageType = DamageType.Physical) 
   {
     this.BaseDamage = baseDamage;
     this.Type = damageType;
