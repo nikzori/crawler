@@ -120,13 +120,11 @@ public static class AI
             {
                 if (x < 1 || x > Game.CurrentMap.size.X - 2 || y < 1 || y < Game.CurrentMap.size.Y - 2)
                     continue;
-                Vector2Int enemyPos = new(x, y);
-                if (Game.CurrentMap.cells[enemyPos].creature is not null)
+                if (Game.CurrentMap.GetCreature(x, y) is Creature enemy)
                 {
-                    Creature enemy = Game.CurrentMap.cells[enemyPos].creature;
                     if (enemy.Faction != creature.Faction && CanSeeTarget(map, creature, enemy))
                     {
-                        enemies.Add(Game.CurrentMap.cells[new(x, y)].creature);
+                        enemies.Add(enemy);
                         result = true;
                     }
                 }

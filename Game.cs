@@ -5,7 +5,7 @@ public class Game
     
     public static Dungeon dungeon = new(1);
     public static Map CurrentMap { get { return dungeon.GetCurrentFloor(); } }
-    public static Creature Player = new("Player", new(1, 1));
+    public static Creature Player = new("Player", new(1, 1), faction: _Faction.Player);
     public static int time = 0;
     public static EventHandler GameUpdated = delegate { };
     public Game(string pName)
@@ -20,7 +20,7 @@ public class Game
         {
             for (int y = 2; y < mapSize.Y; y++)
             {
-                if (dungeon.floors[0].cells[new(x, y)].IsWalkable)
+                if (dungeon.floors[0].CanOccupy(x, y))
                 {
                     xStart = x;
                     yStart = y;
@@ -33,6 +33,7 @@ public class Game
         }
         Player.Name = pName;
         Player.Pos = new(xStart, yStart);
+        Player.Faction = _Faction.Player;
         dungeon.floors[0].AddCreature(Player);
     }
     public static void Update(int aut)
@@ -44,10 +45,10 @@ public class Game
 
     public static void ChangeFloor(int floorNumber, Vector2Int pos)
     {
-        dungeon.GetCurrentFloor().cells[Player.Pos].RemoveCreature();
+        dungeon.GetCurrentFloor().RemoveCreature(Player);
         dungeon.currentFloor = floorNumber;
         Player.Pos = pos;
-        dungeon.GetCurrentFloor().cells[pos].AddCreature(Player);
+        dungeon.GetCurrentFloor().AddCreature(Player);
     }
     public static void Descend(Vector2Int pos) { ChangeFloor(dungeon.currentFloor + 1, pos); }
     public static void Ascend(Vector2Int pos) { ChangeFloor(dungeon.currentFloor - 1, pos); }

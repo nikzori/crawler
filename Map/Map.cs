@@ -148,7 +148,6 @@ public class Dungeon
 
         bool PlotLineLow(Map map, Vector2Int start, Vector2Int end)
         {
-            Vector2Int dPos;
             bool result = true;
 
             int dx = end.X - start.X;
@@ -164,8 +163,7 @@ public class Dungeon
             int y = start.Y;
             for (int x = start.X; x <= end.X; x++)
             {
-                dPos = new(x, y);
-                if (!map.cells[dPos].IsTransparent && x != end.X && x != start.X)
+                if (!map.cells[x, y].IsTransparent && x != end.X && x != start.X)
                     return false;
                 if (D > 0)
                 {
@@ -180,7 +178,6 @@ public class Dungeon
 
         bool PlotLineHigh(Map map, Vector2Int start, Vector2Int end)
         {
-            Vector2Int dPos;
             bool result = true;
             int dx = end.X - start.X;
             int dy = end.Y - start.Y;
@@ -195,8 +192,7 @@ public class Dungeon
             int x = start.X;
             for (int y = start.Y; y <= end.Y; y++)
             {
-                dPos = new(x, y);
-                if (!map.cells[dPos].IsTransparent && y != end.Y && y != start.Y)
+                if (!map.cells[x, y].IsTransparent && y != end.Y && y != start.Y)
                     return false;
                 if (D > 0)
                 {
@@ -213,8 +209,8 @@ public class Dungeon
 
 public class Map
 {
-    public Dictionary<Vector2Int, Cell> cells;  // this feels like a very, very wrong way to do gridmap. 
-                                                // But I'd rather use vectors without any conversion
+    public Cell[,] cells;
+    public Creature?[,] creatureGrid;
     public Dictionary<Vector2Int, char> background; // static chars to draw over unexplored tiles
     const int BACKGROUND_EXTRA_SIZE = 100;
     public Vector2Int size;
@@ -226,6 +222,7 @@ public class Map
         walls = new HashSet<Vector2Int>();
         Random rng = new Random();
         cells = MapGen.GenerateCA(xLength, yLength);
+        creatureGrid = new Creature?[xLength, yLength];
         background = new Dictionary<Vector2Int, char>();
         int t;
         for (int x = 0; x < size.X + BACKGROUND_EXTRA_SIZE; x++) // extra tiles for camera to see past map borders
@@ -248,7 +245,7 @@ public class Map
             int x = rng.Next(0, xLength);
             int y = rng.Next(0, yLength);
             Vector2Int pos = new(x, y);
-            if (cells[pos].IsWalkable)
+            if (CanOccupy(pos))
             {
                 Creature goblin = new Creature("Goblin", pos);
                 AddCreature(goblin);
@@ -257,31 +254,130 @@ public class Map
             }
         }
 
-        foreach (KeyValuePair<Vector2Int, Cell> kvp in cells)
+        for (int x = 0; x < xLength; x++)
         {
-            if (!cells[kvp.Key].IsWalkable)
-                walls.Add(kvp.Key);
+            for (int y = 0; y < yLength; y++)
+            {
+                if (!cells[x, y].IsWalkable)
+                    walls.Add(new(x, y));
+            }
         }
 
     }
+    public bool IsInBounds(int x, int y)
+    {
+        return x >= 0 && x < size.X && y >= 0 && y < size.Y;
+    }
+
+    public bool IsInBounds(Vector2Int pos)
+    {
+        return IsInBounds(pos.X, pos.Y);
+    }
+
+    public bool CanOccupy(int x, int y)
+    {
+        return IsInBounds(x, y) && cells[x, y].IsWalkable && creatureGrid[x, y] == null;
+    }
+
+    public bool CanOccupy(Vector2Int pos) => CanOccupy(pos.X, pos.Y);
+
+    public Creature? GetCreature(int x, int y)
+    {
+        return IsInBounds(x, y) ? creatureGrid[x, y] : null;
+    }
+
+    public Creature? GetCreature(Vector2Int pos) => GetCreature(pos.X, pos.Y);
+
+    public bool HasCreature(int x, int y)
+    {
+        return IsInBounds(x, y) && creatureGrid[x, y] != null;
+    }
+
+    public bool HasCreature(Vector2Int pos) => HasCreature(pos.X, pos.Y);
+
+    public bool AddCreature(Creature creature)
+    {
+        if (!IsInBounds(creature.Pos)) return false;
+        creatureGrid[creature.Pos.X, creature.Pos.Y] = creature;
+        return true;
+    }
+
+    public bool RemoveCreature(Creature creature)
+    {
+        if (IsInBounds(creature.Pos) && creatureGrid[creature.Pos.X, creature.Pos.Y] == creature)
+        {
+            creatureGrid[creature.Pos.X, creature.Pos.Y] = null;
+            return true;
+        }
+        return false;
+    }
+
+    public bool RemoveCreatureAt(Vector2Int pos)
+    {
+        if (IsInBounds(pos))
+        {
+            creatureGrid[pos.X, pos.Y] = null;
+            return true;
+        }
+        return false;
+    }
+
+    public bool TryMoveCreature(Creature creature, Vector2Int targetPos)
+    {
+        if (!CanOccupy(targetPos))
+            return false;
+
+        if (IsInBounds(creature.Pos) && creatureGrid[creature.Pos.X, creature.Pos.Y] == creature)
+        {
+            creatureGrid[creature.Pos.X, creature.Pos.Y] = null;
+        }
+        creature.Pos = targetPos;
+        creatureGrid[targetPos.X, targetPos.Y] = creature;
+        return true;
+    }
+
+    public bool TryBump(Creature actor, Vector2Int dir)
+    {
+        Vector2Int targetPos = actor.Pos + dir;
+        if (!IsInBounds(targetPos))
+            return false;
+
+        Creature? targetCreature = creatureGrid[targetPos.X, targetPos.Y];
+        if (targetCreature != null)
+        {
+            if (targetCreature.Faction != actor.Faction)
+            {
+                actor.Attack(targetCreature);
+                return true;
+            }
+            return false;
+        }
+
+        if (!cells[targetPos.X, targetPos.Y].IsWalkable)
+            return false;
+
+        return TryMoveCreature(actor, targetPos);
+    }
+
     public HashSet<Vector2Int> GetObstacles()
     {
         HashSet<Vector2Int> obstacles = new(walls);
         foreach (KeyValuePair<Creature, AIData> kvp in creatures)
             obstacles.Add(kvp.Key.Pos);
+        if (Game.Player != null && IsInBounds(Game.Player.Pos))
+            obstacles.Add(Game.Player.Pos);
 
         return obstacles;
     }
 
-    public void AddCreature(Creature creature)
-    {
-        cells[creature.Pos].AddCreature(creature);
-    }
     public void ResetRevealedTiles() 
     {
-      foreach (KeyValuePair<Vector2Int, Cell> kvp in cells)
-      {
-          cells[kvp.Key].SetRevealed(false);
-      }
+        for (int x = 0; x < size.X; x++)
+        {
+            for (int y = 0; y < size.Y; y++)
+            {
+                cells[x, y].SetRevealed(false);
+            }
+        }
     }
 }

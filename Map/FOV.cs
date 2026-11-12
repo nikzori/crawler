@@ -86,9 +86,8 @@ public static class FOV
                     if (tileRightSlope <= leftSlope)  // has to be '<=' or the tiles on slope (-1/1) 
                         continue;                     // will be visible even when they are obscured by a wall
 
-                    Vector2Int currentPos = new(realX, realY);
                     result[realX, realY] = true; // everything between slopes is visible
-                    Cell cell = map.cells[currentPos];
+                    Cell cell = map.cells[realX, realY];
                     cell.SetRevealed(true);
 
                     if (!cell.IsTransparent)

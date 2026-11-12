@@ -8,7 +8,6 @@ public class Cell
 
     public bool IsRevealed = false;
 
-    public Creature? creature;
     public Dictionary<Item, int>? Items;
     public Cell(CellType type, bool isTransparent, bool isWalkable)
     {
@@ -32,16 +31,6 @@ public class Cell
             default: goto case CellType.Floor;
         }
     }
-    public void AddCreature(Creature creature)
-    {
-        this.creature = creature;
-    }
-    public void RemoveCreature()
-    {
-        creature = null;
-    }
-
-    public bool HasCreature() { return !(creature is null); }
 
     public void Set(CellType type, bool isWalkable, bool isTransparent)
     {

@@ -50,15 +50,24 @@ public class MapView : View
                 {
                     currentPos = new(mX, mY);
 
-                    if (Game.CurrentMap.cells.ContainsKey(currentPos))
+                    if (Game.CurrentMap.IsInBounds(currentPos))
                     {
-                        Cell cell = Game.CurrentMap.cells[currentPos];
+                        Cell cell = Game.CurrentMap.cells[currentPos.X, currentPos.Y];
+                        Creature? occupant = Game.CurrentMap.GetCreature(currentPos.X, currentPos.Y);
                         if (vision[currentPos.X, currentPos.Y])
                         {
-                            if (cell.HasCreature())
+                            if (occupant != null)
                             {
-                                c = new('@');
-                                SetAttribute(new Terminal.Gui.Drawing.Attribute(Terminal.Gui.Drawing.StandardColor.Green, Terminal.Gui.Drawing.StandardColor.Black));
+                                if (occupant == Player)
+                                {
+                                    c = new('@');
+                                    SetAttribute(new Terminal.Gui.Drawing.Attribute(Terminal.Gui.Drawing.StandardColor.Green, Terminal.Gui.Drawing.StandardColor.Black));
+                                }
+                                else
+                                {
+                                    c = new('g');
+                                    SetAttribute(new Terminal.Gui.Drawing.Attribute(Terminal.Gui.Drawing.StandardColor.BrightRed, Terminal.Gui.Drawing.StandardColor.Black));
+                                }
                             }
                             else
                             {
@@ -115,10 +124,10 @@ public class MapView : View
     }
     #endregion
 
-    public Rune GetRune(Cell cell)
+    public Rune GetRune(Cell cell, Creature? creature = null)
     {
-        if (cell.creature != null)
-            return new('g');
+        if (creature != null)
+            return creature == Player ? new('@') : new('g');
         else
         {
             if (cell.Type == CellType.Floor)

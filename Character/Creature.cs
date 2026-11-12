@@ -65,21 +65,17 @@ public class Creature : IDamageable
     }
 
     // Shorthand for normalized vectors
-    public bool Move(Vector2Int dir) { return MoveTo(this.Pos + dir); }
+    public bool Move(Vector2Int dir) { return Game.CurrentMap.TryBump(this, dir); }
 
     public bool MoveTo(Vector2Int pos)
     {
-        if (!Game.dungeon.GetCurrentFloor().cells.ContainsKey(pos))
-        {
-            Game.Log("Trying to move creature out of map boundaries; object stays at x: " + this.Pos.X + "; y: " + this.Pos.Y);
-            return false;
-        }
-        if (!Game.dungeon.GetCurrentFloor().cells[pos].IsWalkable || Game.dungeon.GetCurrentFloor().cells[pos].HasCreature())
-            return false;
-        Game.CurrentMap.cells[this.Pos].RemoveCreature();
-        this.Pos = pos;
-        Game.CurrentMap.cells[this.Pos].AddCreature(this);
-        return true;
+        return Game.CurrentMap.TryMoveCreature(this, pos);
+    }
+
+    public void Attack(Creature target)
+    {
+        Game.Log($"{Name} attacks {target.Name}!");
+        target.ReceiveDamage(1f);
     }
 
     public void ReceiveDamage(float damage)
@@ -90,9 +86,9 @@ public class Creature : IDamageable
     }
 
     void OnCreatureDeath() { 
+        Game.Log($"{Name} died!");
         Game.CurrentMap.creatures.Remove(this); 
-        Game.CurrentMap.cells[Pos]?.RemoveCreature(); 
-
+        Game.CurrentMap.RemoveCreature(this); 
     }
 
 
