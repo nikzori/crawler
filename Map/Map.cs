@@ -127,7 +127,7 @@ public class Dungeon
     /// Attempt to draw a Bresenham's Line from start to end. Returns false if any tile in the way is not transparent.
     /// </summary>
     public static bool CanSeeTile(Map map, Vector2Int start, Vector2Int end)
-    {
+    { 
         bool isVisible;
         if (start == end)
             return true;
