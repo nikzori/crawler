@@ -9,6 +9,9 @@ public class Creature : IDamageable
     public CreatureAttribute Dexterity { get; }
     public CreatureAttribute Intelligence { get; }
 
+    public TotalArmorAttribute TotalArmor { get; }
+    public TotalArmorAttribute TotalArmorValue => TotalArmor;
+
     public Skill Dodge;
     public Skill Shields;
     public Skill Armor;
@@ -42,6 +45,8 @@ public class Creature : IDamageable
         Dexterity = new(10);
         Intelligence = new(10);
 
+        TotalArmor = new(this);
+
         Dodge = new(10, Dexterity);
         Shields = new(10, Strength);
         Armor = new(10, Strength);
@@ -70,6 +75,31 @@ public class Creature : IDamageable
     public bool MoveTo(Vector2Int pos)
     {
         return Game.CurrentMap.TryMoveCreature(this, pos);
+    }
+
+    public bool Equip(Equippable item, EquipmentSlot? preferredSlot = null)
+    {
+        EquipmentSlot slotToUse;
+        if (preferredSlot.HasValue && item.Slot.Contains(preferredSlot.Value))
+        {
+            slotToUse = preferredSlot.Value;
+        }
+        else if (item.Slot.Count > 0)
+        {
+            slotToUse = item.Slot[0];
+        }
+        else
+        {
+            return false;
+        }
+
+        Equipment[slotToUse] = item;
+        return true;
+    }
+
+    public bool Unequip(EquipmentSlot slot)
+    {
+        return Equipment.Remove(slot);
     }
 
     public void Attack(Creature target)

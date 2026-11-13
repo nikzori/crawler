@@ -2,7 +2,7 @@ public class CreatureAttribute
 {
   public int BaseValue { get; set; }
   protected Dictionary<object, int> Modifiers { get; init; }
-  public int Value { get => BaseValue + GetTotalModifier(); } 
+  public virtual int Value { get => BaseValue + GetTotalModifier(); } 
   
   public int GetTotalModifier()
   {
